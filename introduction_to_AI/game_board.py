@@ -1,132 +1,153 @@
-from graphic_display import ReversiGraphicDisplay
-from models import Color, Move
+from __future__ import annotations
+from typing import Optional, List, Tuple
+from models import ColorDiscPlayer, Move
 
-LEGAL_DISCS_FLIPS_DIRECTIONS = [
+DIRECTIONS: list[tuple[int, int]] = [
     (-1, -1), (-1, 0), (-1, 1),
     (0, -1), (0, 1),
     (1, -1), (1, 0), (1, 1),
 ]
 
 
-def assert_board_size(n):
-    if n % 2 != 0 or n < 6:
-        raise ValueError(f"board size must be number (greater then or equal to 6)")
+class ReversiGameBoard:
+    """Reversi Game Board
 
+    this class maintains this game board.
+    board cells can be either empty (None), RED or WHITE
+    """
 
-class ReversiGameBoard(ReversiGraphicDisplay):
-    def __init__(self, board_size):
-        assert_board_size(board_size)
-
-        ReversiGraphicDisplay.__init__(self, board_size)
+    def __init__(self, board_size: int = 8, grid: Optional[List[List[Optional[ColorDiscPlayer]]]] = None):
+        """
+        
+        :param board_size: even positive integer (by default the size is the classic 8x8 grid)
+        :param grid: a 2D array list that represent a snapshot of the game
+        """
         self.board_size = board_size
+        if grid is None:
+            self.grid = [[None for _ in range(board_size)] for _ in range(board_size)]
+        else:
+            self.grid = grid
 
-        self.grid = None
-        self.is_empty_board = False
-
-    def is_point_in_board_boundaries(self, point) -> bool:
-        x, y = point
-        return 0 <= x < self.board_size and 0 <= y < self.board_size
-
-    def is_point_location_empty(self, point) -> bool:
-        x, y = point
-        if self.grid[x][y] is not None:
-            raise Exception(f"this is illegal move to put a disc on a non-empty position: {point}")
-
-        return True
-
-    def is_legal_point(self, point) -> bool:
-        if not self.is_point_in_board_boundaries(point):
-            return False
-
-        if not self.is_point_location_empty(point):
+    def is_legal_cell(self, cell):
+        if not self.is_in_boundaries(cell):
             return False
 
         return True
 
-    def is_legal_flipping_discs_point(self, oppo_player: Color, point) -> bool:
-        if not self.is_point_in_board_boundaries(point):
+    def get_player_cell(self, row: int, column: int) -> Optional[ColorDiscPlayer]:
+        return self.grid[row][column]
+
+    def copy(self) -> ReversiGameBoard:
+        return ReversiGameBoard(self.board_size, [row[:] for row in self.grid])
+
+    def is_in_boundaries(self, cell) -> bool:
+        row, column = cell
+        return 0 <= row < self.board_size and 0 <= column < self.board_size
+
+    def initial_game_setup(self) -> ReversiGameBoard:
+        """
+        Standard Reversi setup:
+        RED on left-to-right diagonal center.
+        WHITE on right-to-left diagonal center.
+        """
+        board = self.copy()
+        mid = self.board_size // 2
+        board.grid[mid - 1][mid - 1] = ColorDiscPlayer.RED
+        board.grid[mid][mid] = ColorDiscPlayer.RED
+        board.grid[mid - 1][mid] = ColorDiscPlayer.WHITE
+        board.grid[mid][mid - 1] = ColorDiscPlayer.WHITE
+        return board
+
+    def calc_score(self, player: ColorDiscPlayer) -> int:
+        return sum(1 for row in range(self.board_size)
+                   for column in range(self.board_size)
+                   if self.get_player_cell(row, column) == player)
+
+    def count_empty_cells(self) -> int:
+        return sum(1 for row in range(self.board_size)
+                   for column in range(self.board_size)
+                   if self.get_player_cell(row, column) is None)
+
+    def is_legal_flipping_cell(self, player: ColorDiscPlayer, cell: Tuple[int, int]) -> bool:
+        row, column = cell
+
+        if not self.is_in_boundaries(cell):
             return False
 
-        x, y = point
-
-        if not self.grid[x][y] == oppo_player:
+        if not self.get_player_cell(row, column) == player.opposition():
             return False
 
         return True
 
-    def build_empty_board(self):
-        qubic_range = range(self.board_size)
-        self.grid = [[None for _ in qubic_range] for __ in qubic_range]
-        self.is_empty_board = True
-
-    def initial_game_setup(self):
-        if not self.is_empty_board:
-            self.build_empty_board()
-            self.initial_graphic_display()
-
-        top_left_center = int(self.board_size / 2) - 1
-        red_player_init_top_point = (top_left_center, top_left_center)
-        red_player_init_bottom_point = (top_left_center + 1, top_left_center + 1)
-        white_player_init_top_point = (top_left_center + 1, top_left_center)
-        white_player_init_bottom_point = (top_left_center, top_left_center + 1)
-
-        self.add_point(Color.RED, red_player_init_top_point)
-        self.add_point(Color.RED, red_player_init_bottom_point)
-        self.add_point(Color.WHITE, white_player_init_top_point)
-        self.add_point(Color.WHITE, white_player_init_bottom_point)
-
-    def _add_point(self, player_disc, point):
-        if self.is_legal_point(point):
-            x, y = point
-            self.grid[x][y] = player_disc
-
-    def add_point(self, player_disc, point):
-        self._add_point(player_disc, point)
-        self.add_disc(player_disc, point)
-
-    def calc_score(self, player: Color) -> int:
-        qubic_range = range(self.board_size)
-        return sum(1 for row in qubic_range for column in qubic_range if self.grid[row][column] == player)
-
-    def is_full(self):
-        qubic_range = range(self.board_size)
-        return sum(1 for row in qubic_range for column in qubic_range if self.grid[row][column] is not None)
-
-    def opposition_discs_flips_based_move(self, player: Color, point: tuple[int, int]) -> list[tuple[int, int]]:
-        is_legal = self.is_legal_point(point)
-
-        if not is_legal:
+    def _flips(self, player: ColorDiscPlayer, cell: Tuple[int, int]) -> List[Tuple[int, int]]:
+        """flip opposition player's disc according to player's movement"""
+        row, column = cell
+        if self.get_player_cell(row, column) is not None:
             return []
 
-        if is_legal:
-            x, y = point
-            oppo_player = player.opposition()
-            total_flips: list = []
+        flips: List[Tuple[int, int]] = []
 
-            for hor_direction, ver_direction in LEGAL_DISCS_FLIPS_DIRECTIONS:
-                flips: list = []
+        for vertical_direction, horizontal_direction in DIRECTIONS:
 
-                # set potential flipping point around the player's point movement
-                flip_x = x + hor_direction
-                flip_y = y + ver_direction
-                flipping_point = (flip_x, flip_y)
+            path: List[Tuple[int, int]] = []
+            flip_row = row + vertical_direction
+            flip_column = column + horizontal_direction
+            flipping_cell = (flip_row, flip_column)
 
-                while self.is_legal_flipping_discs_point(oppo_player, flipping_point):
-                    flips.append(flipping_point)
-                    flip_x += hor_direction
-                    flip_y += ver_direction
-                    flipping_point = (flip_x, flip_y)
+            while self.is_legal_flipping_cell(player, flipping_cell):
+                path.append(flipping_cell)
+                flip_row += vertical_direction
+                flip_column += horizontal_direction
+                flipping_cell = (flip_row, flip_column)
 
-                if flips:
-                    total_flips.extend(flips)
+            if path and self.is_in_boundaries(flipping_cell) and self.get_player_cell(flip_row, flip_column) == player:
+                flips.extend(path)
 
-            return total_flips
+        return flips
 
-    def legal_moves(self, player) -> list[Move]:
-        pass
+    def legal_moves(self, player: ColorDiscPlayer, include_pass: bool = True) -> List[Move]:
+        board_range = range(self.board_size)
+        moves: List[Move] = []
+        for row in board_range:
+            for column in board_range:
+                cell = (row, column)
+                flips = self._flips(player, cell)
 
-    def apply_player_move(self, move) -> "ReversiGameBoard":
-        pass
+                if self.get_player_cell(row, column) is None and flips:
+                    moves.append(Move(row, column))
 
-    def count_player_discs(self, player) -> int:
-        pass
+        if not moves and include_pass:
+            return [Move.pass_move()]
+
+        return moves
+
+    def apply_move(self, player: ColorDiscPlayer, move: Move) -> ReversiGameBoard:
+        if move.is_pass:
+            return self.copy()
+
+        row, column = move.row, move.column
+        assert row is not None and column is not None, \
+            f"non-pass movement cannot be vertically {row} or horizontally {column} None"
+
+        cell = (row, column)
+        flips = self._flips(player, cell)
+        if not flips:
+            raise ValueError(f"illegal move {move} for {player}")
+
+        board = self.copy()
+        board.grid[row][column] = player
+        for flip_row, flip_column in flips:
+            board.grid[flip_row][flip_column] = player
+
+        return board
+
+    def __str__(self) -> str:
+        board_range = range(self.board_size)
+        lines = ["  " + " ".join(str(i) for i in board_range)]
+        for row in board_range:
+            players_discs: list = []
+            for column in board_range:
+                player = self.get_player_cell(row, column)
+                players_discs.append("." if player is None else str(player))
+            lines.append(f"{row} " + " ".join(players_discs))
+        return "\n".join(lines)
