@@ -1,34 +1,88 @@
 from __future__ import annotations
-from models import ColorDiscPlayer, Move
-from game_board import ReversiGameBoard
-from game_state import GameState
-from agents import ReversiAgent
+from typing import Optional, Dict, List, Tuple
+
+from models import ColorDiscPlayer, Move  # your enums + Move class
+from agents import ReversiAgent  # choose_move(state)->Move
+from game_state import GameState  # your bitboard GameState
+from bitboard_calculator import BitBoardCalculator
 from graphic_display import ReversiGraphicDisplay
 
 
-class ReversiGameRunner:
-    def __init__(self, board_size: int, max_agent: ReversiAgent, min_agent: ReversiAgent, verbose: bool = True):
-        self.agents = {
-            ColorDiscPlayer.RED: max_agent,
-            ColorDiscPlayer.WHITE: min_agent
-        }
+class ReversiGameRunner(BitBoardCalculator):
+    """Reversi Game Runner
+
+    the purpose of this runner class is to orchestrate the entire game
+    """
+
+    def __init__(
+            self,
+            board_size: int,
+            red_agent: ReversiAgent,
+            white_agent: ReversiAgent,
+            verbose: bool = True,
+            use_gui: bool = True,
+            gui_delay: float = 0.05,
+    ):
+        """
+
+        :param board_size: Reversi board size (for the classic 8 x 8 board, type board_size = 8)
+        :param red_agent: Reversi agent class object for the maximum red player
+        :param white_agent: Reversi agent class object for the minimum white player
+        :param verbose: if true, print game progress to terminal
+        :param use_gui: if true, enable graphic display of this game
+        :param gui_delay: control delay progress of graphic display in seconds
+        """
+        super().__init__(board_size=board_size)
+
         self.verbose = verbose
+        self.board_size = board_size
 
-        board = ReversiGameBoard(board_size=board_size).initial_game_setup()
-        self.state = GameState(board=board, player_turn=ColorDiscPlayer.RED)
+        self.agents: Dict[ColorDiscPlayer, ReversiAgent] = {
+            ColorDiscPlayer.RED: red_agent,
+            ColorDiscPlayer.WHITE: white_agent,
+        }
 
-        self.current_turn: int = 0
-        self.moves_history: list[tuple[ColorDiscPlayer, Move]] = []
+        self.state: GameState = GameState(
+            red_bitboard=None,
+            white_bitboard=None,
+            player_turn=None,
+            board_size=board_size,
+            consecutive_passes=0,
+        ).initial()
 
-        self.graphical_display = ReversiGraphicDisplay(board_size=board_size, interactive=True, delay=0.01)
-        self.graphical_display.initial_graphic_display()
-        self.graphical_display.update(self.state)
+        # for debug, save players moves
+        self.moves_history: List[Tuple[ColorDiscPlayer, Move]] = []
+
+        self.graphical_display = None
+        if use_gui:
+            self.graphical_display = ReversiGraphicDisplay(
+                board_size=board_size,
+                interactive=True,
+                delay=gui_delay,
+            )
+            self.graphical_display.initial_graphic_display()
+            self.graphical_display.update(self.state)
+
+    def move2bit(self, move: Move) -> Optional[int]:
+        if move.is_pass:
+            return None
+        return self.cell2bit((move.row, move.column))
+
+    def bit2move(self, bit: Optional[int]) -> Move:
+        if bit is None:
+            return Move.pass_move()
+
+        row, column = self.bit2cell(bit)
+        return Move(row, column)
+
+    def legal_moves_bits(self) -> List[Optional[int]]:
+        return self.state.legal_moves()
+
+    def legal_moves_as_moves(self) -> List[Move]:
+        return [self.bit2move(bit) for bit in self.legal_moves_bits()]
 
     def current_agent(self) -> ReversiAgent:
         return self.agents[self.state.player_turn]
-
-    def utility(self, player: ColorDiscPlayer) -> int:
-        return self.state.board.calc_score(player) - self.state.board.calc_score(player.opposition())
 
     def next_step(self) -> None:
         if self.state.is_terminal():
@@ -36,40 +90,49 @@ class ReversiGameRunner:
 
         player = self.state.player_turn
         agent = self.current_agent()
-        move = agent.choose_move(self.state)
-        legal_moves = self.state.actions()
 
-        # for this_move in legal_moves:
-        #     print(this_move.get_move())
-
-        if move not in legal_moves:
-            pass
-            raise ValueError(f"agent {agent} played illegal move {move}\n"
-                             f"legal moves: {[legal_move.get_move() for legal_move in legal_moves]}")
+        move: Move = agent.choose_move(self.state)
+        
+        # move_bit = self.move2bit(agent_move)
+        # 
+        # legal_bits = self.legal_moves_bits()
+        # 
+        # # validate move legality
+        # if move_bit not in legal_bits:
+        #     legal_moves_pretty = self.legal_moves_as_moves()
+        #     raise ValueError(
+        #         f"Illegal move {agent_move} by {agent} for {player}.\n"
+        #         f"Legal moves: {[str(m) for m in legal_moves_pretty]}"
+        #     )
 
         self.moves_history.append((player, move))
-        self.state = self.state.movement_result(move)
-        self.graphical_display.update(state=self.state, player_move=move)
+
+        # update game state
+        self.state = self.state.update(move)
+        #self.state = self.state.result(move_bit)
+
+        # update GUI
+        if self.graphical_display is not None:
+            self.graphical_display.update(self.state, last_move=self.move2bit(move))
 
         if self.verbose:
             self._print_turn(player, move)
 
-    def play(self, max_turns: int = 1000) -> GameState:
+    def play(self, max_turns: int = 10_000) -> GameState:
         if self.verbose:
             print("start game")
-            print(self.state.board)
-            print()
 
-        while not self.state.is_terminal() and self.current_turn < max_turns:
+        current_turn = 0
+        while not self.state.is_terminal() and current_turn < max_turns:
             self.next_step()
-            self.current_turn += 1
+            self.display()
+            current_turn += 1
 
-        red_score = self.state.board.calc_score(ColorDiscPlayer.RED)
-        white_score = self.state.board.calc_score(ColorDiscPlayer.WHITE)
+        red_score = self.state.score(ColorDiscPlayer.RED)
+        white_score = self.state.score(ColorDiscPlayer.WHITE)
 
         if self.verbose:
             print("\ngame over")
-            print(self.state.board)
             print(f"final scores: RED={red_score}, WHITE={white_score}")
             if red_score > white_score:
                 print("RED win")
@@ -78,21 +141,54 @@ class ReversiGameRunner:
             else:
                 print("DRAW")
 
-        red_utility = self.utility(ColorDiscPlayer.RED)
-        white_utility = self.utility(ColorDiscPlayer.WHITE)
+        utility_red = self.state.utility(ColorDiscPlayer.RED)
+        utility_white = self.state.utility(ColorDiscPlayer.WHITE)
 
-        self.graphical_display.update(self.state, terminal=True, red_utility=red_utility, white_utility=white_utility)
-        self.graphical_display.display()
+        if self.graphical_display is not None:
+            self.graphical_display.update(
+                self.state,
+                terminal=True,
+                utility_red=utility_red,
+                utility_white=utility_white,
+            )
+            self.graphical_display.display()
 
         return self.state
 
     def _print_turn(self, player: ColorDiscPlayer, move: Move) -> None:
         if move.is_pass:
-            print(f"{player.name} must PASS")
+            print(f"{player.name} PASS")
         else:
             print(f"{player.name} plays {move}")
-        red = self.state.board.calc_score(ColorDiscPlayer.RED)
-        white = self.state.board.calc_score(ColorDiscPlayer.WHITE)
-        print(f"turn: {self.current_turn}, scores: RED={red}, WHITE={white}\n")
-        print(self.state.board)
-        print()
+
+        red = self.state.score(ColorDiscPlayer.RED)
+        white = self.state.score(ColorDiscPlayer.WHITE)
+        print(f"scores: RED={red}, WHITE={white}\n")
+
+    def check_cell(self, cell: Tuple[int, int]) -> Optional[ColorDiscPlayer]:
+        """
+
+        check which player occupies cell (row, column).
+        if cell is empty, return None
+        """
+        bit = self.cell2bit(cell)
+
+        if self.state.red_bitboard.is_bit_on(bit):
+            return ColorDiscPlayer.RED
+
+        if self.state.white_bitboard.is_bit_on(bit):
+            return ColorDiscPlayer.WHITE
+
+        return None
+
+    def display(self) -> None:
+        board_range = range(self.board_size)
+        lines = ["  " + " ".join(str(i) for i in board_range)]
+        for row in board_range:
+            players_discs: list = []
+            for column in board_range:
+                player = self.check_cell((row, column))
+                players_discs.append("." if player is None else str(player))
+            lines.append(f"{row} " + " ".join(players_discs))
+
+        print("\n".join(lines))

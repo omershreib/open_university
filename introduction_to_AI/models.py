@@ -7,7 +7,7 @@ class ColorDiscPlayer(Enum):
     RED = 1
     WHITE = -1
 
-    def opposition(self) -> ColorDiscPlayer:
+    def opponent(self) -> ColorDiscPlayer:
         return ColorDiscPlayer(-self.value)
 
     def __str__(self):
@@ -34,13 +34,12 @@ class Move:
         return self.row, self.column
 
     def __str__(self) -> str:
-        return "PASS" if self.is_pass else f"({self.row},{self.column})"\
-
+        return "PASS" if self.is_pass else f"({self.row},{self.column})"
 
 
 if __name__ == '__main__':
-    move_1 = Move(1,2)
-    move_2 = Move(3,4)
+    move_1 = Move(1, 2)
+    move_2 = Move(3, 4)
     move_3 = Move(3, 4)
 
     print(move_2 in [move_1, move_3])

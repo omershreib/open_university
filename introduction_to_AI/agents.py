@@ -17,7 +17,10 @@ class RandomAgent(ReversiAgent):
 
     def choose_move(self, state: GameState) -> Move:
         moves = state.actions()
-        return self._random.choice(moves)
+        if moves:
+            return self._random.choice(moves)
+
+        return Move.pass_move()
 
 
 # --------- Alpha-Beta (depth-limited minimax) ---------
