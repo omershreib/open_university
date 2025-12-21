@@ -14,7 +14,7 @@ class ScoreEvaluator(Evaluator):
     heuristic motivation:   maximize player's score in every move
     """
     def evaluate(self, state: GameState, player: ColorDiscPlayer) -> int:
-        return state.board.calc_score(player) - state.board.calc_score(player.opposition())
+        return state.score(player) - state.score(player.opponent())
 
 
 class MobilityEvaluator(Evaluator):

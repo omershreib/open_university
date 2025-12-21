@@ -48,9 +48,6 @@ class PlayerBitBoard(BitBoardCalculator):
         bitboard = self.bitboard
         self.bitboard = (bitboard & ~bit) & self.full
 
-    # def union(self, other: "PlayerBitBoard") -> int:
-    #     """Return int mask of combined occupancy (still just a mask)."""
-    #     return (self.bits | other.bits) & FULL
     #
     # def to_bits(self) -> int:
     #     return self.bits & FULL
@@ -182,3 +179,10 @@ def apply_move(player: PlayerBitBoard, opponent: PlayerBitBoard, move_bit: Optio
     )
 
     return updated_player_bitboard, updated_opponent_bitboard
+
+
+if __name__ == '__main__':
+    import sys
+    bitboard = PlayerBitBoard(player=ColorDiscPlayer.RED, board_size=8)
+    print(sys.getsizeof(bitboard.full))
+

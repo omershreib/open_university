@@ -378,5 +378,53 @@ RED win
                 naturally, if the players moves does not change, than the final result will not change.
 
 
+\\ === Heuristic game simulation ===
+
+
+\\ === end game state ===
+  0 1 2 3 4 5 6 7
+0 W W W R W W W W
+1 W W W W W W R W
+2 W W W W W R W W
+3 W W W W R W W W
+4 W W W R W W W W
+5 R R R R W W W W
+6 R R R R W W W W
+7 R R R R R R W R
+
+result - RED=20, WHITE=44, TOTAL=64
+
+game over
+
+final scores: RED=20, WHITE=44
+
+WHITE win
+
+\\ === Heuristic game simulation (depth=2) ===
+
+
+\\ === end game state (probably have mistake) ===
+  0 1 2 3 4 5 6 7
+0 W W W R W W W W
+1 W W W W W W R W
+2 W W W W W R W W
+3 W W W W R W W W
+4 W W W R W W W W
+5 R R R R W W W W
+6 R R R R W W W W
+7 R R R R R R W R
+
+result - RED=20, WHITE=44, TOTAL=64
+
+game over
+
+final scores: RED=20, WHITE=44
+
+WHITE win
+
+
+
+
+
 
 

@@ -86,10 +86,10 @@ class BitBoardCalculator:
 
     def all_possible_shifts(self) -> List[Callable[[int], int]]:
         return [self.shift_up,
-                self.shift_down,
-                self.shift_left,
-                self.shift_right,
-                self.shift_up_left,
                 self.shift_up_right,
+                self.shift_right,
+                self.shift_down_right,
+                self.shift_down,
                 self.shift_down_left,
-                self.shift_down_right]
+                self.shift_left,
+                self.shift_up_left]

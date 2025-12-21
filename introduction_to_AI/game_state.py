@@ -30,6 +30,24 @@ class GameState(BitBoardCalculator):
             consecutive_passes=0
         )
 
+    def set_state(self, red_bits: List[int], white_bits: List[int], player_turn: ColorDiscPlayer) -> GameState:
+        self.red_bitboard = PlayerBitBoard(player=ColorDiscPlayer.RED, board_size=self.board_size)
+        self.white_bitboard = PlayerBitBoard(player=ColorDiscPlayer.WHITE, board_size=self.board_size)
+
+        for bit in red_bits:
+            self.red_bitboard.add_bit(bit)
+
+        for bit in white_bits:
+            self.white_bitboard.add_bit(bit)
+
+        return GameState(
+            red_bitboard=self.red_bitboard,
+            white_bitboard=self.white_bitboard,
+            board_size=self.board_size,
+            player_turn=player_turn,
+            consecutive_passes=0
+        )
+
     def get_players_current_state(self) -> Tuple[PlayerBitBoard, PlayerBitBoard]:
         return (self.red_bitboard, self.white_bitboard) \
             if self.player_turn == ColorDiscPlayer.RED \
@@ -89,3 +107,6 @@ class GameState(BitBoardCalculator):
 
     def utility(self, player: ColorDiscPlayer) -> int:
         return self.score(player) - self.score(player.opponent())
+
+
+

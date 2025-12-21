@@ -36,10 +36,19 @@ class Move:
     def __str__(self) -> str:
         return "PASS" if self.is_pass else f"({self.row},{self.column})"
 
+    def __repr__(self):
+        return f"Move{self.get_move()}"
+
 
 if __name__ == '__main__':
-    move_1 = Move(1, 2)
-    move_2 = Move(3, 4)
-    move_3 = Move(3, 4)
+    import sys
 
-    print(move_2 in [move_1, move_3])
+    red = ColorDiscPlayer.RED
+    white = ColorDiscPlayer.WHITE
+    print(sys.getsizeof(red))
+    print(sys.getsizeof(white))
+    # move_1 = Move(1, 2)
+    # move_2 = Move(3, 4)
+    # move_3 = Move(3, 4)
+    #
+    # print(move_2 in [move_1, move_3])
