@@ -1,0 +1,382 @@
+==================================
+A - illustrating transition model
+==================================
+
+The "default" way I choose to implement agent players' actions is by a hungry strategy.
+This is implemented by agents.HungryAgent() (see agents.py)
+As it sounds, on every stage the agent iterates on all the possible (legal) available moves by calling GameState.action()
+and choose the move that maximizing its score on the next stage. If there are multiple moves that causes the same
+increment, the first move is selected according to their order it the moves list returned by GameState.action().
+
+GameState uses bitmask operations to mask the legal movements in this clock direction order:
+    - shift_up
+    - shift_up_right
+    - shift_right
+    - shift_down_right
+    - shift_down
+    - shift_down_left
+    - shift_left
+    - shift_up_left
+
+
+// === shift_up ===
+
+BASELINE: state 3
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R R . . .
+6 . . . . . R . .
+7 . . . . . . . .
+
+ACTION: state 4, WHITE moved, action=(6,4)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . W R . .
+7 . . . . . . . .
+
+RESULT: RED=4, WHITE=4, TOTAL=8
+
+--------------------------------------
+
+
+// === shift_up_right ===
+
+BASELINE: state 19
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R R . . .
+5 . . . R R R R R
+6 . W W W R R R W
+7 . R R R R R R R
+
+ACTION: state 20, WHITE moved, action=(5,2)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . W R . . .
+5 . . W R R R R R
+6 . W W W R R R W
+7 . R R R R R R R
+
+RESULT: RED=17, WHITE=7, TOTAL=24
+
+--------------------------------------
+
+// === shift_right ===
+
+BASELINE: state 8
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . W W . .
+7 . . . . W R R R
+
+ACTION: state 9, RED moved, action=(7,3)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . W W . .
+7 . . . R R R R R
+
+RESULT: RED=8, WHITE=5, TOTAL=13
+
+--------------------------------------
+
+
+// === shift_down_right ===
+
+
+BASELINE: state 38
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . W R R .
+3 . R R W R R R R
+4 W W W W W W W R
+5 W R R R R R R R
+6 W R R R R R R R
+7 W R R R R R R R
+
+ACTION: state 39, RED moved, action=(3,0)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . W R R .
+3 R R R W R R R R
+4 W R W W W W W R
+5 W R R R R R R R
+6 W R R R R R R R
+7 W R R R R R R R
+
+RESULT: RED=32, WHITE=11, TOTAL=43
+
+--------------------------------------
+
+// === shift_down ===
+
+BASELINE: state 14
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . W W W W W . .
+7 . R R R R R R R
+
+ACTION: state 15, RED moved, action=(5,6)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . R .
+6 . W W W W R . .
+7 . R R R R R R R
+
+RESULT: RED=12, WHITE=7, TOTAL=19
+
+--------------------------------------
+
+
+// === shift_down_left ===
+
+BASELINE: state 16
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . R .
+6 . W W W W W W .
+7 . R R R R R R R
+
+ACTION: state 17, RED moved, action=(5,7)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . R R
+6 . W W W W W R .
+7 . R R R R R R R
+
+RESULT: RED=13, WHITE=8, TOTAL=21
+
+--------------------------------------
+
+// === shift_left ===
+
+BASELINE: state 6
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . R W . .
+7 . . . . . R W .
+
+ACTION: state 7, RED moved, action=(7,7)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . R W . .
+7 . . . . . R R R
+
+RESULT: RED=7, WHITE=4, TOTAL=11
+
+--------------------------------------
+
+// === shift_up_left ===
+
+BASELINE: state 5
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . R R . .
+7 . . . . . R . .
+
+ACTION: state 6, WHITE moved, action=(7,6)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . R W . .
+7 . . . . . R W .
+
+RESULT: RED=5, WHITE=5, TOTAL=10
+
+
+====================================
+B - systematic execution of actions
+====================================
+
+This is the result of running this game with both RED and WHITE players controlled by my "default" HungryAgent
+
+\\ game progress logs of states 0 - 5:
+
+start game
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . W R . . .
+5 . . . . . . . .
+6 . . . . . . . .
+7 . . . . . . . .
+
+state 1, RED moved, action=(5,3)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R R . . .
+5 . . . R . . . .
+6 . . . . . . . .
+7 . . . . . . . .
+
+result - RED=4, WHITE=1, TOTAL=5
+
+state 2, WHITE moved, action=(5,4)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . . . . .
+7 . . . . . . . .
+
+result - RED=3, WHITE=3, TOTAL=6
+
+state 3, RED moved, action=(6,5)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R R . . .
+6 . . . . . R . .
+7 . . . . . . . .
+
+result - RED=5, WHITE=2, TOTAL=7
+
+state 4, WHITE moved, action=(6,4)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . W R . .
+7 . . . . . . . .
+
+result - RED=4, WHITE=4, TOTAL=8
+
+state 5, RED moved, action=(7,5)
+
+  0 1 2 3 4 5 6 7
+0 . . . . . . . .
+1 . . . . . . . .
+2 . . . . . . . .
+3 . . . R W . . .
+4 . . . R W . . .
+5 . . . R W . . .
+6 . . . . R R . .
+7 . . . . . R . .
+
+result - RED=6, WHITE=3, TOTAL=9
+
+// end game log result:
+
+  0 1 2 3 4 5 6 7
+0 W W W W W W W W
+1 W W R W W R R R
+2 W R W R R W R R
+3 W R R W R R W R
+4 W R R R W R W R
+5 W R R R R R R R
+6 W R R R R R R R
+7 W R R R R R R R
+
+result - RED=40, WHITE=24, TOTAL=64
+
+game over
+
+final scores: RED=40, WHITE=24
+
+RED win
+
+\\ QUESTION:    when repeating this game run under this configuration, does this game ends with the same result?
+
+\\ Answer:      yes, because HungryAgent is a deterministic agent, which means that in every state of this game
+                both player will choose the same move according to the next-state-maximum-score algorithm.
+                naturally, if the players moves does not change, than the final result will not change.
+
+
+
+
