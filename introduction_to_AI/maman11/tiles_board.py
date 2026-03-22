@@ -10,8 +10,8 @@ random.seed(SEED)
 
 class TilesBoard:
     def __init__(self, board=None):
-        self.empty_pos_value = 0;
-        if board:
+        self.empty_pos_value = 0
+        if board is not None:
             self.board = np.array(board, dtype=np.uint8)
 
         else:

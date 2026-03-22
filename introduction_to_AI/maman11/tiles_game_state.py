@@ -15,4 +15,5 @@ class TilesGameState(Node):
         return self.state.board
 
 
-
+    def __repr__(self):
+        return f"{self.get_board()}"

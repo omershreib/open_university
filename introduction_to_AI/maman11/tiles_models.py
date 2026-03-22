@@ -28,7 +28,7 @@ class TilePly:
 class TileMovement:
     def __init__(self, tile_value, tile_pos, action):
         self.value = tile_value
-        self.curr_pos = tile_pos
+        self.tile_pos = tile_pos
         self.action = action
 
     @staticmethod
@@ -36,25 +36,31 @@ class TileMovement:
         return (0 <= x < 3) and (0 <= y < 3)
 
     def move(self):
-        return to_vector(*(self.curr_pos + self.action))
+        return to_vector(*(self.tile_pos + self.action))
 
-    def target(self):
+    def target_pos(self):
         return self.move().tolist()
 
     def is_legal_pos(self):
-        return self.is_legal_point(*self.curr_pos.data.tolist())
+        return self.is_legal_point(*self.tile_pos.data.tolist())
 
     def is_legal_move(self):
         return self.is_legal_point(*self.move().tolist())
 
     def pack(self):
-        return self.curr_pos, self.action
+        return self.tile_pos, self.action
+
+    def todict(self):
+        return {'tile_pos': self.tile_pos, 'action': self.action}
 
     def describe(self):
-        return (f"tile_value: {self.value}, curr_pos: {self.curr_pos}, target_pos: {self.target()}, "
+        return (f"tile_value: {self.value}, curr_pos: {self.tile_pos}, target_pos: {self.target_pos()}, "
                 f"action: {self.action}, action_description: {tiles_actions_descriptions[str(self.action)]}")
 
     def __str__(self):
+        return self.describe()
+
+    def __repr__(self):
         return self.describe()
 
 
@@ -112,7 +118,7 @@ class TilesGameProblem(Problem):
         #return state.get_board() == self._goal_state()
 
     def update(self, state: TilesGameState, action: TileMovement) -> TilesGameState:
-        print(f"apply movement: {action.describe()}")
+        #print(f"apply movement: {action.describe()}")
 
         curr_board_state = state.get_tiles_board()
         # equivalent to:
