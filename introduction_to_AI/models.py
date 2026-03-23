@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import Iterable
 
 import numpy as np
@@ -7,7 +8,7 @@ import numpy as np
 to_vector = lambda x, y: np.array([x, y])
 
 
-class Problem:
+class Problem(ABC):
     def __init__(self, *args, **kwargs):
         self.states: list = []
         self.initial_state = None
@@ -26,6 +27,10 @@ class Problem:
 
     def action_cost(self, node, action, result_state):
         return node.path_cost + 1
+
+    @abstractmethod
+    def args_action(self, curr_state, next_state):
+        pass
 
     @staticmethod
     def _is_legal_action(state):

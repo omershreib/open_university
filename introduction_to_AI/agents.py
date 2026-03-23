@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections import deque
+
+import numpy as np
+
 from introduction_to_AI.models import Problem, expand, make_node
+from introduction_to_AI.evaluators import Evaluator, ManhattanDistanceEvaluator
 
 
-class DeterministicAgent:
+class DeterministicAgent(ABC):
     def __init__(self, algorithm_name):
         self.algorithm_name = algorithm_name
         self.path_length = 0
@@ -19,12 +24,53 @@ class DeterministicAgent:
     def algorithm_name(self, name: str):
         self._algorithm_name = name
 
+    @abstractmethod
     def build_actions_plan(self, state):
-        raise NotImplementedError
+        pass
 
-
+    @abstractmethod
     def run(self, *args, **kwargs):
-        raise NotImplementedError
+        pass
+
+
+class HeuristicAgent(ABC):
+    def __init__(self, problem: Problem, evaluator: Evaluator, goal_state):
+        self._evaluator = evaluator
+        self.problem = problem
+        self.goal_state = goal_state
+        self.expanded_nodes = 0
+
+    @abstractmethod
+    def choose_move(self, state):
+        pass
+
+    @abstractmethod
+    def evaluate(self, state):
+        pass
+
+
+class ManhattanAgent(HeuristicAgent, ABC):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def choose_move(self, state):
+        min_score = np.inf
+        best_child_state = None
+
+        self.expanded_nodes += 1
+        for child in expand(self.problem, make_node(state=state)):
+            child_state = child.state
+            child_score = self.evaluate(child_state)
+
+            if child_score < min_score:
+                min_score = child_score
+                best_child_state = child_state
+
+        return self.problem.args_action(state, best_child_state)
+
+    def evaluate(self, state):
+        return self._evaluator.evaluate()
+
 
 
 class BFSAgent(DeterministicAgent):

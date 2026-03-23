@@ -3,7 +3,6 @@ import random
 import numpy as np
 from introduction_to_AI.models import to_vector
 
-
 SEED = 8
 random.seed(SEED)
 
@@ -17,8 +16,14 @@ class TilesBoard:
         else:
             self.board = np.full((3, 3), self.empty_pos_value, dtype=np.uint8)
             self.generate_random_init_state()
-            
-        
+
+    def args_tile_pos(self, i) -> tuple:
+        assert 0 < i < 9, f"tile number must be between 0 and 8 (received {i})"
+        return tuple(np.argwhere(self.board == i)[0])
+
+    def get_tile_pos(self, x, y):
+        assert (0 <= x < 3) and (0 <= y < 3), f"tile position must be between (0,0) to (2,2) (received (({x},{y})))"
+        return self.board[*to_vector(x, y)]
 
     def generate_random_init_state(self):
         game_tiles: list = [self.empty_pos_value, 1, 2, 3, 4, 5, 6, 7, 8]

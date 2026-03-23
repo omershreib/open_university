@@ -69,6 +69,24 @@ class TilesGameProblem(Problem):
         new_board_state = curr_board_state.move_tile(*action)
         return TilesGameState(state=new_board_state, parent=curr_board_state, action=action, path_cost=1)
 
+    def args_action(self, curr_state: TilesGameState, next_state: TilesGameState):
+        curr_board = curr_state.get_board()
+        next_board = next_state.get_board()
+        curr_empty_pos = np.argwhere(curr_board == 0)[0]
+        next_empty_pos = np.argwhere(next_board== 0)[0]
+
+        # The moved tile is the one that moved into the old empty position.
+        tile_pos = next_empty_pos
+        tile_value = curr_board[tuple(tile_pos)]
+
+        action = curr_empty_pos - next_empty_pos
+
+        return TileMovement(
+            tile_value=tile_value,
+            tile_pos=tile_pos,
+            action=action
+        )
+
     def _get_tiles_neighbors_to_empty_cell(self):
         current_state_grid = self.game_state.state
         empty_cell_position = np.argwhere(current_state_grid == self.empty_pos_value)

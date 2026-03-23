@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from introduction_to_AI.agents import BFSAgent
+from introduction_to_AI.agents import BFSAgent, ManhattanAgent
 from introduction_to_AI.models import make_node, expand
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
 from introduction_to_AI.maman11.tiles_game_problem import TilesGameProblem
 from introduction_to_AI.maman11.tiles_models import TileMovement
+from introduction_to_AI.maman11.tiles_evaluators import TilesManhattanEvaluator
 from collections import deque
 import numpy as np
 
@@ -62,114 +63,22 @@ class TilesBFSAgent(BFSAgent):
             action=action
         )
 
-# class BFSAgent(DeterministicAgent, TilesGameProblem):
-#     def __init__(self, init_state: TilesGameState):
-#         DeterministicAgent.__init__(self, 'BFS')
-#         TilesGameProblem.__init__(self, init_state)
-#         self.visited = set()
-#         self.queue = deque()
-#         self.parent = {}
-#         self.init_board = None
-#         self.expanded_nodes = 0
-#
-#     def init_queue_with_start_state(self, start_state):
-#         print("reset agent attibutes")
-#         self.visited = set()
-#         self.queue = deque()
-#         self.parent = {}
-#         self.expanded_nodes = 0
-#
-#         print("add start state into queue")
-#         self.init_board = start_state.get_board()
-#         self.queue.append(start_state)
-#         self.visited.add(self.get_key(start_state.get_board()))
-#         #self.visited.add(start_state)
-#
-#     def build_actions_plan(self, state):
-#         actions, path = self.run_bfs(state)
-#         for action in actions:
-#             yield action
-#
-#     def gpt_run_bfs(self, state: TilesGameState):
-#         self.init_queue_with_start_state(state)
-#
-#
-#         while self.queue:
-#             curr_state = self.queue.popleft()
-#
-#             if self.is_goal_state(curr_state):
-#                 return self.reconstruct_actions_path(self.init_board, curr_state.get_board())
-#
-#             self.expanded_nodes += 1
-#
-#             curr_node = make_node(state=curr_state)
-#
-#             for child_node in expand(self, curr_node):
-#                 child_state = child_node.state
-#                 child_key = self.get_key(child_state.get_board())
-#
-#                 if child_key in self.visited:
-#                     continue
-#
-#                 self.visited.add(child_key)
-#                 self.parent[child_key] = child_node
-#
-#                 # if self.is_goal_state(child_state):
-#                 #     return self.reconstruct_actions_path(
-#                 #         self.init_board,
-#                 #         child_state.get_board()
-#                 #     )
-#
-#                 self.queue.append(child_state)
-#
-#         return None
-#
-#     def run_bfs(self, state: TilesGameState):
-#         self.init_queue_with_start_state(state)
-#
-#         if self.is_goal_state(state):
-#             return self.reconstruct_actions_path(self.init_board, self.init_board)
-#
-#         while self.queue:
-#             curr_state = self.queue.popleft()
-#
-#             # increase number of expanded nodes
-#             self.expanded_nodes += 1
-#
-#             for child in expand(self, make_node(state=curr_state)):
-#                 child_state = child.state
-#                 key = self.get_key(child_state.get_board())
-#
-#                 if key not in self.visited:
-#                     self.visited.add(key)
-#                     self.parent[key] = child
-#
-#                     if self.is_goal_state(child_state):
-#                         return self.reconstruct_actions_path(self.init_board, child_state.get_board())
-#
-#                     self.queue.append(child_state)
-#
-#         # in case of no solution
-#         return None
-#
-#     def reconstruct_actions_path(self, init_board, goal_board):
-#         tile_movements = []
-#         path = [goal_board]
-#         curr_board = goal_board
-#
-#         while not self._is_boards_equal(path[-1], init_board):
-#             # parent_items = self.parent[self.get_key(curr_board)]
-#             # tile_movement = parent_items['tile_movement']
-#             # curr_board = parent_items['parent_board']
-#             parent_state = self.parent[self.get_key(curr_board)].state
-#             tile_pos, tile_action = parent_state.action
-#             tile_movement = TileMovement(tile_value=None,tile_pos=tile_pos, action=tile_action)
-#             # TilesBoard(board=curr_board).display()
-#             tile_movements.append(tile_movement)
-#             curr_board = parent_state.parent.board
-#             path.append(curr_board)
-#
-#         tile_movements.reverse()
-#         path.reverse()
-#
-#         return tile_movements, path
+
+
+class TilesManhattanAgent(ManhattanAgent):
+    def __init__(self, problem, goal_state, evaluator=None):
+        #self.curr_state: TilesGameState = kwargs.get('curr_state')
+        self.goal_state: TilesGameState = goal_state
+        self.problem = problem
+        self.evaluator = TilesManhattanEvaluator(problem=self.problem)
+
+        super().__init__(problem=problem, goal_state=goal_state, evaluator=self.evaluate)
+
+
+    def evaluate(self, state):
+        return self.evaluator.evaluate(curr_state=state, goal_state=self.goal_state)
+
+
+
+
+
