@@ -1,23 +1,24 @@
 from typing import List, Optional
 from introduction_to_AI.models import to_vector, Problem
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
-from introduction_to_AI.maman11.tiles_models import TileMovement, TILES_ACTIONS
+from introduction_to_AI.maman11.tiles_models import TileMovement, TILES_DIRECTIONS
 import numpy as np
 
 
 class TilesGameProblem(Problem):
-    def __init__(self, initial_state: TilesGameState, transition_model=None):
+    """Tiles Game Formalized Problem Class Suit"""
+    def __init__(self, initial_state: TilesGameState):
+        """
+
+        :param initial_state:
+        """
         super().__init__()
         self.empty_pos_value = 0
         self.initial_state: TilesGameState = initial_state
         self.goal_state: Optional[TilesGameState] = None
         self.goal_state = TilesGameState(board=[[0, 1, 2], [3, 4, 5], [6, 7, 8]])
 
-        self.actions = TILES_ACTIONS
-        self.transition_model = transition_model
-
-        # self.goal_state = self._goal_state()
-        # self.action_cost = action_cost
+        self.directions = TILES_DIRECTIONS
         self.game_state: TilesGameState = initial_state
 
     @property
@@ -35,7 +36,6 @@ class TilesGameProblem(Problem):
 
         if isinstance(value, TilesGameState):
             self._initial_state.depth = 0
-
 
     @game_state.setter
     def game_state(self, value: TilesGameState):
@@ -55,9 +55,9 @@ class TilesGameProblem(Problem):
         blank_pos = to_vector(*np.argwhere(board == self.empty_pos_value)[0])
         valid_actions = []
 
-        for action in self.actions:
-            tile_pos: np.array = blank_pos + action
-            opp_action_vector = (-1) * action
+        for direction in self.directions:
+            tile_pos: np.array = blank_pos + direction
+            opp_action_vector = (-1) * direction
             tile_movement = TileMovement(None, tile_pos, opp_action_vector)
             if not (tile_movement.is_legal_pos() and tile_movement.is_legal_move()):
                 continue
@@ -71,8 +71,6 @@ class TilesGameProblem(Problem):
 
     def is_goal_state(self, state):
         return self._is_boards_equal(state.board, self.goal_state.board)
-        # return np.array_equal(state.get_board(), self._goal_state())
-        # return state.get_board() == self._goal_state()
 
     def update(self, state: TilesGameState, action: TileMovement) -> TilesGameState:
         packed_action = action.pack()
@@ -99,12 +97,12 @@ class TilesGameProblem(Problem):
         tile_pos = next_empty_pos
         tile_value = curr_board[tuple(tile_pos)]
 
-        action = curr_empty_pos - next_empty_pos
+        direction = curr_empty_pos - next_empty_pos
 
         return TileMovement(
             tile_value=tile_value,
             tile_pos=tile_pos,
-            action=action
+            direction=direction
         )
 
     def action_cost(self, curr_state, action, result_state):
@@ -134,7 +132,6 @@ class TilesGameProblem(Problem):
         tile_x, tile_y = tile
 
         return 0 <= tile_x < 3 and 0 <= tile_y < 3
-
 
     @staticmethod
     def _is_boards_equal(board1: np.array, board2: np.array) -> bool:

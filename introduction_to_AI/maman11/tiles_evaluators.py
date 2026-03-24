@@ -9,7 +9,6 @@ class TilesManhattanEvaluator(Evaluator):
         for i in range(1, 9):
             curr_x, curr_y = curr_state.args_tile_pos(i)
             goal_x, goal_y = goal_state.args_tile_pos(i)
-
             distance += self._f(curr_x, goal_x, curr_y, goal_y)
 
         return distance

@@ -3,9 +3,6 @@ import random
 import numpy as np
 from introduction_to_AI.models import to_vector
 
-SEED = 8
-random.seed(SEED)
-
 
 class TilesBoard:
     def __init__(self, board_config: list = None, random_board=False):
@@ -23,8 +20,6 @@ class TilesBoard:
 
     @board.setter
     def board(self, board_config: list):
-        #print("set board")
-        #print(board_config)
         self._board = np.array(board_config, dtype=np.uint8)
 
     def args_tile_pos(self, i) -> tuple:
@@ -69,15 +64,3 @@ class TilesBoard:
                 row_display += f" {tile}"
 
             print(row_display)
-
-
-if __name__ == '__main__':
-    board = TilesBoard()
-    board.display()
-
-    # move 7 tile in [1,1] left -> [1,0]
-    # action needed [0,-1]
-    tile_pos = [1, 1]
-    action = [0, -1]
-    board.move_tile(tile_pos, action)
-    board.display()

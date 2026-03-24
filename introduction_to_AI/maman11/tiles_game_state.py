@@ -6,6 +6,7 @@ import numpy as np
 
 
 class TilesGameState(Node, TilesBoard):
+    """Tiles Game State Suit Class"""
     def __init__(self, board, parent=None, action=None, path_cost=1):
         TilesBoard.__init__(self)
         self.board = board

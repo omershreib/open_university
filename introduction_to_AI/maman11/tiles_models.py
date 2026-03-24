@@ -7,23 +7,38 @@ DOWN = to_vector(+1, 0)
 LEFT = to_vector(0, -1)
 RIGHT = to_vector(0, +1)
 
-TILES_ACTIONS = [UP, DOWN, LEFT, RIGHT]
+TILES_DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
 
-tiles_actions_to_labels: dict = {str(UP): 'UP', str(DOWN): 'DOWN', str(LEFT): 'LEFT', str(RIGHT): 'RIGTH'}
+tiles_directions_to_labels: dict = {str(UP): 'UP', str(DOWN): 'DOWN', str(LEFT): 'LEFT', str(RIGHT): 'RIGHT'}
 
 
 class TileMovement:
-    def __init__(self, tile_value, tile_pos, action):
+    """Tile Movement Class Object
+
+    in Tiles, the "action" is defined by the movement of a specific tile on the board,
+    which includes:
+        - the current coordinate position of the `i` tile
+        - the current coordinate position of the empty place (defined in this program by 0)
+        - the legal direction from the current `i` tile's position which cause a swap between
+            the empty place with this `i` tile place.
+    """
+    def __init__(self, tile_value, tile_pos, direction):
+        """
+
+        :param tile_value: integer between 1 and 8
+        :param tile_pos: a `np.array` object [`int` `int`] (the coordinate of the `i` tile (0<i<9) on the board)
+        :param direction: a (`int`, `int`) tuple depicting the tile movement: UP, DOWN, LEFT, or RIGHT
+        """
         self.tile_value = tile_value
         self.tile_pos = tile_pos
-        self.action = action
+        self.direction = direction
 
     @staticmethod
     def is_legal_point(x, y):
         return (0 <= x < 3) and (0 <= y < 3)
 
     def move(self):
-        return to_vector(*(self.tile_pos + self.action))
+        return to_vector(*(self.tile_pos + self.direction))
 
     def target_pos(self):
         return self.move().tolist()
@@ -35,18 +50,18 @@ class TileMovement:
         return self.is_legal_point(*self.move().tolist())
 
     def pack(self):
-        return self.tile_pos, self.action
+        return self.tile_pos, self.direction
 
     def todict(self):
-        return {'tile_pos': self.tile_pos, 'action': self.action}
+        return {'tile_pos': self.tile_pos, 'action': self.direction}
 
     def describe(self):
         return (f"tile_value: {self.tile_value}, curr_pos: {self.tile_pos}, target_pos: {self.target_pos()}, "
-                f"action: {self.action}, action_description: {self._get_action_label(self.action)}")
+                f"direction: {self.direction}, action_description: {self._get_direction_label(self.direction)}")
 
     @staticmethod
-    def _get_action_label(action: Tuple[int, int]) -> str:
-        return tiles_actions_to_labels[str(action)]
+    def _get_direction_label(direction: Tuple[int, int]) -> str:
+        return tiles_directions_to_labels[str(direction)]
 
     def __str__(self):
         return self.describe()
