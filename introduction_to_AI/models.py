@@ -7,7 +7,11 @@ import heapq as pq
 import queue
 import numpy as np
 
-to_vector = lambda x, y: np.array([x, y])
+#to_vector = lambda x, y: np.array([x, y])
+
+
+def vector(x: int, y: int) -> np.array:
+    return np.array([x, y])
 
 
 class Problem(ABC):
@@ -44,21 +48,11 @@ class Problem(ABC):
 
 
 class Node:
-    def __init__(self, state, parent, action, depth, path_cost):
+    def __init__(self, state, parent, action, path_cost):
         self.state = state
         self.parent = parent
         self.action = action  # the action that was applied to the parent's state to generate this node
-        self.depth = depth
         self.path_cost = path_cost  # the total cost of the path from the initial state to this node
-
-
-    @property
-    def depth(self):
-        return self._depth
-
-    @depth.setter
-    def depth(self, value):
-        self._depth = value
 
     def __lt__(self, other: Node):
         return self.path_cost < other.path_cost
@@ -76,10 +70,23 @@ def make_node(state, parent=None, action=None, path_cost=1) -> Node:
     if parent:
         depth = parent.depth + 1
 
-    return Node(state=state, parent=parent, action=action, depth=depth, path_cost=path_cost)
+    return Node(state=state, parent=parent, action=action, path_cost=path_cost)
 
 
-def expand(problem, node) -> Iterable[Node]:
+def expand(problem, node):
+    for action in problem.get_actions(node.state):
+        result_state = problem.update(node.state, action)
+        step_cost = problem.action_cost(node.state, action, result_state)
+        total_cost = node.path_cost + step_cost
+
+        yield Node(
+            state=result_state,
+            parent=node,
+            action=action,
+            path_cost=total_cost,
+        )
+
+def old_expand(problem, node) -> Iterable[Node]:
     node_state = node.state
 
     for action in problem.get_actions(node_state):
@@ -90,7 +97,6 @@ def expand(problem, node) -> Iterable[Node]:
             state=result_state,
             parent=node,
             action=action,
-            depth=node.depth + 1,
             path_cost=total_cost)
 
 
@@ -106,8 +112,8 @@ def top(frontier):
     return frontier[0]
 
 
-def add(node, frontier):
-    pq.heappush(frontier, node)
+def add(frontier, values):
+    pq.heappush(frontier, values)
 
 
 def initiate_fifo_queue(iterable, f):
@@ -125,5 +131,5 @@ def build_priority_queue(iterable, f) -> list:
     for item in sorted(iterable, key=lambda x: f(x)):
         pq.heappush(lst, item)
 
-    #print(lst)
+    # print(lst)
     return lst

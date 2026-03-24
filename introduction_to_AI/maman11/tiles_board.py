@@ -1,7 +1,7 @@
 from __future__ import annotations
 import random
 import numpy as np
-from introduction_to_AI.models import to_vector
+from introduction_to_AI.models import vector
 
 
 class TilesBoard:
@@ -28,7 +28,7 @@ class TilesBoard:
 
     def get_tile_pos(self, x, y):
         assert (0 <= x < 3) and (0 <= y < 3), f"tile position must be between (0,0) to (2,2) (received (({x},{y})))"
-        return self.board[*to_vector(x, y)]
+        return self.board[*vector(x, y)]
 
     def generate_random_init_state(self):
         game_tiles: list = [self.empty_pos_value, 1, 2, 3, 4, 5, 6, 7, 8]
@@ -42,9 +42,8 @@ class TilesBoard:
         self.board[1,] = second_row
         self.board[2,] = third_row
 
-    def move_tile(self, tile_pos, action) -> TilesBoard:
-        new_tile_pos = to_vector(*tile_pos) + to_vector(*action)
-
+    def move_tile(self, tile_pos, direction) -> TilesBoard:
+        new_tile_pos = vector(*tile_pos) + vector(*direction)
         board = self.board.copy()
 
         if board[*new_tile_pos] == self.empty_pos_value:

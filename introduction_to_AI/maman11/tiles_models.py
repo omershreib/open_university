@@ -1,11 +1,11 @@
 from typing import Tuple
-from introduction_to_AI.models import to_vector
+from introduction_to_AI.models import vector
 
 # action (row, col)
-UP = to_vector(-1, 0)
-DOWN = to_vector(+1, 0)
-LEFT = to_vector(0, -1)
-RIGHT = to_vector(0, +1)
+UP = vector(-1, 0)
+DOWN = vector(+1, 0)
+LEFT = vector(0, -1)
+RIGHT = vector(0, +1)
 
 TILES_DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
 
@@ -38,7 +38,7 @@ class TileMovement:
         return (0 <= x < 3) and (0 <= y < 3)
 
     def move(self):
-        return to_vector(*(self.tile_pos + self.direction))
+        return vector(*(self.tile_pos + self.direction))
 
     def target_pos(self):
         return self.move().tolist()

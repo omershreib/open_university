@@ -1,5 +1,5 @@
 from typing import List, Optional
-from introduction_to_AI.models import to_vector, Problem
+from introduction_to_AI.models import vector, Problem
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
 from introduction_to_AI.maman11.tiles_models import TileMovement, TILES_DIRECTIONS
 import numpy as np
@@ -7,6 +7,7 @@ import numpy as np
 
 class TilesGameProblem(Problem):
     """Tiles Game Formalized Problem Class Suit"""
+
     def __init__(self, initial_state: TilesGameState):
         """
 
@@ -52,7 +53,7 @@ class TilesGameProblem(Problem):
 
     def get_actions(self, state: TilesGameState) -> List[TileMovement]:
         board: np.array = state.board
-        blank_pos = to_vector(*np.argwhere(board == self.empty_pos_value)[0])
+        blank_pos = vector(*np.argwhere(board == self.empty_pos_value)[0])
         valid_actions = []
 
         for direction in self.directions:
@@ -76,11 +77,20 @@ class TilesGameProblem(Problem):
         packed_action = action.pack()
         moved_state = state.move_tile(*packed_action)
 
-        result_state = TilesGameState(
-            board=moved_state.board,
-            parent=state,
-            action=packed_action
-        )
+        return TilesGameState(board=moved_state.board)
+
+    def old_update(self, state: TilesGameState, action: TileMovement) -> TilesGameState:
+        """Update a state by an action
+
+        practically, this update function implements the transition models.
+
+        important: assuming a legal action relative to this given state (otherwise, expected to raise an error)
+        # todo: fix this!
+        """
+        packed_action = action.pack()
+        moved_state = state.move_tile(*packed_action)
+
+        result_state = TilesGameState(board=moved_state.board)
 
         step_cost = self.action_cost(state, action, result_state)
         result_state.path_cost = state.path_cost + step_cost
