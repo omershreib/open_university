@@ -16,3 +16,14 @@ class TilesManhattanEvaluator(Evaluator):
     @staticmethod
     def _f(x1, x2, y1, y2):
         return abs(x1 - x2) + abs(y1 - y2)
+
+
+
+class TilesMisplacedEvaluator(Evaluator):
+    def evaluate(self, curr_state, goal_state):
+        count = 0
+        for i in range(3):
+            for j in range(3):
+                if curr_state.board[i][j] != 0 and curr_state.board[i][j] != goal_state.board[i][j]:
+                    count += 1
+        return count

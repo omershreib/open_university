@@ -92,7 +92,7 @@ class AStarAgent(HeuristicAgent):
                 node.state, self.problem.goal_state
             )
 
-        goal_node, self.expanded_nodes = best_first_search(self.problem, f)
+        goal_node, self.expanded_nodes = best_first_search(self.problem, f, self.evaluator.evaluate)
 
         if not goal_node:
             return False

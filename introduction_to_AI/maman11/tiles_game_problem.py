@@ -79,23 +79,22 @@ class TilesGameProblem(Problem):
 
         return TilesGameState(board=moved_state.board)
 
-    def old_update(self, state: TilesGameState, action: TileMovement) -> TilesGameState:
-        """Update a state by an action
-
-        practically, this update function implements the transition models.
-
-        important: assuming a legal action relative to this given state (otherwise, expected to raise an error)
-        # todo: fix this!
-        """
-        packed_action = action.pack()
-        moved_state = state.move_tile(*packed_action)
-
-        result_state = TilesGameState(board=moved_state.board)
-
-        step_cost = self.action_cost(state, action, result_state)
-        result_state.path_cost = state.path_cost + step_cost
-
-        return result_state
+    # def old_update(self, state: TilesGameState, action: TileMovement) -> TilesGameState:
+    #     """Update a state by an action
+    #
+    #     practically, this update function implements the transition models.
+    #
+    #     important: assuming a legal action relative to this given state (otherwise, expected to raise an error)
+    #     """
+    #     packed_action = action.pack()
+    #     moved_state = state.move_tile(*packed_action)
+    #
+    #     result_state = TilesGameState(board=moved_state.board)
+    #
+    #     step_cost = self.action_cost(state, action, result_state)
+    #     result_state.path_cost = state.path_cost + step_cost
+    #
+    #     return result_state
 
     def args_action(self, curr_state: TilesGameState, next_state: TilesGameState):
         curr_board = curr_state.board
@@ -118,24 +117,24 @@ class TilesGameProblem(Problem):
     def action_cost(self, curr_state, action, result_state):
         return 1
 
-    def _get_tiles_neighbors_to_empty_cell(self):
-        current_state_grid = self.game_state.state
-        empty_cell_position = np.argwhere(current_state_grid == self.empty_pos_value)
-        empty_x = empty_cell_position[0][0]
-        empty_y = empty_cell_position[0][1]
-
-        legal_actions: list = []
-
-        for action in self.actions:
-            action_x = action[0]
-            action_y = action[1]
-
-            tile_x = action_x + empty_x
-            tile_y = action_y + empty_y
-            tile = (tile_x, tile_y)
-
-            if self._is_legal_tile(tile):
-                legal_actions.append(tile)
+    # def _get_tiles_neighbors_to_empty_cell(self):
+    #     current_state_grid = self.game_state.state
+    #     empty_cell_position = np.argwhere(current_state_grid == self.empty_pos_value)
+    #     empty_x = empty_cell_position[0][0]
+    #     empty_y = empty_cell_position[0][1]
+    #
+    #     legal_actions: list = []
+    #
+    #     for action in self.actions:
+    #         action_x = action[0]
+    #         action_y = action[1]
+    #
+    #         tile_x = action_x + empty_x
+    #         tile_y = action_y + empty_y
+    #         tile = (tile_x, tile_y)
+    #
+    #         if self._is_legal_tile(tile):
+    #             legal_actions.append(tile)
 
     @staticmethod
     def _is_legal_tile(tile):

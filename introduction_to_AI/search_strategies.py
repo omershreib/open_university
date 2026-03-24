@@ -29,14 +29,17 @@ def old_best_first_search(problem, f):
 
             if child_state.get_key() not in reached or child.path_cost < reached[child_state.get_key()].path_cost:
                 reached[child_state.get_key()] = child
-                add(child, frontier)
+                push(child, frontier)
 
     return False, expand_counter
 
 
-def best_first_search(problem, f):
+def best_first_search(problem, f, h):
     counter = itertools.count()
     start = make_node(state=problem.initial_state, path_cost=0)
+
+    # make a priority suit for every node enter the frontier
+    # in the form of: <f(node), numeric-tie-breaker, node>
     frontier = [(f(start), next(counter), start)]
     reached = {start.state.get_key(): start}
     expand_counter = 0
@@ -48,6 +51,10 @@ def best_first_search(problem, f):
         if reached[key] is not node:
             continue
 
+        # consistency check of heuristic
+        #print(f"path-cost: {node.path_cost}, h(n): {h(node.state, problem.goal_state)}, f(n): {f(node)}")
+        #print(node.path_cost, h(node.state, problem.goal_state), f(node))
+
         if problem.is_goal_state(node.state):
             return node, expand_counter
 
@@ -57,7 +64,7 @@ def best_first_search(problem, f):
             child_key = child.state.get_key()
             if child_key not in reached or child.path_cost < reached[child_key].path_cost:
                 reached[child_key] = child
-                add(frontier, (f(child), next(counter), child))
+                push(frontier, (f(child), next(counter), child))
 
     return False, expand_counter
 
@@ -68,4 +75,4 @@ def astar_search(problem: Problem, evaluator: Evaluator):
         h = evaluator.evaluate(node.state, problem.goal_state)
         return g + h
 
-    return best_first_search(problem, f)
+    return best_first_search(problem, f, evaluator.evaluate)

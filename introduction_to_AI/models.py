@@ -112,7 +112,7 @@ def top(frontier):
     return frontier[0]
 
 
-def add(frontier, values):
+def push(frontier, values):
     pq.heappush(frontier, values)
 
 
