@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from introduction_to_AI.models import to_vector, Problem
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
 from introduction_to_AI.maman11.tiles_models import TileMovement, TILES_ACTIONS
@@ -10,10 +10,14 @@ class TilesGameProblem(Problem):
         super().__init__()
         self.empty_pos_value = 0
         self.initial_state: TilesGameState = initial_state
+        self.goal_state: Optional[TilesGameState] = None
+        self.goal_state = TilesGameState(board=[[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+
         self.actions = TILES_ACTIONS
         self.transition_model = transition_model
-        self.goal_state = self._goal_state()
-        #self.action_cost = action_cost
+
+        # self.goal_state = self._goal_state()
+        # self.action_cost = action_cost
         self.game_state: TilesGameState = initial_state
 
     @property
@@ -25,17 +29,29 @@ class TilesGameProblem(Problem):
         return self._game_state
 
     @initial_state.setter
-    def initial_state(self, value: TilesGameState):
-        print("set initial game state")
+    def initial_state(self, value: Optional[TilesGameState]):
+        print("set initial game state with depth=0")
         self._initial_state = value
+
+        if isinstance(value, TilesGameState):
+            self._initial_state.depth = 0
+
 
     @game_state.setter
     def game_state(self, value: TilesGameState):
         print("update game state")
         self._game_state = value
 
+    @property
+    def goal_state(self):
+        return self._goal_state
+
+    @goal_state.setter
+    def goal_state(self, goal_state_config):
+        self._goal_state = goal_state_config
+
     def get_actions(self, state: TilesGameState) -> List[TileMovement]:
-        board: np.array = state.get_board()
+        board: np.array = state.board
         blank_pos = to_vector(*np.argwhere(board == self.empty_pos_value)[0])
         valid_actions = []
 
@@ -54,26 +70,30 @@ class TilesGameProblem(Problem):
         return valid_actions
 
     def is_goal_state(self, state):
-        return self._is_boards_equal(state.get_board(), self._goal_state())
-        #return np.array_equal(state.get_board(), self._goal_state())
+        return self._is_boards_equal(state.board, self.goal_state.board)
+        # return np.array_equal(state.get_board(), self._goal_state())
         # return state.get_board() == self._goal_state()
 
     def update(self, state: TilesGameState, action: TileMovement) -> TilesGameState:
-        # print(f"apply movement: {action.describe()}")
+        packed_action = action.pack()
+        moved_state = state.move_tile(*packed_action)
 
-        curr_board_state = state.get_tiles_board()
-        # equivalent to:
-        #   tile_pos, tile_action = tile_movement.pack()
-        #   board.move_tile(tile_pos, tile_action)
-        action = action.pack()
-        new_board_state = curr_board_state.move_tile(*action)
-        return TilesGameState(state=new_board_state, parent=curr_board_state, action=action, path_cost=1)
+        result_state = TilesGameState(
+            board=moved_state.board,
+            parent=state,
+            action=packed_action
+        )
+
+        step_cost = self.action_cost(state, action, result_state)
+        result_state.path_cost = state.path_cost + step_cost
+
+        return result_state
 
     def args_action(self, curr_state: TilesGameState, next_state: TilesGameState):
-        curr_board = curr_state.get_board()
-        next_board = next_state.get_board()
+        curr_board = curr_state.board
+        next_board = next_state.board
         curr_empty_pos = np.argwhere(curr_board == 0)[0]
-        next_empty_pos = np.argwhere(next_board== 0)[0]
+        next_empty_pos = np.argwhere(next_board == 0)[0]
 
         # The moved tile is the one that moved into the old empty position.
         tile_pos = next_empty_pos
@@ -86,6 +106,9 @@ class TilesGameProblem(Problem):
             tile_pos=tile_pos,
             action=action
         )
+
+    def action_cost(self, curr_state, action, result_state):
+        return 1
 
     def _get_tiles_neighbors_to_empty_cell(self):
         current_state_grid = self.game_state.state
@@ -112,9 +135,6 @@ class TilesGameProblem(Problem):
 
         return 0 <= tile_x < 3 and 0 <= tile_y < 3
 
-    @staticmethod
-    def _goal_state():
-        return np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
 
     @staticmethod
     def _is_boards_equal(board1: np.array, board2: np.array) -> bool:

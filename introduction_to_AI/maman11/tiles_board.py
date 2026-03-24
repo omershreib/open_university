@@ -8,14 +8,24 @@ random.seed(SEED)
 
 
 class TilesBoard:
-    def __init__(self, board=None):
+    def __init__(self, board_config: list = None, random_board=False):
         self.empty_pos_value = 0
-        if board is not None:
-            self.board = np.array(board, dtype=np.uint8)
+        if board_config is not None:
+            self.board = board_config
 
-        else:
+        if random_board:
             self.board = np.full((3, 3), self.empty_pos_value, dtype=np.uint8)
             self.generate_random_init_state()
+
+    @property
+    def board(self):
+        return self._board
+
+    @board.setter
+    def board(self, board_config: list):
+        #print("set board")
+        #print(board_config)
+        self._board = np.array(board_config, dtype=np.uint8)
 
     def args_tile_pos(self, i) -> tuple:
         assert 0 < i < 9, f"tile number must be between 0 and 8 (received {i})"
@@ -46,7 +56,7 @@ class TilesBoard:
             tile_value = board[*tile_pos]
             board[*tile_pos] = self.empty_pos_value
             board[*new_tile_pos] = tile_value
-            return TilesBoard(board=board.tolist())
+            return TilesBoard(board_config=board.tolist())
 
         raise Exception("tile move is not allowed")
 

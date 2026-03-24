@@ -2,19 +2,45 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections import deque
+from introduction_to_AI.models import *
+from introduction_to_AI.search_strategies import *
 
-import numpy as np
 
-from introduction_to_AI.models import Problem, expand, make_node
-from introduction_to_AI.evaluators import Evaluator, ManhattanDistanceEvaluator
+def reconstruct_actions_path(problem, path):
+    """
+    Convert a path of states into a list of TileMovement objects.
+
+    Args:
+        path: list of game states from start to goal
+
+    Returns:
+        list[TileMovement]
+    """
+    if not path or len(path) < 2:
+        return []
+
+    actions = []
+
+    for i in range(len(path) - 1):
+        curr_state = path[i]
+        next_state = path[i + 1]
+
+        movement = problem.args_action(curr_state, next_state)
+        actions.append(movement)
+
+    return actions
 
 
 class DeterministicAgent(ABC):
-    def __init__(self, algorithm_name):
+    def __init__(self, problem, algorithm_name):
         self.algorithm_name = algorithm_name
+        self.problem = problem
         self.path_length = 0
         self.expanded_nodes = 0
         self.get_key = lambda x: str(x)
+
+    def reconstruct_actions_path(self, path):
+        return reconstruct_actions_path(self.problem, path)
 
     @property
     def algorithm_name(self) -> str:
@@ -34,49 +60,62 @@ class DeterministicAgent(ABC):
 
 
 class HeuristicAgent(ABC):
-    def __init__(self, problem: Problem, evaluator: Evaluator, goal_state):
-        self._evaluator = evaluator
+    def __init__(self, problem: Problem, evaluator: Evaluator):
         self.problem = problem
-        self.goal_state = goal_state
+        self.evaluator = evaluator
+        self.goal_state = problem.goal_state
         self.expanded_nodes = 0
 
+    def reconstruct_actions_path(self, path):
+        return reconstruct_actions_path(self.problem, path)
+
     @abstractmethod
     def choose_move(self, state):
         pass
 
-    @abstractmethod
-    def evaluate(self, state):
-        pass
+    def evaluate(self, curr_state):
+        return self.evaluator.evaluate(curr_state, self.problem.goal_state)
 
 
-class ManhattanAgent(HeuristicAgent, ABC):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class AStarAgent(HeuristicAgent):
+    def __init__(self, problem, evaluator: Evaluator):
+        super().__init__(problem, evaluator)
 
     def choose_move(self, state):
-        min_score = np.inf
-        best_child_state = None
+        self.problem.initial_state = state
+        goal_node = self.search()
+        return goal_node
 
-        self.expanded_nodes += 1
-        for child in expand(self.problem, make_node(state=state)):
-            child_state = child.state
-            child_score = self.evaluate(child_state)
+    def search(self):
+        def f(node):
+            return node.path_cost + self.evaluator.evaluate(
+                node.state, self.problem.goal_state
+            )
 
-            if child_score < min_score:
-                min_score = child_score
-                best_child_state = child_state
+        goal_node, self.expanded_nodes = best_first_search(self.problem, f)
 
-        return self.problem.args_action(state, best_child_state)
+        if not goal_node:
+            return False
 
-    def evaluate(self, state):
-        return self._evaluator.evaluate()
+        return self.reconstruct_actions_path(
+            self.reconstruct_state_path(goal_node))
 
+    @staticmethod
+    def reconstruct_state_path(goal_node):
+        path = []
+        curr = goal_node
+
+        while curr is not None:
+            path.append(curr.state)
+            curr = curr.parent
+
+        path.reverse()
+        return path
 
 
 class BFSAgent(DeterministicAgent):
     def __init__(self, problem: Problem):
-        super().__init__(algorithm_name='BFS')
-        self.problem = problem
+        super().__init__(problem=problem, algorithm_name='BFS')
 
     def _run_setup(self, start_state):
         self.visited = set()
@@ -115,4 +154,12 @@ class BFSAgent(DeterministicAgent):
                     self.queue.append((child_state, path + [child_state]))
 
         # in case of no solution
-        return None
+        return None, []
+
+    def build_actions_plan(self, state):
+        goal_state, path = self.run(state)
+        if goal_state and len(path) == 0:
+            return []
+
+        actions = self.reconstruct_actions_path(path)
+        return actions
