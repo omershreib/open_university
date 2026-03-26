@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import deque
 from introduction_to_AI.models import *
+from introduction_to_AI.common import make_node, expand
 from introduction_to_AI.search_strategies import *
 
 

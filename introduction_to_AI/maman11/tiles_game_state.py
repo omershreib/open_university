@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from introduction_to_AI.models import Node
 from introduction_to_AI.maman11.tiles_board import TilesBoard
-import numpy as np
 
 
 class TilesGameState(TilesBoard):

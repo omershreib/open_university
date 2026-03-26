@@ -1,37 +1,6 @@
 from introduction_to_AI.models import *
+from introduction_to_AI.common import make_node, pop, push, expand
 import itertools
-
-
-def old_best_first_search(problem, f):
-    """Best-First-Search Strategy
-    implemented as depicted in the course book
-    "Artificial Intelligent a Modern Approach 4th Edition (page 91)"
-
-    :param problem:
-    :param f:
-    :return:
-    """
-
-    expand_counter = 0
-    node: Node = make_node(state=problem.initial_state, path_cost=0)
-    frontier = build_priority_queue([node], f)
-    reached = {problem.initial_state.get_key(): node}
-
-    while not is_empty(frontier):
-        node = pop(frontier)
-
-        if problem.is_goal_state(node.state):
-            return node, expand_counter
-
-        expand_counter += 1
-        for child in expand(problem, node):
-            child_state = child.state
-
-            if child_state.get_key() not in reached or child.path_cost < reached[child_state.get_key()].path_cost:
-                reached[child_state.get_key()] = child
-                push(child, frontier)
-
-    return False, expand_counter
 
 
 def best_first_search(problem, f, h):
@@ -52,8 +21,8 @@ def best_first_search(problem, f, h):
             continue
 
         # consistency check of heuristic
-        #print(f"path-cost: {node.path_cost}, h(n): {h(node.state, problem.goal_state)}, f(n): {f(node)}")
-        #print(node.path_cost, h(node.state, problem.goal_state), f(node))
+        # print(f"path-cost: {node.path_cost}, h(n): {h(node.state, problem.goal_state)}, f(n): {f(node)}")
+        # print(node.path_cost, h(node.state, problem.goal_state), f(node))
 
         if problem.is_goal_state(node.state):
             return node, expand_counter

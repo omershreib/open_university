@@ -1,5 +1,6 @@
 from typing import List, Optional
-from introduction_to_AI.models import vector, Problem
+from introduction_to_AI.common import vector
+from introduction_to_AI.models.problem import Problem
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
 from introduction_to_AI.maman11.tiles_models import TileMovement, TILES_DIRECTIONS
 import numpy as np

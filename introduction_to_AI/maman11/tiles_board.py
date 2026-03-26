@@ -1,7 +1,7 @@
 from __future__ import annotations
 import random
 import numpy as np
-from introduction_to_AI.models import vector
+from introduction_to_AI.common import vector
 
 
 class TilesBoard:

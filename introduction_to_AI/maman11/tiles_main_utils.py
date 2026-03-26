@@ -1,3 +1,4 @@
+import time
 from typing import Optional
 from introduction_to_AI.maman11.tiles_graphic_displayer import TilesGameGraphicDisplayer
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
@@ -80,6 +81,7 @@ def simulate_actions_path(problem, init_state, actions, agent, graphic_displayer
         display_state(curr_state, graphic_displayer)
 
         if problem.is_goal_state(curr_state):
+            time.sleep(10)
             summarize_search(agent, path)
             break
     else:

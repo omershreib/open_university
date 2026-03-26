@@ -1,5 +1,5 @@
 from typing import Tuple
-from introduction_to_AI.models import vector
+from introduction_to_AI.common import vector
 
 # action (row, col)
 UP = vector(-1, 0)

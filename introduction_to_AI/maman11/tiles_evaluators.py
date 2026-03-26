@@ -1,4 +1,4 @@
-from introduction_to_AI.models import Evaluator
+from introduction_to_AI.models.evaluator import Evaluator
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
 
 
@@ -16,7 +16,6 @@ class TilesManhattanEvaluator(Evaluator):
     @staticmethod
     def _f(x1, x2, y1, y2):
         return abs(x1 - x2) + abs(y1 - y2)
-
 
 
 class TilesMisplacedEvaluator(Evaluator):
