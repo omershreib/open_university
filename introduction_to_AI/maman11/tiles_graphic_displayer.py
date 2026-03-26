@@ -22,10 +22,11 @@ class TilesGameGraphicDisplayer:
         viewer.refresh(board)
     """
 
-    def __init__(self, delay=0.2, empty_value=0, title="Tiles Game"):
+    def __init__(self, delay=0.2, empty_value=0, title="Tiles Game", size: int = 3):
         self.empty_value = empty_value
         self.title = title
         self.delay = delay
+        self.size = size
         self.fig, self.ax = plt.subplots(figsize=(5, 5))
         self.ax.set_aspect("equal")
         plt.ion()  # interactive mode on
@@ -37,23 +38,24 @@ class TilesGameGraphicDisplayer:
         Args:
             board: numpy array of shape (3, 3)
         """
-        self._validate_board(board)
+        n = self.size
+        # self._validate_board(board)
 
         self.ax.clear()
-        self.ax.set_xlim(0, 3)
-        self.ax.set_ylim(0, 3)
+        self.ax.set_xlim(0, n)
+        self.ax.set_ylim(0, n)
         self.ax.set_xticks([])
         self.ax.set_yticks([])
         self.ax.set_title(self.title)
 
-        for row in range(3):
-            for col in range(3):
+        for row in range(n):
+            for col in range(n):
                 value = board[row, col]
 
                 # Convert array coordinates to plot coordinates
                 # so row 0 appears at the top
                 x = col
-                y = 2 - row
+                y = (n - 1) - row
 
                 is_empty = value == self.empty_value
 
@@ -88,9 +90,9 @@ class TilesGameGraphicDisplayer:
         plt.ioff()
         plt.show()
 
-    @staticmethod
-    def _validate_board(board: np.ndarray) -> None:
-        if not isinstance(board, np.ndarray):
-            raise TypeError("board must be a numpy.ndarray")
-        if board.shape != (3, 3):
-            raise ValueError(f"board must have shape (3, 3), got {board.shape}")
+    # @staticmethod
+    # def _validate_board(board: np.ndarray) -> None:
+    #     if not isinstance(board, np.ndarray):
+    #         raise TypeError("board must be a numpy.ndarray")
+    #     if board.shape != (3, 3):
+    #         raise ValueError(f"board must have shape (3, 3), got {board.shape}")

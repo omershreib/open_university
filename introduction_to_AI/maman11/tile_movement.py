@@ -22,20 +22,21 @@ class TileMovement:
         - the legal direction from the current `i` tile's position which cause a swap between
             the empty place with this `i` tile place.
     """
-    def __init__(self, tile_value, tile_pos, direction):
+    def __init__(self, tile_value, tile_pos, direction, bound: int=3):
         """
 
         :param tile_value: integer between 1 and 8
         :param tile_pos: a `np.array` object [`int` `int`] (the coordinate of the `i` tile (0<i<9) on the board)
         :param direction: a (`int`, `int`) tuple depicting the tile movement: UP, DOWN, LEFT, or RIGHT
+        :param bound: `int` represents the upper vertical/horizontal bound (always equals to board.size)
         """
         self.tile_value = tile_value
         self.tile_pos = tile_pos
         self.direction = direction
+        self.bound = bound
 
-    @staticmethod
-    def is_legal_point(x, y):
-        return (0 <= x < 3) and (0 <= y < 3)
+    def is_legal_point(self, x, y):
+        return (0 <= x < self.bound) and (0 <= y < self.bound)
 
     def move(self):
         return vector(*(self.tile_pos + self.direction))

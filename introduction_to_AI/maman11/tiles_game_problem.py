@@ -2,7 +2,8 @@ from typing import List, Optional
 from introduction_to_AI.common import vector
 from introduction_to_AI.models.problem import Problem
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
-from introduction_to_AI.maman11.tiles_models import TileMovement, TILES_DIRECTIONS
+from introduction_to_AI.maman11.tile_movement import TileMovement, TILES_DIRECTIONS
+from pprint import pprint
 import numpy as np
 
 
@@ -17,8 +18,9 @@ class TilesGameProblem(Problem):
         super().__init__()
         self.empty_pos_value = 0
         self.initial_state: TilesGameState = initial_state
-        self.goal_state: Optional[TilesGameState] = None
-        self.goal_state = TilesGameState(board=[[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+        n = self.__size = initial_state.size
+        self.goal_state: TilesGameState = TilesGameState(board=self.create_goal_board(n), size=n)
+        #self.goal_state = TilesGameState(board=[[0, 1, 2], [3, 4, 5], [6, 7, 8]])
 
         self.directions = TILES_DIRECTIONS
         self.game_state: TilesGameState = initial_state
@@ -54,13 +56,14 @@ class TilesGameProblem(Problem):
 
     def get_actions(self, state: TilesGameState) -> List[TileMovement]:
         board: np.array = state.board
+        bound = state.size
         blank_pos = vector(*np.argwhere(board == self.empty_pos_value)[0])
         valid_actions = []
 
         for direction in self.directions:
             tile_pos: np.array = blank_pos + direction
             opp_action_vector = (-1) * direction
-            tile_movement = TileMovement(None, tile_pos, opp_action_vector)
+            tile_movement = TileMovement(None, tile_pos, opp_action_vector, bound=bound)
             if not (tile_movement.is_legal_pos() and tile_movement.is_legal_move()):
                 continue
 
@@ -68,6 +71,10 @@ class TilesGameProblem(Problem):
             tile_movement.value = tile_value
             tile_movement = TileMovement(tile_value, tile_pos, opp_action_vector)
             valid_actions.append(tile_movement)
+
+
+        #pprint(valid_actions)
+        #exit()
 
         return valid_actions
 
@@ -77,8 +84,9 @@ class TilesGameProblem(Problem):
     def update(self, state: TilesGameState, action: TileMovement) -> TilesGameState:
         packed_action = action.pack()
         moved_state = state.move_tile(*packed_action)
+        size = state.size
 
-        return TilesGameState(board=moved_state.board)
+        return TilesGameState(board=moved_state.board, size=size)
 
     # def old_update(self, state: TilesGameState, action: TileMovement) -> TilesGameState:
     #     """Update a state by an action
@@ -118,24 +126,17 @@ class TilesGameProblem(Problem):
     def action_cost(self, curr_state, action, result_state):
         return 1
 
-    # def _get_tiles_neighbors_to_empty_cell(self):
-    #     current_state_grid = self.game_state.state
-    #     empty_cell_position = np.argwhere(current_state_grid == self.empty_pos_value)
-    #     empty_x = empty_cell_position[0][0]
-    #     empty_y = empty_cell_position[0][1]
-    #
-    #     legal_actions: list = []
-    #
-    #     for action in self.actions:
-    #         action_x = action[0]
-    #         action_y = action[1]
-    #
-    #         tile_x = action_x + empty_x
-    #         tile_y = action_y + empty_y
-    #         tile = (tile_x, tile_y)
-    #
-    #         if self._is_legal_tile(tile):
-    #             legal_actions.append(tile)
+    @staticmethod
+    def create_goal_board(n: int):
+        """
+        Create an n x n goal board for the tiles game.
+
+        Example:
+            n=3 -> [[0,1,2],[3,4,5],[6,7,8]]
+            n=4 -> [[0,1,2,3],[4,5,6,7],[8,9,10,11],[12,13,14,15]]
+        """
+        return [[i * n + j for j in range(n)] for i in range(n)]
+
 
     @staticmethod
     def _is_legal_tile(tile):

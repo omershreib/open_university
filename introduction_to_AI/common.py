@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from introduction_to_AI.models.node import Node
+from introduction_to_AI.models.problem import Problem
 import heapq as pq
 import queue
 import numpy as np
@@ -19,7 +20,7 @@ def make_node(state, parent=None, action=None, path_cost=1) -> Node:
     return Node(state=state, parent=parent, action=action, path_cost=path_cost)
 
 
-def expand(problem, node):
+def expand(problem: Problem, node: Node):
     for action in problem.get_actions(node.state):
         result_state = problem.update(node.state, action)
         step_cost = problem.action_cost(node.state, action, result_state)
