@@ -7,15 +7,16 @@ from introduction_to_AI.common import make_node, expand
 from introduction_to_AI.search_strategies import *
 
 
-def reconstruct_actions_path(problem, path):
+def reconstruct_actions_path(problem: Problem, path: list):
     """
-    Convert a path of states into a list of TileMovement objects.
+    Convert a path of states into a list of action objects.
 
     Args:
-        path: list of game states from start to goal
+        problem: a valid Problem object
+        path: list of game states from initial state to a goal state
 
     Returns:
-        list[TileMovement]
+        an action lists that been induced by this path
     """
     if not path or len(path) < 2:
         return []
@@ -33,14 +34,19 @@ def reconstruct_actions_path(problem, path):
 
 
 class DeterministicAgent(ABC):
-    def __init__(self, problem, algorithm_name):
+    """An Abstract Class for Deterministic Agent"""
+    def __init__(self, problem: Problem, algorithm_name: str):
+        """
+
+        :param problem: a Problem object (discussed in details in the course book - chapter 3, read pages 81 - 87)
+        :param algorithm_name: a label name for this agent's algorithm
+        """
         self.algorithm_name = algorithm_name
         self.problem = problem
         self.path_length = 0
         self.expanded_nodes = 0
-        self.get_key = lambda x: str(x)
 
-    def reconstruct_actions_path(self, path):
+    def reconstruct_actions_path(self, path) -> list:
         return reconstruct_actions_path(self.problem, path)
 
     @property
@@ -51,8 +57,11 @@ class DeterministicAgent(ABC):
     def algorithm_name(self, name: str):
         self._algorithm_name = name
 
+    def solve(self, state: State):
+        return self.build_actions_plan(state)
+
     @abstractmethod
-    def build_actions_plan(self, state):
+    def build_actions_plan(self, state: State):
         pass
 
     @abstractmethod
@@ -61,10 +70,20 @@ class DeterministicAgent(ABC):
 
 
 class HeuristicAgent(ABC):
-    def __init__(self, problem: Problem, evaluator: Evaluator):
+    """An Abstract Class for Heuristic Agent"""
+    def __init__(self, problem: Problem, algorithm_name: str, evaluator: Evaluator):
+        """
+
+        :param problem: a Problem object (discussed in details in the course book - chapter 3, read pages 81 - 87)
+        :param algorithm_name: a label name for this agent's algorithm
+        :param evaluator: an Evaluator object that include a valid (consistent and admissible) evaluate() function
+        """
         self.problem = problem
+        self.algorithm_name = algorithm_name
         self.evaluator = evaluator
         self.goal_state = problem.goal_state
+
+        # a counter for how many times this agent expand its nodes
         self.expanded_nodes = 0
 
     def reconstruct_actions_path(self, path):
@@ -74,18 +93,31 @@ class HeuristicAgent(ABC):
     def choose_move(self, state):
         pass
 
+    @abstractmethod
+    def solve(self):
+        pass
+
     def evaluate(self, curr_state):
         return self.evaluator.evaluate(curr_state, self.problem.goal_state)
 
 
 class AStarAgent(HeuristicAgent):
+    """A* Agent Class Object"""
     def __init__(self, problem, evaluator: Evaluator):
+        """
+
+        :param problem:
+        :param evaluator:
+        """
         super().__init__(problem, evaluator)
 
     def choose_move(self, state):
         self.problem.initial_state = state
         goal_node = self.search()
         return goal_node
+
+    def solve(self, *args, **kwargs):
+        return self.search()
 
     def search(self):
         def f(node):

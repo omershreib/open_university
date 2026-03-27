@@ -3,7 +3,6 @@ from introduction_to_AI.common import vector
 from introduction_to_AI.models.problem import Problem
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
 from introduction_to_AI.maman11.tile_movement import TileMovement, TILES_DIRECTIONS
-from pprint import pprint
 import numpy as np
 
 
@@ -13,15 +12,14 @@ class TilesGameProblem(Problem):
     def __init__(self, initial_state: TilesGameState):
         """
 
-        :param initial_state:
+        :param initial_state: a TilesGameState initial state
         """
         super().__init__()
+
         self.empty_pos_value = 0
         self.initial_state: TilesGameState = initial_state
         n = self.__size = initial_state.size
         self.goal_state: TilesGameState = TilesGameState(board=self.create_goal_board(n), size=n)
-        #self.goal_state = TilesGameState(board=[[0, 1, 2], [3, 4, 5], [6, 7, 8]])
-
         self.directions = TILES_DIRECTIONS
         self.game_state: TilesGameState = initial_state
 

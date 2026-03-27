@@ -14,7 +14,7 @@ class TilesBoard:
         :param random_board: if true, create a random board configuration
                 WARNING! not every random configuration is solvable
 
-        :param n: the shape of the board (by default 3, which is the "classic" 3 x 3 Tiles board)
+        :param size: the shape of the board (by default 3, which is the "classic" 3 x 3 Tiles board)
         """
         self.__empty_symbol = 0
         self.__size = size
