@@ -1,9 +1,8 @@
 from __future__ import annotations
 
+from typing import Optional, List
 from abc import ABC, abstractmethod
 from collections import deque
-from introduction_to_AI.models import *
-from introduction_to_AI.common import make_node, expand
 from introduction_to_AI.search_strategies import *
 
 
@@ -33,7 +32,7 @@ def reconstruct_actions_path(problem: Problem, path: list):
     return actions
 
 
-class DeterministicAgent(ABC):
+class DeterministicAgent(AtomicAgent, ABC):
     """An Abstract Class for Deterministic Agent"""
     def __init__(self, problem: Problem, algorithm_name: str):
         """
@@ -41,9 +40,9 @@ class DeterministicAgent(ABC):
         :param problem: a Problem object (discussed in details in the course book - chapter 3, read pages 81 - 87)
         :param algorithm_name: a label name for this agent's algorithm
         """
-        self.algorithm_name = algorithm_name
-        self.problem = problem
-        self.path_length = 0
+        super().__init__(problem=problem, algorithm_name=algorithm_name)
+
+        #self.path_length = 0
         self.expanded_nodes = 0
 
     def reconstruct_actions_path(self, path) -> list:
@@ -69,7 +68,7 @@ class DeterministicAgent(ABC):
         pass
 
 
-class HeuristicAgent(ABC):
+class HeuristicAgent(AtomicAgent, ABC):
     """An Abstract Class for Heuristic Agent"""
     def __init__(self, problem: Problem, algorithm_name: str, evaluator: Evaluator):
         """
@@ -78,20 +77,17 @@ class HeuristicAgent(ABC):
         :param algorithm_name: a label name for this agent's algorithm
         :param evaluator: an Evaluator object that include a valid (consistent and admissible) evaluate() function
         """
-        self.problem = problem
-        self.algorithm_name = algorithm_name
+        super().__init__(problem=problem, algorithm_name=algorithm_name)
+
         self.evaluator = evaluator
         self.goal_state = problem.goal_state
-
-        # a counter for how many times this agent expand its nodes
-        self.expanded_nodes = 0
 
     def reconstruct_actions_path(self, path):
         return reconstruct_actions_path(self.problem, path)
 
-    @abstractmethod
-    def choose_move(self, state):
-        pass
+    # @abstractmethod
+    # def choose_move(self, state):
+    #     pass
 
     @abstractmethod
     def solve(self):
@@ -103,18 +99,20 @@ class HeuristicAgent(ABC):
 
 class AStarAgent(HeuristicAgent):
     """A* Agent Class Object"""
-    def __init__(self, problem, evaluator: Evaluator):
+    def __init__(self, problem: Problem, algorithm_name: str, evaluator: Evaluator):
         """
 
-        :param problem:
-        :param evaluator:
+        :param problem: a Problem object (discussed in details in the course book - chapter 3, read pages 81 - 87)
+        :param algorithm_name: a label name for this agent's algorithm
+        :param evaluator: an Evaluator object that include a valid (consistent and admissible) evaluate() function
         """
-        super().__init__(problem, evaluator)
+        super().__init__(problem=problem, algorithm_name=algorithm_name, evaluator=evaluator)
 
-    def choose_move(self, state):
-        self.problem.initial_state = state
-        goal_node = self.search()
-        return goal_node
+    # todo: check if need this
+    # def choose_move(self, state):
+    #     self.problem.initial_state = state
+    #     goal_node = self.search()
+    #     return goal_node
 
     def solve(self, *args, **kwargs):
         return self.search()
@@ -147,20 +145,47 @@ class AStarAgent(HeuristicAgent):
 
 
 class BFSAgent(DeterministicAgent):
+    """BFS Agent Class Object
+
+    applied on a valid problem object and attempt to solve it using the BFS algorithm
+    """
     def __init__(self, problem: Problem):
         super().__init__(problem=problem, algorithm_name='BFS')
 
     def _run_setup(self, start_state):
+        """BFS running setup
+
+        prepare the visited set, the FIFO queue and the parent nodes dictionary
+        required to be initialized before starting BFS graph search
+
+        :param start_state:
+        :return:
+        """
         self.visited = set()
         self.queue = deque()
         self.parent = {}
+
+        # initiate expanded-nodes (in case of using this agent multiple times)
         self.expanded_nodes = 0
 
         self.init_state = start_state
         self.queue.append((start_state, [start_state]))
         self.visited.add(start_state.get_key())
 
-    def run(self, state):
+    def run(self, state: State):
+        """Run BFS on this state
+
+        implemented EXACTLY as described in the course book (page 95)
+
+        Args:
+            state: a valid state object (should be the initial state)
+
+        Return:
+            if found a solution (iff, found a path to a goal state)
+            then returns a pair of (goal-state, path-from-init-to-goal)
+
+            otherwise, returns (None, empty-list)
+        """
         self._run_setup(state)
 
         if self.problem.is_goal_state(state):
@@ -189,7 +214,20 @@ class BFSAgent(DeterministicAgent):
         # in case of no solution
         return None, []
 
-    def build_actions_plan(self, state):
+    def build_actions_plan(self, state: State) -> Optional[List]:
+        """Action Plan Builder
+
+        if the BFS algorithm (applied by the run() method) returns a goal-state and a path
+        then build an ordered list of actions objects that create this states-path from
+        the initial-state towards this goal-state
+
+        Args:
+            state: a valid state object (should be the initial state)
+
+        Returns:
+            if the problem is solvable, then returns an ordered action list
+            otherwise, returns an empty-list
+        """
         goal_state, path = self.run(state)
         if goal_state and len(path) == 0:
             return []
