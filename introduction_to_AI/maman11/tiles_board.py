@@ -77,14 +77,6 @@ class TilesBoard:
             start = end
             end += n
 
-        # first_row = game_tiles[:3]
-        # second_row = game_tiles[3:6]
-        # third_row = game_tiles[6:]
-
-        # self.board[0,] = first_row
-        # self.board[1,] = second_row
-        # self.board[2,] = third_row
-
     def move_tile(self, tile_pos, direction) -> TilesBoard:
         new_tile_pos = vector(*tile_pos) + vector(*direction)
         board = self.board.copy()
@@ -98,9 +90,8 @@ class TilesBoard:
         raise Exception("tile move is not allowed")
 
     def _display(self):
-        print("display current tiles game stage")
+        print()             # add a newline gap
         n = self.size
-        print(n)
         for row in range(n):
             row_display = ""
             for col in range(n):

@@ -5,6 +5,7 @@ from introduction_to_AI.models import *
 from introduction_to_AI.maman11.tiles_graphic_displayer import TilesGameGraphicDisplayer
 from introduction_to_AI.main_utils import display_state
 from introduction_to_AI.maman11.tiles_game_problem import TilesGameProblem
+from .tiles import ALGORITHMS
 import argparse
 import math
 
@@ -46,7 +47,7 @@ def parse_n_args() -> tuple[list[Any], str, int, bool, bool]:
 
     parser.add_argument('--graphic', '-g', action='store_true', help="run with graphic displayer")
     parser.add_argument('--verbose', '-v', action='store_true', help="enable verbose")
-    parser.add_argument('--alg', '-a', type=str, required=True, help="choose and algorithm")
+    parser.add_argument('--alg', '-a', type=str, help="choose and algorithm", default="bfs_manhattan")
 
     args = parser.parse_args()
 
@@ -63,7 +64,10 @@ def parse_n_args() -> tuple[list[Any], str, int, bool, bool]:
         raise ValueError(f"number of tiles ({length}) must form a perfect square (e.g., 9, 16, 25, ...)")
 
     # validate algorithm
-    supported_algorithms = ['bfs', 'manhattan', 'misplaced', 'all']
+    #supported_algorithms = ALGORITHMS.keys()
+    supported_algorithms = ['bfs', 'manhattan', 'misplaced', 'all',
+                            'bfs_manhattan', 'rowcol', 'wrongneighbors', 'max_rowcol_wneighbors',
+                            'max_man_wneighbors', 'max_misp_wneighbors', 'max_misp_man', 'max_rowcol_man']
 
     if alg not in supported_algorithms:
         raise ValueError(f"algorithm '{alg}' not implemented (options: {supported_algorithms})")
@@ -99,23 +103,6 @@ def graphic_displayer_setup(graphic: bool, alg_name: str, size: int) -> Optional
         return graphic_displayer
 
     return None
-
-
-# def display_state(state: TilesGameState, graphic_displayer: Optional[TilesGameGraphicDisplayer], verbose):
-#     """Display State
-#
-#     manage the visual/terminal display of a given TilesGameState object.
-#     this is an optional function that will do nothing if both graphic_displayer and verbose equal to false
-#
-#     :param state: a given TilesGameState
-#     :param graphic_displayer: (optional) a TilesGameGraphicDisplayer object
-#     :param verbose: (optional) if true, print the result of state.display() to the terminal (false by default)
-#     """
-#     if graphic_displayer:
-#         graphic_displayer.refresh(state.get_value())
-#
-#     if verbose:
-#         state.display()
 
 
 def summarize_search(agent: AtomicAgent, path):

@@ -51,11 +51,16 @@ class BFSAgent(DeterministicAgent):
         """
         self._run_setup(state)
 
+        # for debug, index the pop order
+        # counter = itertools.count()
+
         if self.problem.is_goal_state(state):
             return state, []
 
         while self.queue:
             curr_state, path = self.queue.popleft()
+            #print(f"pop-index: {next(counter)}")
+            #curr_state.display()
 
             # increase number of expanded nodes
             self.expanded_nodes += 1
