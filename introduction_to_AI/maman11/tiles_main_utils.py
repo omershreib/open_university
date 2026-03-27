@@ -1,12 +1,15 @@
-import time
-from typing import Optional, Tuple, List, Any
+from __future__ import annotations
+
+from typing import Optional, Any
+from introduction_to_AI.models import *
 from introduction_to_AI.maman11.tiles_graphic_displayer import TilesGameGraphicDisplayer
-from introduction_to_AI.maman11.tiles_game_state import TilesGameState
+from introduction_to_AI.main_utils import display_state
+from introduction_to_AI.maman11.tiles_game_problem import TilesGameProblem
 import argparse
 import math
 
 
-def parse_n_args() -> tuple[list[Any], str, int, bool]:
+def parse_n_args() -> tuple[list[Any], str, int, bool, bool]:
     """Argument Parser
 
     this function handle the receiving of user's input from terminal, and support any (n,n) legal board
@@ -17,14 +20,17 @@ def parse_n_args() -> tuple[list[Any], str, int, bool]:
         running `tiles 1 6 3 0 4 5 7 2 8`  will resolve n=3
         but running `tiles 4 1 2 3 8 5 7 0 9 10 6 11 12 13 14 15` will resolve n=4
 
-    Returns:
-        board:  list[list[int]] in the shape of (n,n)
-                represents a starting initial Tiles board configuration.
-        alg:    str
-                the name of the algorithm to run
-        n:  int
-            define the shape of the Tiles game (also known as the "size" or the "upper-bound" of the rows/columns)
-        add_graphi: bool
+    Note:   yes, I know that the maman expected to handle only the classic 8-Puzzle case of
+            n=3, but for the sport I attempted to solve the general case (for ANY n>=3)
+
+    :returns:
+        board:  represents a starting initial Tiles board configuration.
+        alg:    the name of the algorithm to run
+        size:   the square n^2 shape of the Tiles game
+        add_graphic: true or false, depending on the existence/absence of the -g flag
+                    (optional setup to add matplot lib visualization)
+        verbose: true or false, depending on the existence/absence of the -v flag
+                    (optional setup to print the solution path of the Tiles game to the terminal)
 
     """
     parser = argparse.ArgumentParser(
@@ -38,14 +44,16 @@ def parse_n_args() -> tuple[list[Any], str, int, bool]:
         help="n^2 numbers representing the tiles (row-wise)",
     )
 
-    parser.add_argument('--graphic', '-g', type=bool, action='store_true')
-    parser.add_argument('--alg', '-a', type=str, required=True)
+    parser.add_argument('--graphic', '-g', action='store_true', help="run with graphic displayer")
+    parser.add_argument('--verbose', '-v', action='store_true', help="enable verbose")
+    parser.add_argument('--alg', '-a', type=str, required=True, help="choose and algorithm")
 
     args = parser.parse_args()
 
     tiles = args.tiles
     alg = args.alg.lower()
     add_graphic = args.graphic
+    verbose = args.verbose
 
     # validate perfect square
     length = len(tiles)
@@ -68,12 +76,13 @@ def parse_n_args() -> tuple[list[Any], str, int, bool]:
     # build board
     board = [tiles[i:i + n] for i in range(0, length, n)]
 
-    # parsing summary
-    print(f"board size: {n}x{n}")
-    print(f"algorithm: {alg}")
-    print("graphics:", "ON" if add_graphic else "OFF")
+    # parsing summary (on debug)
+    # print(f"board size: {n}x{n}")
+    # print(f"algorithm: {alg}")
+    # print("graphics: ", "ON" if add_graphic else "OFF")
+    # print("verbose: ", "ON" if verbose else "OFF")
 
-    return board, alg, n, add_graphic
+    return board, alg, n, add_graphic, verbose
 
 
 def graphic_displayer_setup(graphic: bool, alg_name: str, size: int) -> Optional[TilesGameGraphicDisplayer]:
@@ -92,30 +101,36 @@ def graphic_displayer_setup(graphic: bool, alg_name: str, size: int) -> Optional
     return None
 
 
-def display_state(state: TilesGameState, graphic_displayer: Optional[TilesGameGraphicDisplayer]):
-    """Display State
+# def display_state(state: TilesGameState, graphic_displayer: Optional[TilesGameGraphicDisplayer], verbose):
+#     """Display State
+#
+#     manage the visual/terminal display of a given TilesGameState object.
+#     this is an optional function that will do nothing if both graphic_displayer and verbose equal to false
+#
+#     :param state: a given TilesGameState
+#     :param graphic_displayer: (optional) a TilesGameGraphicDisplayer object
+#     :param verbose: (optional) if true, print the result of state.display() to the terminal (false by default)
+#     """
+#     if graphic_displayer:
+#         graphic_displayer.refresh(state.get_value())
+#
+#     if verbose:
+#         state.display()
 
-    A wrapper function that handle the displacement of a given TilesGameState object.
-    If a TilesGameGraphicDisplayer is given then visualize the board using matplotlib.
-    Anyway, call state.display() that print the board on terminal.
 
-    :param state: a given TilesGameState
-    :param graphic_displayer: (optional) a TilesGameGraphicDisplayer object
-    """
-    if graphic_displayer:
-        graphic_displayer.refresh(state.board)
-
-    state.display()
-
-
-def summarize_search(agent, path):
-    print("find solution")
+def summarize_search(agent: AtomicAgent, path):
+    print(f"algorithm: {agent.algorithm_name}")
     print(f"tiles path: {path}")
     print(f"length: {len(path)}")
     print(f"expanded: {agent.expanded_nodes}")
 
 
-def simulate_actions_path(problem, init_state, actions, agent, graphic_displayer=None):
+def simulate_actions_path(problem: TilesGameProblem,
+                          init_state: State,
+                          actions,
+                          agent: AtomicAgent,
+                          graphic_displayer=None,
+                          verbose: bool = False):
     path = []
     curr_state = init_state
     for action in actions:
@@ -124,7 +139,7 @@ def simulate_actions_path(problem, init_state, actions, agent, graphic_displayer
         path.append(int(board[*tile_pos]))
         curr_state = problem.update(curr_state, action)
 
-        display_state(curr_state, graphic_displayer)
+        display_state(curr_state, graphic_displayer, verbose)
 
         if problem.is_goal_state(curr_state):
             summarize_search(agent, path)

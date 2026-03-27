@@ -59,21 +59,21 @@ class TilesBoard:
 
     def get_tile_pos(self, x, y):
         n = self.size
-        assert (0 <= x < n) and (0 <= y < n), (f"tile position must be between (0,0) to ({n-1},{n-1}) "
+        assert (0 <= x < n) and (0 <= y < n), (f"tile position must be between (0,0) to ({n - 1},{n - 1}) "
                                                f"(received (({x},{y})))")
         return self.board[*vector(x, y)]
 
     def generate_random_init_state(self):
-        #game_tiles: list = [self.empty_symbol, 1, 2, 3, 4, 5, 6, 7, 8]
+        # game_tiles: list = [self.empty_symbol, 1, 2, 3, 4, 5, 6, 7, 8]
         n: int = self.size
-        game_tiles: list = list(range(1,self.__tile_upper_bound()-1))
+        game_tiles: list = list(range(1, self.__tile_upper_bound() - 1))
         game_tiles.append(self.empty_symbol)
         random.shuffle(game_tiles)
         start = 0
         end = n
 
         for i in range(n):
-            self.board[i, ] = game_tiles[start: end]
+            self.board[i,] = game_tiles[start: end]
             start = end
             end += n
 
@@ -97,8 +97,7 @@ class TilesBoard:
 
         raise Exception("tile move is not allowed")
 
-
-    def display(self):
+    def _display(self):
         print("display current tiles game stage")
         n = self.size
         print(n)

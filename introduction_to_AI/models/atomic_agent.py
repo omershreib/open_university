@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from introduction_to_AI.models import Problem, State
+from introduction_to_AI.models import Problem
 
 
 class AtomicAgent(ABC):
@@ -7,9 +7,8 @@ class AtomicAgent(ABC):
         self.algorithm_name = algorithm_name
         self.problem = problem
 
-    @abstractmethod
-    def choose_move(self, state: State):
-        pass
+        # a counter for how many times this agent expand its nodes
+        self.expanded_nodes = 0
 
     @abstractmethod
     def solve(self, *args, **kwargs):

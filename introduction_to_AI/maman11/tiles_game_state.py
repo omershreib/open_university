@@ -12,5 +12,11 @@ class TilesGameState(State, TilesBoard):
     def get_key(self):
         return str(self.board)
 
+    def get_value(self):
+        return self.board
+
+    def display(self):
+        return self._display()
+
     def __repr__(self):
         return f"<TilesGameState: {self.get_key()}>"

@@ -33,7 +33,6 @@ class TilesGameProblem(Problem):
 
     @initial_state.setter
     def initial_state(self, value: Optional[TilesGameState]):
-        print("set initial game state with depth=0")
         self._initial_state = value
 
         if isinstance(value, TilesGameState):
@@ -41,7 +40,6 @@ class TilesGameProblem(Problem):
 
     @game_state.setter
     def game_state(self, value: TilesGameState):
-        print("update game state")
         self._game_state = value
 
     @property
@@ -70,10 +68,6 @@ class TilesGameProblem(Problem):
             tile_movement = TileMovement(tile_value, tile_pos, opp_action_vector)
             valid_actions.append(tile_movement)
 
-
-        #pprint(valid_actions)
-        #exit()
-
         return valid_actions
 
     def is_goal_state(self, state):
@@ -85,23 +79,6 @@ class TilesGameProblem(Problem):
         size = state.size
 
         return TilesGameState(board=moved_state.board, size=size)
-
-    # def old_update(self, state: TilesGameState, action: TileMovement) -> TilesGameState:
-    #     """Update a state by an action
-    #
-    #     practically, this update function implements the transition models.
-    #
-    #     important: assuming a legal action relative to this given state (otherwise, expected to raise an error)
-    #     """
-    #     packed_action = action.pack()
-    #     moved_state = state.move_tile(*packed_action)
-    #
-    #     result_state = TilesGameState(board=moved_state.board)
-    #
-    #     step_cost = self.action_cost(state, action, result_state)
-    #     result_state.path_cost = state.path_cost + step_cost
-    #
-    #     return result_state
 
     def args_action(self, curr_state: TilesGameState, next_state: TilesGameState):
         curr_board = curr_state.board
