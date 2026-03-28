@@ -22,20 +22,20 @@ This program is divided into two main parts:
 These components are problem-independent and designed for reuse across multiple assignments 
 (namely, `maman13/` and `maman15/` that will come in the future):
 
-- `models/` – abstract representations of core concepts:
-  - `State`
-  - `Problem`
-  - `Node`
-  - `Evaluator`
-  - `Atomic_Agent`
+#### Global Modules
+Reusable, problem-independent components:
+- models/ – abstract definitions of State, Problem, Node, Evaluator, Agent (AtomicAgent)
+- agents/ – BFS,  A*, and supporting agents
+- common.py, search_strategies.py – shared utilities and strategies
 
-- `agents/` – implementations of agent-based search algorithms:
-  - `DeterministicAgent`
-  - `BFSAgent`
-  - `HeuristicAgent`
-  - `AStarAgent`
+#### Problem-Specific Package (maman11/)
+Contains all logic specific to the Tiles problem:
+- tiles_game_state.py
+- tiles_game_problem.py
+- tiles_evaluators.py
+- tiles.py (main entry point)
 
-- `common.py`, `search_strategies.py` – shared utilities and strategies
+---
 
 #### 2. Problem-Specific Package (`maman11/`)
 Contains all code specifically designed to deal with the Tiles problem:
@@ -49,45 +49,37 @@ Contains all code specifically designed to deal with the Tiles problem:
 ---
 
 ### 1.2 Design Principles
+This program is designed according to two main principles:
 
-The program is designed according to two main principles:
+1. Code Reusability – shared modules reused across future assignments (mamans)  
+2. Abstraction – separation between search logic and problem logic  
 
-1. **Code Reusability**
-   - Global modules allow reuse of search algorithms and data structures in future assignments.
-
-2. **Abstraction**
-   - Separation between *problem definition* and *search strategy*.
-   - Any new problem can be implemented using the same basic class objects (`State`, `Problem`, `Evaluator`).
-
----
 
 ### 1.3 Terminology
 
-- **State** – a configuration of the tiles on the board
-- **Board** – a numpy 2d-array implementation of this Tiles game in the shape of (3,3)
-- **Action** – a legal tile movement, prioritize in this order (from left to right): left, right, up, down  
-- **Node** – a state container that can be used in a search tree 
-- **Expanded Node** – the operation in which a parent node reveals its children nodes during graph-search
-- **Heuristic Function** \( h(n) \) – estimate of distance to a goal state
-- **Optimal Solution** – shortest path from initial state to a goal state  
+- State – abstract State representation used by search algorithms  
+- Board – concrete tile configuration  
+- Action – tile movement  
+- Expanded Node – a node whose children were generated  
+- Heuristic Function h(n) – estimate to goal  
+- Optimal Solution – shortest path from initial state to a goal state  
 
 ---
 
-### 1.4 Notation
+### 1.4 Notations
+This program uses these following notations:
 
-We use the following notation:
-
-- \( n \) – a state  
-- \( h(n) \) – heuristic value  
-- \( h^*(n) \) – true cost to goal  
-- \( g(n) \) – cost from start state to \( n \)  
-- \( f(n) = g(n) + h(n) \) – A* evaluation function  
+- n – state  
+- g(n) – cost from start  
+- h(n) – heuristic  
+- h*(n) – true cost 
+- f(n) = g(n) + h(n)
 
 ---
 
 ### 1.5 How to Run the Program
 
-In terminal from this program's root directory:
+In terminal:
 
 ```
 python -m introduction_to_AI.maman11.tiles <tiles...> [options]
@@ -100,7 +92,7 @@ python -m introduction_to_AI.maman11.tiles <tiles...> [options]
 here is an example of a simple running (without any additional options):
 
 ```commandline
-python -m introduction_to_AI.maman11.tiles 6 4 8 7 5 1 2 3 0
+python -m introduction_to_AI.maman11.tiles 1 4 0 5 8 2 3 6 7
 ```
 
 ### 1.6 Command-Line Arguments (Optional)
@@ -133,7 +125,9 @@ python -m introduction_to_AI.maman11.tiles 1 4 0 5 8 2 3 6 7 -a 'manhattan' -g -
 
 Example (4x4):
 
+```commandline
 python -m introduction_to_AI.maman11.tiles 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0
+```
 
 ---
 
@@ -144,17 +138,19 @@ python -m introduction_to_AI.maman11.tiles 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0
 TilesGameState(State, TilesBoard)
 
 This class combines:
-- State abstraction (get_key, get_value)
-- TilesBoard functionality (numpy board, board-tiles operations)
+- State abstraction
+- TilesBoard functionality
 
 The reason for this Tiles game state design is to separate search logic and board-tiles specific logic
-This heavily improves debugging, reuse, and extensibility (in the price of a little more code)
+In the price of a little more code, this heavily improves debugging, code reuse, and extensibility 
+(i.e. any new methods I want to apply on the tiles-board will not affect the `State` class that will used
+by other problems that these methods are irrelevant for them).
 
 ---
 
-### 2.2 Initial State (Board representation)
+### 2.2 Initial State 
 
-Example:
+*Board* representation example:
 
 [[6, 4, 8],
  [7, 5, 1],
@@ -162,7 +158,9 @@ Example:
 
 ---
 
-### 2.3 Goal State (Board representation)
+### 2.3 Goal State
+
+In *Board* representation:
 
 [[0, 1, 2],
  [3, 4, 5],
@@ -174,12 +172,12 @@ Example:
 
 UP, DOWN, LEFT, RIGHT
 
-In vectorial representation (implemented using numpy)
+In vectorial representation:
 
-UP = [-1 0]
-DOWN = [+1 0]
-LEFT = [0 -1]
-RIGHT = [0, +1]
+- UP = [-1 0]
+- DOWN = [+1 0]
+- LEFT = [0 -1]
+- RIGHT = [0 +1]
 
 ---
 
@@ -193,7 +191,7 @@ T(s, a) = s'
 
 Since all possible (legal) tiles movements have the same cost 
 (e.g. moving tile #2 UP and moving tile #7 LEFT have an equal cost)
-than
+then:
 
 TilesGameProblem().action_cost(curr_state, action, result_state) = c(s,a,s') = 1
 
@@ -212,13 +210,37 @@ TilesGameProblem().action_cost(curr_state, action, result_state) = c(s,a,s') = 1
 
 h(n) = wrong rows + wrong columns
 
-Admissible and consistent.
+Admissible:
+h(n) ≤ h*(n)
+
+Consistent:
+|h(n) - h(n')| ≤ 1
 
 ---
 
 ### 3.3 Manhattan + Linear Conflict (A*)
 
-h(n) = MD(n) + 2 * LC(n)
+*" Starts with Manhattan distance, then for each row and column, the number of tiles
+    \"in conflict\" are identified, and 2 * this number is added to the total distance.
+    (It will take at least 2 additional moves to reshuffle the conflicting tiles into
+    their correct positions.) This is an admissible improvement over
+    Manhattan-Distance (`Hansson, Mayer, Young, 1985`)."*
+
+Source:
+Hansson, Mayer, Young, 1985: https://academiccommons.columbia.edu/doi/10.7916/D8154QZT/download
+
+
+This citation was found in this *slidingtilepuzzle* python library: https://slidingtilepuzzle.readthedocs.io/en/latest/_modules/slidingpuzzle/heuristics.html#linear_conflict_distance
+
+
+MD(n) = sum of Manhattan distances  
+
+LC(n) = number of conflicts  
+
+h(n) = MD(n) + 2·LC(n)
+
+Admissible:
+Each conflict adds ≥ 2 moves
 
 ---
 
