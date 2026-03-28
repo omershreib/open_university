@@ -118,12 +118,18 @@ def tiles_main(board: list, alg: str, size: int, add_graphic: bool, add_verbose:
 
 
 if __name__ == '__main__':
-    # tiles_main(*parse_n_args())
+    tiles_main(*parse_n_args())
 
-    #all_performances = read_json('all_boards_algs_performances.json')
-    #plot_results(*all_performances)
+    start_board = build_board([1, 2, 0, 3, 4, 5, 6, 7, 8])
+    my_algs = ['bfs', 'rowcol', 'md_plus_lc']
 
-    #exit()
+    for my_alg in my_algs:
+        tiles_main(board=start_board,
+                    alg=my_alg,
+                    size=len(start_board),
+                    add_graphic=False,
+                    add_verbose=False)
+
 
     board_1 = build_board([1, 2, 0, 3, 4, 5, 6, 7, 8])
     board_2 = build_board([1, 4, 0, 5, 8, 2, 3, 6, 7])

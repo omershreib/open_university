@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from introduction_to_AI.search_strategies import *
 from introduction_to_AI.agents.common_agents_utils import reconstruct_actions_path
+from .atomic_agent import AtomicAgent
 
 
 class DeterministicAgent(AtomicAgent, ABC):

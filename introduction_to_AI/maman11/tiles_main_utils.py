@@ -5,6 +5,7 @@ from introduction_to_AI.models import *
 from introduction_to_AI.maman11.tiles_graphic_displayer import TilesGameGraphicDisplayer
 from introduction_to_AI.main_utils import display_state
 from introduction_to_AI.maman11.tiles_game_problem import TilesGameProblem
+from introduction_to_AI.agents import AtomicAgent
 import json
 import argparse
 import math
