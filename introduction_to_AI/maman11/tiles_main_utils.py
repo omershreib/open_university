@@ -5,9 +5,10 @@ from introduction_to_AI.models import *
 from introduction_to_AI.maman11.tiles_graphic_displayer import TilesGameGraphicDisplayer
 from introduction_to_AI.main_utils import display_state
 from introduction_to_AI.maman11.tiles_game_problem import TilesGameProblem
-from .tiles import ALGORITHMS
+import json
 import argparse
 import math
+import os
 
 
 def parse_n_args() -> tuple[list[Any], str, int, bool, bool]:
@@ -64,10 +65,14 @@ def parse_n_args() -> tuple[list[Any], str, int, bool, bool]:
         raise ValueError(f"number of tiles ({length}) must form a perfect square (e.g., 9, 16, 25, ...)")
 
     # validate algorithm
-    #supported_algorithms = ALGORITHMS.keys()
-    supported_algorithms = ['bfs', 'manhattan', 'misplaced', 'all',
-                            'bfs_manhattan', 'rowcol', 'wrongneighbors', 'max_rowcol_wneighbors',
-                            'max_man_wneighbors', 'max_misp_wneighbors', 'max_misp_man', 'max_rowcol_man']
+    supported_algorithms = ['bfs',
+                            'manhattan',
+                            'misplaced',
+                            'linear_conflict',
+                            'rowcol',
+                            'max_rowcol_md',
+                            'md_plus_lc',
+                            'all']
 
     if alg not in supported_algorithms:
         raise ValueError(f"algorithm '{alg}' not implemented (options: {supported_algorithms})")
@@ -106,10 +111,17 @@ def graphic_displayer_setup(graphic: bool, alg_name: str, size: int) -> Optional
 
 
 def summarize_search(agent: AtomicAgent, path):
-    print(f"algorithm: {agent.algorithm_name}")
+    # todo: return these attributes only for documentation
+    algorithm_name = agent.algorithm_name
+    path_length = len(path)
+    expanded_nodes = agent.expanded_nodes
+
+    print(f"algorithm: {algorithm_name}")
     print(f"tiles path: {path}")
-    print(f"length: {len(path)}")
-    print(f"expanded: {agent.expanded_nodes}")
+    print(f"length: {path_length}")
+    print(f"expanded: {expanded_nodes}")
+
+    return algorithm_name, path_length, expanded_nodes
 
 
 def simulate_actions_path(problem: TilesGameProblem,
@@ -129,7 +141,29 @@ def simulate_actions_path(problem: TilesGameProblem,
         display_state(curr_state, graphic_displayer, verbose)
 
         if problem.is_goal_state(curr_state):
-            summarize_search(agent, path)
-            break
+            # summarize_search(agent, path)
+            return summarize_search(agent, path)
+            # break
     else:
         print("agent cannot find a solution")
+
+
+def build_board(tiles: list[int]):
+    length = len(tiles)
+    n = int(math.sqrt(length))
+    return [tiles[i:i + n] for i in range(0, length, n)]
+
+def save_dict_as_json(filename, data):
+    with open(filename, 'w+') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+
+def read_json(file_path):
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+        #if not isinstance(data, dict):
+        #    raise ValueError("JSON root element is not a dictionary.")
+        return data

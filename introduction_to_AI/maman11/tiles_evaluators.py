@@ -55,155 +55,65 @@ class TilesRowColEvaluator(Evaluator):
         return score
 
 
-# todo: likely not admissible
-class TilesWrongNeighbors(Evaluator):
+class TilesMaxMDRowCol(Evaluator):
+    def __init__(self):
+        self.md_evaluator = TilesManhattanEvaluator()
+        self.rowcol_evaluator = TilesRowColEvaluator()
 
-    @staticmethod
-    def build_reduction_grid(board: List[List[int]]) -> List[List[Optional[Any]]]:
-        """
-        Wrap an n x n tiles grid with one extra outer layer.
+    def evaluate(self, curr_state: TilesGameState, goal_state: TilesGameState):
+        md = self.md_evaluator.evaluate(curr_state, goal_state)
+        rowcol = self.rowcol_evaluator.evaluate(curr_state, goal_state)
 
-        Example for n=3 and board:
-            [[0, 1, 2],
-             [3, 4, 5],
-             [6, 7, 8]]
+        return max(md, rowcol)
 
-        returns:
-            [
-                [None, 'a', 'b', 'c', None],
-                ['l',     0,   1,   2, 'd'],
-                ['k',     3,   4,   5, 'e'],
-                ['j',     6,   7,   8, 'f'],
-                [None, 'i', 'h', 'g', None],
-            ]
-        """
-        n = len(board)
-        if n == 0 or any(len(row) != n for row in board):
-            raise ValueError("board must be a non-empty square grid")
 
-        # number of border labels needed = 4 * n
-        border_labels = [chr(ord("a") + i) for i in range(4 * n)]
-
-        top = border_labels[:n]
-        right = border_labels[n:2 * n]
-        bottom = border_labels[2 * n:3 * n][::-1]
-        left = border_labels[3 * n:4 * n][::-1]
-
-        reduced = [[None for _ in range(n + 2)] for _ in range(n + 2)]
-
-        # top / bottom
-        for j in range(n):
-            reduced[0][j + 1] = top[j]
-            reduced[n + 1][j + 1] = bottom[j]
-
-        # left / right
-        for i in range(n):
-            reduced[i + 1][0] = left[i]
-            reduced[i + 1][n + 1] = right[i]
-
-        # inner board
-        for i in range(n):
-            for j in range(n):
-                reduced[i + 1][j + 1] = board[i][j]
-
-        return reduced
-
-    @staticmethod
-    def get_neighbors_from_reduction_grid(reduced_grid: List[List[Optional[Any]]], tile: int) -> Tuple[
-        Any, Any, Any, Any]:
-        """
-        Return (left, right, up, down) neighbors of `tile` in the reduced grid.
-
-        Example:
-            tile = 2
-            returns (1, 'd', 'c', 5)
-        """
-        rows = len(reduced_grid)
-        cols = len(reduced_grid[0]) if rows else 0
-
-        tile_pos = None
-        for i in range(rows):
-            for j in range(cols):
-                if reduced_grid[i][j] == tile:
-                    tile_pos = (i, j)
-                    break
-            if tile_pos is not None:
-                break
-
-        if tile_pos is None:
-            raise ValueError(f"tile {tile} not found in reduced grid")
-
-        i, j = tile_pos
-        left = reduced_grid[i][j - 1]
-        right = reduced_grid[i][j + 1]
-        up = reduced_grid[i - 1][j]
-        down = reduced_grid[i + 1][j]
-
-        return left, right, up, down
-
+class TilesLinearConflictEvaluator(Evaluator):
     def evaluate(self, curr_state: TilesGameState, goal_state: TilesGameState):
         n = curr_state.size
-        square_n = int(math.pow(n, 2))
-
-        curr_reduction_grid = self.build_reduction_grid(curr_state.board)
-        goal_reduction_grid = self.build_reduction_grid(goal_state.board)
-
-        total_score = 0
+        square_n = n * n
+        lc_counter = 0
 
         for i in range(1, square_n):
-            for curr_dir, goal_dir in zip(self.get_neighbors_from_reduction_grid(curr_reduction_grid, i),
-                                          self.get_neighbors_from_reduction_grid(goal_reduction_grid, i)):
-                if curr_dir != goal_dir:
-                    total_score += 1
+            i_curr_row, i_curr_col = curr_state.args_tile_pos(i)
+            i_goal_row, i_goal_col = goal_state.args_tile_pos(i)
 
-        return total_score
+            for j in range(i + 1, square_n):
+                j_curr_row, j_curr_col = curr_state.args_tile_pos(j)
+                j_goal_row, j_goal_col = goal_state.args_tile_pos(j)
 
+                # Row conflict:
+                # same current row, both belong in that row,
+                # but current order is reversed relative to goal order
+                if (
+                        i_curr_row == j_curr_row and
+                        i_goal_row == i_curr_row and
+                        j_goal_row == j_curr_row
+                ):
+                    if (i_curr_col < j_curr_col and i_goal_col > j_goal_col) or \
+                            (i_curr_col > j_curr_col and i_goal_col < j_goal_col):
+                        lc_counter += 1
 
-class TilesMaxRowColAndWrongNeighbors(Evaluator):
-    def evaluate(self, curr_state, goal_state):
-        h1 = TilesRowColEvaluator().evaluate(curr_state, goal_state)
-        h2 = TilesWrongNeighbors().evaluate(curr_state, goal_state)
+                # Column conflict:
+                # same current column, both belong in that column,
+                # but current order is reversed relative to goal order
+                if (
+                        i_curr_col == j_curr_col and
+                        i_goal_col == i_curr_col and
+                        j_goal_col == j_curr_col
+                ):
+                    if (i_curr_row < j_curr_row and i_goal_row > j_goal_row) or \
+                            (i_curr_row > j_curr_row and i_goal_row < j_goal_row):
+                        lc_counter += 1
 
-        return max(h1, h2)
-
-
-class TilesMaxRowColAndManhattan(Evaluator):
-    def evaluate(self, curr_state, goal_state):
-        h1 = TilesManhattanEvaluator().evaluate(curr_state, goal_state)
-        h2 = TilesRowColEvaluator().evaluate(curr_state, goal_state)
-
-        return max(h1, h2)
-
-
-class TilesMaxManhattanAndWrongNeighbors(Evaluator):
-    def evaluate(self, curr_state, goal_state):
-        h1 = TilesManhattanEvaluator().evaluate(curr_state, goal_state)
-        h2 = TilesWrongNeighbors().evaluate(curr_state, goal_state)
-
-        return max(h1, h2)
-        # return 4*max(h1, h2)
-        # return 8*max(h1, h2)
-        # return 16 * max(h1, h2)
-
-
-class TilesMaxMisplacedAndWrongNeighbors(Evaluator):
-    def evaluate(self, curr_state, goal_state):
-        h1 = TilesMisplacedEvaluator().evaluate(curr_state, goal_state)
-        h2 = TilesWrongNeighbors().evaluate(curr_state, goal_state)
-
-        return max(h1, h2)
-        # return h1 + 4*h2
-        # return 16*max(h1, h2)
-        # return 16*max(h1, h2)
+        return lc_counter
 
 
-class TilesMaxMispAndManhattan(Evaluator):
+class TilesMDPlusLCEvaluator(Evaluator):
+    def __init__(self):
+        self.md_evaluator = TilesManhattanEvaluator()
+        self.lc_evaluator = TilesLinearConflictEvaluator()
+
     def evaluate(self, curr_state: TilesGameState, goal_state: TilesGameState):
-        h1 = TilesMisplacedEvaluator().evaluate(curr_state, goal_state)
-        h2 = TilesManhattanEvaluator().evaluate(curr_state, goal_state)
-
-        # excellent
-        return max(h1, h2)
-        # return h1 + 4*h2
-        # return 16*max(h1, h2)
-        # return 16 * max(h1, h2)
+        md = self.md_evaluator.evaluate(curr_state, goal_state)
+        lc = self.lc_evaluator.evaluate(curr_state, goal_state)
+        return md + 2 * lc

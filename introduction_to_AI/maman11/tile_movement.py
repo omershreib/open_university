@@ -7,10 +7,11 @@ DOWN = vector(+1, 0)
 LEFT = vector(0, -1)
 RIGHT = vector(0, +1)
 
-TILES_DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
+#TILES_DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
+TILES_DIRECTIONS = [LEFT, RIGHT, UP, DOWN]
 
 tiles_directions_to_labels: dict = {str(UP): 'UP', str(DOWN): 'DOWN', str(LEFT): 'LEFT', str(RIGHT): 'RIGHT'}
-
+labels_to_directions: dict = {'UP': UP, 'DOWN': DOWN, 'LEFT': LEFT, 'RIGHT': RIGHT}
 
 class TileMovement:
     """Tile Movement Class Object
