@@ -192,6 +192,12 @@ In vectorial representation:
 - LEFT = [0 -1]
 - RIGHT = [0 +1]
 
+**Note:** 
+
+in this *maman* the *diractions* need to be the *actions*, but I think that it is logicaly **wrong** to depict
+a tile's *direction* as *action*. A direction cannot describe an action by itself - it needs an **object** (*i.e.*, a specific tile) to which this movement towards this direction is applied.
+In this program, this *action* definition (*i.e.*, tile plus direction) is depicted by the TileMovement class object. 
+
 **Important:** the order of directions' check is as follows (from left to right):
 
 LEFT, RIGHT, UP, DOWN.
@@ -202,7 +208,33 @@ For a pedagogical purpose, **This is matter!** because it can change the order o
 
 ### 2.5 Transition Model
 
-T(s, a) = s'
+In this program, the transition model is implemented by the *Problem.update(state, action)* method, which returns
+a *new-state* object that is being received from *state* after appling this TileMovement *action* on *state*.
+
+Mathematically:
+
+$$
+T: STATES \times ACTIONS &rarr; STATES
+$$
+
+$$
+T(state, action) = Problem.update(state, action) = newState 
+$$
+
+**Note:**
+
+The legality of an *action* being applied to a *state* happens before** calling Problem.update(). 
+In a graph search, the *expand()* method calls Problem.get_actions(), which filters only legal actions, yielding a node's children. 
+
+Generally, a tile movement action is considered to be legal upon 3 conditions:
+1. The tile (1-8) needed to be moved is located at a legal $(x,y)$ position on the game board (*iff:* $0 < x,y < 3$)
+2. The result of this action, resolved by moving this tile UP, DOWN, LEFT, or RIGHT, changed the previous $(x,y)$ position  of this tile to a new legal $(x',y')$ position (*iff:* $0 < x',y' < 3$)
+3. $(x',y')$ is **empty** (in this program, the empty tile location is defined by `0`)
+
+In short, a legal tile action is defined by swapping the *"empty tile"* with one of its non-empty direct neighbor tiles.
+   
+
+
 
 ---
 
