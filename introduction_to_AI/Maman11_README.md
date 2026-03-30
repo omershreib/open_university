@@ -115,7 +115,7 @@ This program supports flexible execution via command-line arguments.
 - --verbose, -v: enable verbose output (visualize the solution of this game through the terminal)
 
 Note: running this program with `-a 'all'` will attempt to solve this game, following a legal tiles board
-provided to it, with **every** algorithm this program supports, which includes: (<name>: <str-value>)
+provided to it, with **every** algorithm this program supports, which includes:
 - BFS: 'bfs'
 - ManhattanDistance: 'manhattan'
 - Misplaced: 'misplaced'
@@ -181,9 +181,9 @@ Raw board representation:
 
 In this Tiles game problem, *Action* is defined as:
 
-*"tile x move UP / DOWN / LEFT / RIGHT"*
+*"tile x move direction"*
 
-UP, DOWN, LEFT, RIGHT
+where *direction* can be UP, DOWN, LEFT, or RIGHT. 
 
 In vectorial representation:
 
@@ -191,6 +191,12 @@ In vectorial representation:
 - DOWN = [+1 0]
 - LEFT = [0 -1]
 - RIGHT = [0 +1]
+
+**Important:** the order of directions' check is as follows (from left to right):
+
+LEFT, RIGHT, UP, DOWN.
+
+For a pedagogical purpose, **This is matter!** because it can change the order of nodes' expansion, located at the same horizontal-level distance from the root node during graph-search. 
 
 ---
 
