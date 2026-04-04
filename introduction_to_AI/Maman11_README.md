@@ -290,62 +290,73 @@ This citation was found in this *slidingtilepuzzle* python library: https://slid
 
 MD(n) = sum of Manhattan distances  
 
-LC(n) = number of conflicts  
+lc(n, $r_i$) = the number of tiles that must be removed from row $r_i$ in order to solve the linear conflict.  
+lc(n, $c_i$) = the number of tiles that must be removed from column $c_i$ in order to solve the linear conflict.  
 
-h(n) = MD(n) + 2·LC(n)
+LC(n) = estimated cost to solve all linear conflicts in this n-state. 
+This equals twice the sum of all linear conflicts with each column and row.
 
-Proof of Consistency: (based on the original admissible prove written in `Hansson` paper)
+$LC(n) = 2 \times \sum_{0 \leq i,j \leq 2} [lc(n, r_i) + lc(n, c_i)]$ 
 
-let have a tile *x* located in position ($r_i$, $c_k$). *n* is the current state of x (before any action *a* that
-causes for *x* to move outside it current position). now, lets assume that *x* move from row *r_i* to row *r_j*,
-while preserving its current column position *c_k*. there are exactly 3 possible conditions needed to be checked:
+h(n) = MD(n) + LC(n)
 
-1. neither *r_i* nor *r_j* are considered to be *x*'s goal row position (*e.g.*, tile 2 moved UP from (2,0) to (1,0), while its goal position is (0,2))
+The reason this **2** factor is because of *Corollary 5* in the `Hansson` paper claims that:
 
-   then the number of linear conflicts does not change becuase of this action movement, so:
-   $LC(n) == LC(n')$
+*"If there is a unique shortest path, p, between position X and position Y in the N 
+Puzzle, then any alternate path will be at least 2 moves longer than p."*
 
-   thus, the consistency of h(n) is this condition is depended on the consistency of MD(n).
+Proof of Consistency: (based on the original proof written in the `Hansson` paper)
 
-   the course book (page 116) explains why MD(n) is addmisible. Also, proving that MD(n) is consistent for this
-   Tiles game is simple:
+let have a tile *x* located in position ($r_i$, $c_k$). *n* is the current state of, before any action *a* that
+causes *x* to move outside its current position. Now, let's assume that *x* moves from row $r_i$ to row $r_j$,
+while preserving its current column position $c_k$. There are exactly 3 possible conditions that need to be checked:
 
-   the delta between every direct states pairs (or neigboors nodes connected by a direct edge in a graph search) n and n'
-   equals to $\pm 1$ (donated by a single tile movement inside the empty tile position in the n state). therefore:
+1. Neither $r_i$ nor $r_j$ is considered to be *x*'s goal row position (*e.g.*, tile 2 moved UP from (2,0) to (1,0), while its goal position is (0,2))
+
+   Then the number of linear conflicts does not change because of this action movement, so:
+   $LC(n) = LC(n')$
+
+   Thus, in this condition, the consistency of h(n) depends on the consistency of MD(n) - which it does.
+
+   The course book (page 116) explains why MD(n) is admissible. Also, proving that MD(n) is consistent for this
+   8-Tiles game is simple:
+
+   The delta between every direct state pair (*i.e.*, states that differ by a single tile move) n and n'
+   equal to $\pm 1$. Therefore:
 
    $MD(n) - MD(n') = MD(n) \pm 1 \leq c(n,a,n') = 1$
    
 
-2. *r_j* is *x*'s goal row:
+2. $r_j$ is *x*'s goal row:
 
-   this caused that: $MD(n') = MD(n) - 1$ (reason: *x* moved 1 tile closer to its goal position)
+   causing: $MD(n') = MD(n) - 1$ (*x* moved 1 tile closer to its goal position)
    
-   following this case senario, the the number of linear conflicts cannot decrease - only increased by:
+   Following this case scenario, the number of linear conflicts cannot decrease, but only increase by:
    - 0: ⟹ $LC(n) = LC(n)$     (the number of conflicting tiles with *x* did not changed).
-   - 1: ⟹ $LC(n) = LC(n) + 1$ (the new *r_j* row contains one extra conflit with *x* compare to *r_i*)
-   - 2: ⟹ $LC(n) = LC(n) + 2$ (the new *r_j* row contains two extra conflit with *x* compare to *r_i*)
+   - 1: ⟹ $LC(n) = LC(n) + 1$ (the new $r_j$ row contains one extra conflit with *x* compare to $c_i$)
+   - 2: ⟹ $LC(n) = LC(n) + 2$ (the new $r_j$ row contains two extra conflit with *x* compare to $c_i$)
   
-   according to all these case senario:
+   According to all these case scenarios:
 
-    $h(n) - h(n') = (MD(n) + LC(n)) - (MD(n') + LC(n')) \leq (-1) + 2 \leq 1 $
+    $h(n) - h(n') = (MD(n) + LC(n)) - (MD(n') + LC(n')) \leq (-1) + 2 \leq 1$
    
 
-3. *r_i* is *x*'s goal row:
+3. $r_i$ is *x*'s goal row:
 
-this caused that: $MD(n') = MD(n) + 1$ (reason: *x* moved 1 tile further from its goal position)
+   causing: $MD(n') = MD(n) + 1$ (*x* moved 1 tile further from its goal position)
 
-   following this case senario, the the number of linear conflicts cannot increase - only decrease by:
+   Following this case scenario, the number of linear conflicts cannot increase - only decrease by:
    - 0: ⟹ $LC(n) = LC(n)$     (the number of conflicting tiles with *x* did not changed).
-   - 1: ⟹ $LC(n) = LC(n) - 1$ (the new $*r_j*$ row contains one less conflit with *x* compare to *r_i*)
-   - 2: ⟹ $LC(n) = LC(n) - 2$ (the new $*r_j*$ row contains two less conflit with *x* compare to *r_i*)
+   - 1: ⟹ $LC(n) = LC(n) - 1$ (the new $r_j$ row contains one less conflit with *x* compare to $r_i$)
+   - 2: ⟹ $LC(n) = LC(n) - 2$ (the new $r_j$ row contains two less conflit with *x* compare to $r_i$)
 
 
-according to all these case senario:
+According to all these case scenarios:
 
 $h(n) - h(n') = (MD(n) + LC(n)) - (MD(n') + LC(n')) \leq (+1) - 2 = (-1) \leq 1$
 
-all these condition combines, where the case where *x* move vertically (between columns) is symetrical, this prove that
-h(n) is consistent. since consistency ⟹ admissibility, h(n) is also admissible. Q.E.D
+All these conditions combine, where the case where *x* moves vertically (between columns) is symmetrical, proves that
+h(n) is consistent. Since consistency ⟹ admissibility, h(n) is also admissible. $Q.E.D$
 
 Notes:
 
