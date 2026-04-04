@@ -265,7 +265,11 @@ Admissible:
 h(n) ≤ h*(n)
 
 Consistent:
-|h(n) - h(n')| ≤ 1
+h(n) ≤ c(n,a,n') + h(n')
+
+since in this Tiles game the cost is always eqaul to 1, then this above iniquality equals to: 
+
+h(n) - h(n') ≤ 1
 
 ---
 
@@ -289,6 +293,77 @@ MD(n) = sum of Manhattan distances
 LC(n) = number of conflicts  
 
 h(n) = MD(n) + 2·LC(n)
+
+Proof of Consistency: (based on the original admissible prove written in `Hansson` paper)
+
+let have a tile *x* located in position ($r_i$, $c_k$). *n* is the current state of x (before any action *a* that
+causes for *x* to move outside it current position). now, lets assume that *x* move from row *r_i* to row *r_j*,
+while preserving its current column position *c_k*. there are exactly 3 possible conditions needed to be checked:
+
+1. neither *r_i* nor *r_j* are considered to be *x*'s goal row position (*e.g.*, tile 2 moved UP from (2,0) to (1,0), while its goal position is (0,2))
+
+   then the number of linear conflicts does not change becuase of this action movement, so:
+   $LC(n) == LC(n')$
+
+   thus, the consistency of h(n) is this condition is depended on the consistency of MD(n).
+
+   the course book (page 116) explains why MD(n) is addmisible. Also, proving that MD(n) is consistent for this
+   Tiles game is simple:
+
+   the delta between every direct states pairs (or neigboors nodes connected by a direct edge in a graph search) n and n'
+   equals to $\pm 1$ (donated by a single tile movement inside the empty tile position in the n state). therefore:
+
+   $MD(n) - MD(n') = MD(n) \pm 1 \leq c(n,a,n') = 1$
+   
+
+2. *r_j* is *x*'s goal row:
+
+   this caused that: $MD(n') = MD(n) - 1$ (reason: *x* moved 1 tile closer to its goal position)
+   
+   following this case senario, the the number of linear conflicts cannot decrease - only increased by:
+   - 0: ⟹ $LC(n) = LC(n)$     (the number of conflicting tiles with *x* did not changed).
+   - 1: ⟹ $LC(n) = LC(n) + 1$ (the new *r_j* row contains one extra conflit with *x* compare to *r_i*)
+   - 2: ⟹ $LC(n) = LC(n) + 2$ (the new *r_j* row contains two extra conflit with *x* compare to *r_i*)
+  
+   according to all these case senario:
+
+    $h(n) - h(n') = (MD(n) + LC(n)) - (MD(n') + LC(n')) \leq (-1) + 2 \leq 1 $
+   
+
+3. *r_i* is *x*'s goal row:
+
+this caused that: $MD(n') = MD(n) + 1$ (reason: *x* moved 1 tile further from its goal position)
+
+   following this case senario, the the number of linear conflicts cannot increase - only decrease by:
+   - 0: ⟹ $LC(n) = LC(n)$     (the number of conflicting tiles with *x* did not changed).
+   - 1: ⟹ $LC(n) = LC(n) - 1$ (the new $*r_j*$ row contains one less conflit with *x* compare to *r_i*)
+   - 2: ⟹ $LC(n) = LC(n) - 2$ (the new $*r_j*$ row contains two less conflit with *x* compare to *r_i*)
+
+
+according to all these case senario:
+
+$h(n) - h(n') = (MD(n) + LC(n)) - (MD(n') + LC(n')) \leq (+1) - 2 = (-1) \leq 1$
+
+all these condition combines, where the case where *x* move vertically (between columns) is symetrical, this prove that
+h(n) is consistent. since consistency ⟹ admissibility, h(n) is also admissible. Q.E.D
+
+Notes:
+
+1. in both conditions #2 and #3, according to the linear conflict definition, horizonal movements (between rows) does not
+   affect existing linear conflicts that exist in the vertical axis (*e.g.*, between pairs of tiles that located in thier
+   columns' goal position). thus, the difference in linear conflicts between states n and n' affect only in the horizonal
+   axis.
+   
+3. in the 8-Tiles game version, the case sanarios where $\Delta LC(n,n') \geq 3$ is impossible because the movement of *x*
+   vertically/horizontaly can replace 2 tiles that it can potentally be in a linear conflict with them **at most**, while
+   the exist linear conflicts in the horizontal/vertical axis is presreved (honestly, I am not so sure that this is ture for
+   the general case of this game with $2^k$ tiles, but for the case of 8 tiles this claim is true) 
+   
+
+
+
+
+
 
 Admissible:
 Each conflict adds ≥ 2 moves
