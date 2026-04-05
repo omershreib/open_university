@@ -344,13 +344,30 @@ while preserving its current column position $c_k$. There are exactly 3 possible
 
    according to case senario #2:
    
-   $$
-h(n) - h(n') = MD(n) + LC(n) - [MD(n') + LC(n')] = [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)]
-   (+1) + 2 \times [lc(n, r_j) - lc(n', r_j)] = (+1) + 2 \times [lc(n, r_j) - (lc(n, r_j) + 1)] = (+1) + 2 \times (-1) = 1 - 2 = (-1) \leq 1 (good) 
-   $$
+ $$
+\begin{aligned}
+h(n) - h(n') &= MD(n) + LC(n) - [MD(n') + LC(n')] \\
+&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\
+&= (+1) + 2 \times [lc(n, r_j) - lc(n', r_j)] \\
+&= (+1) + 2 \times [lc(n, r_j) - (lc(n, r_j) + 1)] \\
+&= (+1) + 2 \times (-1) \\
+&= (-1) \leq 1
+\end{aligned}
+$$
 
+   according to case senario #3:
 
-    $h(n) - h(n') = (MD(n) + LC(n)) - (MD(n') + LC(n')) \leq (-1) + 2 \leq 1$
+$$
+\begin{aligned}
+h(n) - h(n') &= MD(n) + LC(n) - [MD(n') + LC(n')] \\
+&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\
+&= (+1) + 2 \times [lc(n, r_j) - lc(n', r_j)] \\
+&= (+1) + 2 \times [lc(n, r_j) - (lc(n, r_j) + 2)] \\
+&= (+1) + 2 \times (-2) \\
+&= (+1) - 4 \\
+&= (-3) \leq 1 \\
+\end{aligned}
+$$
    
 
 4. $r_i$ is *x*'s goal row:
