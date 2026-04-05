@@ -411,7 +411,7 @@ Sources:
 
 This citation was found in this *slidingtilepuzzle* python library: https://slidingtilepuzzle.readthedocs.io/en/latest/_modules/slidingpuzzle/heuristics.html#linear_conflict_distance
 
-*LinearConflict* attempts to improve Manhattan Distance (MD) by an additional *penelty* addon, donated by what called: the number of linear conflicts in a current state.
+*LinearConflict* (LC) attempts to improve Manhattan Distance (MD) by an additional *penelty* addon, donated by what called: the number of linear conflicts in a current state.
 According to `Korf`, this *LinearConflict* is *"the first significant improvement to Manhattan Distance"*
 
 A linear Conflict is defined as follows:
@@ -421,6 +421,15 @@ let's have two tiles $t_j$ and $t_k$. then, following the appearance of these 4 
 2. the goal positions of $t_j$ and $t_k$ are both in that line.
 3. $t_j$ is to the **right** of $t_k$
 4. in the goal state, $t_j$ is to the **left** of $t_k$
+
+
+According to `Hansson`, the motivation behind LC is the observation in which MD offer a proposal solution for each tile (in a relaxed problem).
+The path offerd by MD is not always the only shortest-solution. However, in the LC baseline MD do offer only the shortest-solution because its
+required that these pairs of tiles will be in their goal column/row position. 
+From LC's standpoint, LC applies this relaxed problem of identifing (using MD) the tiles that have a unique shortest-path to their goal position, and then identifiy all
+the "obstacles" that stand in between and therefore must be removed from these shortest-paths
+
+#### LinearConflict - defintions:
 
 MD(n) = sum of Manhattan distances  
 
@@ -443,6 +452,30 @@ The reason this **2** factor is because of *Corollary 5* in the `Hansson` paper 
 Puzzle, then any alternate path will be at least 2 moves longer than p."*
 
 ---
+
+
+#### Example Use Case:
+
+```
+state = [[0, 7, 8],    
+        [2, 1, 5],   
+        [6, 4, 3]]
+
+ManhattanDistances(state) = 12
+
+there are 3 linear conflicts:
+(4,7), (1,7) and (8,5)
+
+the minimum number of tiles required to be removed in order
+to solve each of these linear conflicts is 1.according to Hannson, the lower bound
+of the estimated cost to resolved a linear conflict, which in proportion to the tiles moves required to solve this linear conflict,
+equals to doule the shortest path of each tiles towards their goal position in the relaxed problem (without any linear conflict)
+
+therefore, these 3 linear confincts needed to be double in 2, resolving: LC(n) = 2*sum {0 <= i <= 2} [lc(n, r_i) + lc(n, c_i)]
+in our example: LC(state) = 2*3 = 6
+
+LinearConflict(state) = MD(state) + LC(state) = 12 + 2*3 = 12 + 6 = 18
+```
 
 ## LinearConflict - Proof of Consistency: (based on the original proof written in the `Hansson` paper)
 
