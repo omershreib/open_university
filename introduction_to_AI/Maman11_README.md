@@ -217,16 +217,38 @@ Problem.get_actions() check if a tile's *action* applied to a *state* is legal a
 
 The condition in which the target $(x', y')$ position must contains, before this action, the **empty tile** (in this program, the empty tile location is defined by `0`)
 is always true, because all possible *state* actions derived from the current position of the empty tile.
-   
+
+
+### Transition Model - Use Case Example 
+
+```
+state = [[0, 7, 8],    
+        [2, 1, 5],   
+        [6, 4, 3]]
+
+Problem.get_actions(state) returns (in order): [(7, RIGHT), (2, UP)]
+
+then, the image of the transition model when applied on this state looks as follows: 
+
+                         [[7, 0, 8],    
+T(state, (7, RIGHT)) ⟶  [2, 1, 5],   
+                         [6, 4, 3]]
+
+
+                      [[2, 7, 8],    
+T(state, (2, UP)) ⟶  [0, 1, 5],   
+                      [6, 4, 3]]
+
+```
 ---
 
 ### 2.6 Cost Function
 
 Since all possible (legal) tiles movements have the same cost 
-(e.g. moving tile #2 UP and moving tile #7 LEFT have an equal cost)
+(*e.g.*, moving tile #2 UP and moving tile #7 LEFT have an equal cost)
 then:
 
-TilesGameProblem().action_cost(curr_state, action, result_state) = c(s,a,s') = 1
+$TilesGameProblem().action_cost(curr_state, action, result_state) = c(n,a,n') = 1$
 
 ---
 
@@ -234,8 +256,9 @@ TilesGameProblem().action_cost(curr_state, action, result_state) = c(s,a,s') = 1
 
 ### 3.1 BFS
 
-- FIFO queue
-- optimal
+- implemented using a FIFO queue
+- cost-optimal
+- requires a high memory usage becuase it need to save all nodes in memory.
 
 ---
 
