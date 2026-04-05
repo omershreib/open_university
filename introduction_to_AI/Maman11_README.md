@@ -150,7 +150,7 @@ By a simple description, the term *Action* is defined as:
 
 *"tile [x] move [direction]"*
 
-where *direction* can be UP, DOWN, LEFT, or RIGHT. 
+where *direction* ∈ {LEFT, RIGHT, UP, DOWN} 
 
 In vectorial representation:
 
@@ -161,11 +161,23 @@ In vectorial representation:
 
 **Note:** 
 
-in this *maman* the *diractions* need to be the *actions*, but I think that it is logicaly **wrong** to depict
-a tile's *direction* as *action*. A direction cannot describe an action by itself - it needs an **object** (*i.e.*, a specific tile) to which this movement towards this direction is applied.
-In this program, this *action* definition (*i.e.*, tile plus direction) is depicted by the TileMovement class object. 
+In this *maman* the *action* is defined by the movement of the empty tile, which is very clean and clever way to do so.
+Unfortunately, I noticed this too late, after all my program designed with a different less compact definition as depicted above  :disappointed:
 
-**Important:** the order of directions' check is as follows (from left to right):
+Mathematically, my less compact action definition defined as the pair of (tile, direction).
+This program implements this with an action object called `TileMovement`. 
+
+In a simple description, any TileMovement object
+contains 4 things:
+1. the tile's value (*i.e.*, $1 \leq i \leq 9$)
+2. the tile's current (x, y) position (*i.e.*, tile position before its action was applied on)
+3. the tile's direction
+
+Inside the tranision model, implemented by problem.update(state, action) -> newState, the action attribute expected to be a TileMovement.  
+
+**Important:** 
+
+the order of directions' check is as follows (from left to right):
 
 LEFT, RIGHT, UP, DOWN.
 
@@ -176,7 +188,10 @@ For a pedagogical purpose, **This is matter!** because it can change the order o
 ### 2.5 Transition Model
 
 In this program, the transition model is implemented by the *Problem.update(state, action)* method, which returns
-a *new-state* object that is being received from *state* after appling this TileMovement *action* on *state*.
+a *newState* object that is being received from *state* after appling this TileMovement *action* on *state*.
+
+For each *state*, the image of Problem.update(*state*, ACTIONS) defines the transition Model 
+(where in ACTIONS I mean all the legal actions that can be applied on *state*, producing a new successor state) 
 
 Mathematically:
 
@@ -190,15 +205,18 @@ $$
 
 **Note:**
 
-The legality of an *action* being applied to a *state* happens before** calling Problem.update(). 
-In a graph search, the *expand()* method calls Problem.get_actions(), which filters only legal actions, yielding a node's children. 
+Problem.update(state, action) assumed to receive a legal action and **does not perform any legality check**. 
+The legality check of an *action* being applied to a *state* is being handled by the expand() method **before** calling Problem.update(). 
+In a graph search, the expand() method calls Problem.get_actions(), which handle filtering **only** legal actions, yielding its node's children. 
 
-Generally, a tile movement action is considered to be legal upon 3 conditions:
-1. The tile (1-8) needed to be moved is located at a legal $(x,y)$ position on the game board (*iff:* $0 < x,y < 3$)
-2. The result of this action, resolved by moving this tile UP, DOWN, LEFT, or RIGHT, changed the previous $(x,y)$ position  of this tile to a new legal $(x',y')$ position (*iff:* $0 < x',y' < 3$)
-3. $(x',y')$ is **empty** (in this program, the empty tile location is defined by `0`)
+Problem.get_actions() check if a tile's *action* applied to a *state* is legal according 3 conditions:
+1. the current tile (1-8) position (*i.e.*, before moving it) is valid. Namely, the current $(x,y)$ tile position is on the game board ⟺ $0 < x,y < 3$.
+2. the target position of this tile (1-8) caused by this action is valid.
 
-In short, a legal tile action is defined by swapping the *"empty tile"* with one of its non-empty direct neighbor tiles.
+**Note:** 
+
+The condition in which the target $(x', y')$ position must contains, before this action, the **empty tile** (in this program, the empty tile location is defined by `0`)
+is always true, because all possible *state* actions derived from the current position of the empty tile.
    
 ---
 
