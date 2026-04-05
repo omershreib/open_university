@@ -233,9 +233,6 @@ Generally, a tile movement action is considered to be legal upon 3 conditions:
 
 In short, a legal tile action is defined by swapping the *"empty tile"* with one of its non-empty direct neighbor tiles.
    
-
-
-
 ---
 
 ### 2.6 Cost Function
@@ -257,21 +254,120 @@ TilesGameProblem().action_cost(curr_state, action, result_state) = c(s,a,s') = 1
 
 ---
 
-### 3.2 RowCol (A*)
 
-h(n) = wrong rows + wrong columns
+### 3.2 - A* Search Based Heuristic
+
+Now, lets discuss about 2 heuristices that solve this Tiles game.
+
+For both of them, there are 2 things that required to check:
 
 Admissible:
-h(n) ≤ h*(n)
+$h(n) ≤ h*(n)$
 
 Consistent:
-h(n) ≤ c(n,a,n') + h(n')
+$h(n) ≤ c(n,a,n') + h(n')$
 
-since in this Tiles game the cost is always eqaul to 1, then this above iniquality equals to: 
+**Note:** 
 
-h(n) - h(n') ≤ 1
+if h(n) is *consistent*, then h(n) is also *admissible* (not vice-verca).
 
 ---
+
+### 3.2.1 WrongRowCol (A*)
+
+This is a unique heuristic example I manage to create myself - defined by: 
+
+$h(n) := wrong rows + wrong columns$
+
+#### Pseudo-Code of WrongRowCol Evaluation Function:
+
+```python
+
+def wrong_row_col(state n, state s) {
+   # retuns the total WrongRowCol score of state n
+   #
+   # args:
+   #  n - the current state
+   #  s - the goal state
+   int score ⟵ 0;
+
+   for each tile between 1 and 9 {
+      int curr_x, curr_y ⟵ n.arg_pos(tile);
+      int goal_x, goal_y ⟵ s.arg_pos(tile);
+
+      if (curr_x != goal_x) then score++;
+      if (curr_y != goal_y) then score++;
+   }
+
+   return score;
+}
+```
+
+*WrongRowCol* is inpired by *Manhattan Distance*, in the way that *Manhattan Distance* calculates the numbers of tiles movements
+(in a relaxed case senario) towards its goal (x, y) position. This derives more simple idea: 
+*if a tile need to move, then it is currently located in the wrong row/column.*
+
+Therefore, I decided to check if a heuristic that, estimates the distance to its goal state by counting all
+tiles that being located at a wrong row or column, can work. Fortunatly, this idea proved to work.
+
+*WrongRowCol* is similar in many ways to *Manhattan Distance* (MD), but likely to be less inform. 
+This is becasue *WrongRowCol* only check if a tile is located in it row/column/both position,
+whereas MD try to estimate the distance of a tile form it goal (x, y) position.
+
+---
+
+## WrongRowCol - Proof of Consistency:
+
+Let tile *x* be located at position ($r_i$, $c_k$) is state n, and suppose a single action causing *x* to move from row $r_i$ to row $r_j$, producing state n'.
+
+Only one tile moves, so:
+- moving in/out to/from its goal row/column change WrongRowCol scoure by $\pm 1$
+- diagonal movements are forbidden, and therefore only the row/column position can be changed between neigboors states
+
+---
+
+### Cases Analysis
+
+#### Case 1: Neither $r_i$ nor $r_j$ is the goal row
+
+Following this case senario, the number of wrong rows and wrong columns remain the same - so:
+
+$h(n) - h(n') = 0 \leq 1$
+
+---
+
+#### Case 2: $r_j$ is the goal row (tile moves INTO goal row)
+
+Following this case senario, the number of wrong rows decreased by one (the number of wrong columns remain the same) - so:
+
+$h(n) - h(n') = (+1) \leq 1$
+
+
+#### Case 3: $r_i$ is the goal row (tile moves OUT of goal row)
+
+Following this case senario, the number of wrong rows increased by one (the number of wrong columns remain the same) - so:
+
+$h(n) - h(n') = (-1) \leq 1$
+
+
+### Conclusion
+
+In all cases:
+
+$h(n) - h(n') \leq 1$
+
+Therefore the heuristic is consistent.
+
+Since consistency implies admissibility, the heuristic is also admissible.
+
+Q.E.D.
+
+**Note:** 
+
+the case where *x* moves vertically (between columns, instead of rows) is symmetrical.
+
+---
+
 
 ### 3.3 Manhattan + Linear Conflict (A*)
 
@@ -308,129 +404,109 @@ The reason this **2** factor is because of *Corollary 5* in the `Hansson` paper 
 *"If there is a unique shortest path, p, between position X and position Y in the N 
 Puzzle, then any alternate path will be at least 2 moves longer than p."*
 
-Proof of Consistency: (based on the original proof written in the `Hansson` paper)
+---
 
-let have a tile *x* located in position ($r_i$, $c_k$). *n* is the current state of, before any action *a* that
-causes *x* to move outside its current position. Now, let's assume that *x* moves from row $r_i$ to row $r_j$,
-while preserving its current column position $c_k$. There are exactly 3 possible conditions that need to be checked:
+## LinearConflict - Proof of Consistency: (based on the original proof written in the `Hansson` paper)
 
-1. Neither $r_i$ nor $r_j$ is considered to be *x*'s goal row position (*e.g.*, tile 2 moved UP from (2,0) to (1,0), while its goal position is (0,2))
+Let tile *x* be located at position ($r_i$, $c_k$) is state n, and suppose a single action causing *x* to move from row $r_i$ to row $r_j$, producing state n'.
 
-   Then the number of linear conflicts does not change because of this action movement, so:
-   
-   $LC(n) = LC(n')$
+Only one tile moves, so:
+- Manhattan distance changes by ±1
+- Only affected rows/columns may change LC
 
-   Thus, in this condition, the consistency of h(n) depends on the consistency of MD(n) - which it does.
+---
 
-   The course book (page 116) explains why MD(n) is admissible. Also, proving that MD(n) is consistent for this
-   8-Tiles game is simple:
+### Key Property
 
-   The delta between every direct state pair (*i.e.*, states that differ by a single tile move) n and n'
-   equal to $\pm 1$. Therefore:
+For any row r:
 
-   $MD(n) - MD(n') = MD(n) \pm 1 \leq c(n,a,n') = 1$
-   
+lc(n', r) ∈ { lc(n, r), lc(n, r) ± 1 }
 
-2. $r_j$ is *x*'s goal row:
+Therefore:
 
-   causing: $MD(n') = MD(n) - 1$ (*x* moved 1 tile closer to its goal position)
-   
-   Following this case scenario, the number of linear conflicts cannot decrease, but only increase by:
-   - 0: ⟹ $LC(n) = LC(n)$ ⟺ $lc(n', r_j) = lc(n, r_j)$ ⟺ the number tiles must be removed in $r_j$ did not changed after *x* moved in to that row.
-   - 1: ⟹ $LC(n') = LC(n) + 2$ ⟺ $lc(n', r_j) = lc(n, r_j) + 1$ ⟺ the number tiles must be removed in $r_j$ increased by one beacuase *x* moved in to that row.
-   - 2: ⟹ $LC(n') = LC(n) + 4$ ⟺ $lc(n', r_j) = lc(n, r_j) + 2$ ⟺ the number tiles must be removed in $r_j$ increased by two beacuase *x* moved in to that row.
-  
-   The first case senario resolves condition #1. The the second and third case senatios are move intresting and therefore must be proved:
+LC(n') - LC(n) ∈ {0, ±2}
 
-   according to case senario #2:
-   
- $$
+---
+
+### Cases Analysis
+
+#### Case 1: Neither $r_i$ nor $r_j$ is the goal row
+
+MD changes by ±1, LC unchanged:
+
+$h(n) - h(n') \leq 1$
+
+---
+
+#### Case 2: $r_j$ is the goal row (tile moves INTO goal row)
+
+MD decreases by 1:
+
+$MD(n) - MD(n') = +1$
+
+LC may:
+- stay the same → h(n) - h(n') = +1  
+- increase by 2, resulting:
+
+$$ 
 \begin{aligned}
 h(n) - h(n') &= MD(n) + LC(n) - [MD(n') + LC(n')] \\
-&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\
-&= (+1) + 2 \times [lc(n, r_j) - lc(n', r_j)] \\
+&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\ 
+&= (+1) + 2 \times [lc(n, r_j) - lc(n', r_j)] \\ 
 &= (+1) + 2 \times [lc(n, r_j) - (lc(n, r_j) + 1)] \\
 &= (+1) + 2 \times (-1) \\
-&= (-1) \leq 1
-\end{aligned}
+&= 1 - 2 \\
+&= (-1) \leq 1 \\
+\end{aligned} 
 $$
 
-   according to case senario #3:
+Both satisfy consistency.
 
-$$
+---
+
+#### Case 3: $r_i$ is the goal row (tile moves OUT of goal row)
+
+MD increases by 1:
+
+MD(n) - MD(n') = -1
+
+LC may:
+- stay the same → h(n) - h(n') = -1
+- decrease by 2, resulting:
+
+$$ 
 \begin{aligned}
 h(n) - h(n') &= MD(n) + LC(n) - [MD(n') + LC(n')] \\
-&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\
-&= (+1) + 2 \times [lc(n, r_j) - lc(n', r_j)] \\
-&= (+1) + 2 \times [lc(n, r_j) - (lc(n, r_j) + 2)] \\
-&= (+1) + 2 \times (-2) \\
-&= (+1) - 4 \\
-&= (-3) \leq 1 \\
-\end{aligned}
-$$
-   
-
-3. $r_i$ is *x*'s goal row:
-
-   causing: $MD(n') = MD(n) + 1$ (*x* moved 1 tile further from its goal position)
-   
-   Following this case scenario, the number of linear conflicts cannot decrease, but only increase by:
-   - 0: ⟹ $LC(n) = LC(n)$ ⟺ $lc(n', r_i) = lc(n, r_i)$ ⟺ the number tiles must be removed in $r_i$ did not changed after *x* moved out from that row.
-   - 1: ⟹ $LC(n') = LC(n) - 2$ ⟺ $lc(n', r_i) = lc(n, r_i) - 1$ ⟺ the number tiles must be removed in $r_i$ decreased by one beacuase *x* moved out from that row.
-   - 2: ⟹ $LC(n') = LC(n) - 4$ ⟺ $lc(n', r_i) = lc(n, r_i) - 2$ ⟺ the number tiles must be removed in $r_i$ decreased by two beacuase *x* moved out from that row.
-  
-the calculation is similar to the previous condition.
-
-   according to case senario #2:
-   
- $$
-\begin{aligned}
-h(n) - h(n') &= MD(n) + LC(n) - [MD(n') + LC(n')] \\
-&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\
-&= (-1) + 2 \times [lc(n, r_i) - lc(n', r_i)] \\
-&= (-1) + 2 \times [lc(n, r_i) - (lc(n, r_i) - 1)] \\
-&= (-1) + 2 \times (+1) \\
+&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\ 
+&= (-1) + 2 \times [lc(n, r_j) - lc(n', r_j)] \\ 
+&= (-1) + 2 \times [lc(n, r_j) - (lc(n, r_j) - 1)] \\
+&= (-1) + 2 \times 1 \\
 &= (-1) + 2 \\
-&= 1 \leq 1 \\
-\end{aligned}
+&= (1) \leq 1 \\
+\end{aligned} 
 $$
 
-   according to case senario #3:
+Both satisfy consistency.
 
- $$
-\begin{aligned}
-h(n) - h(n') &= MD(n) + LC(n) - [MD(n') + LC(n')] \\
-&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\
-&= (-1) + 2 \times [lc(n, r_i) - lc(n', r_i)] \\
-&= (-1) + 2 \times [lc(n, r_i) - (lc(n, r_i) - 2)] \\
-&= (-1) + 2 \times (+4) \\
-&= (-1) + 4 \\
-&= 4 \ge 1 (!) \\
-\end{aligned}
-$$
+---
 
+### Conclusion
 
-According to all these case scenarios:
+In all cases:
 
-$h(n) - h(n') = (MD(n) + LC(n)) - (MD(n') + LC(n')) \leq (+1) - 2 = (-1) \leq 1$
+$h(n) - h(n') \leq 1$
 
-All these conditions combine, where the case where *x* moves vertically (between columns) is symmetrical, proves that
-h(n) is consistent. Since consistency ⟹ admissibility, h(n) is also admissible. $Q.E.D$
+Therefore the heuristic is consistent.
 
-Notes:
+Since consistency implies admissibility, the heuristic is also admissible.
 
-1. in both conditions #2 and #3, according to the linear conflict definition, horizonal movements (between rows) does not
-   affect existing linear conflicts that exist in the vertical axis (*e.g.*, between pairs of tiles that located in thier
-   columns' goal position). thus, the difference in linear conflicts between states n and n' affect only in the horizonal
-   axis.
-   
-3. in the 8-Tiles game version, the case sanarios where $\Delta LC(n,n') \geq 3$ is impossible because the movement of *x*
-   vertically/horizontaly can replace 2 tiles that it can potentally be in a linear conflict with them **at most**, while
-   the exist linear conflicts in the horizontal/vertical axis is presreved (honestly, I am not so sure that this is ture for
-   the general case of this game with $2^k$ tiles, but for the case of 8 tiles this claim is true) 
-   
+Q.E.D.
 
+**Note:** 
 
+the case where *x* moves vertically (between columns, instead of rows) is symmetrical.
+
+---
 
 Admissible:
 Each conflict adds ≥ 2 moves
