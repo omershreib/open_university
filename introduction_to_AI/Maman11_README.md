@@ -397,7 +397,7 @@ Q.E.D.
 ---
 
 
-### 3.3 Manhattan + Linear Conflict (A*)
+### 3.3 LinearConflict (A*)
 
 *" Starts with Manhattan distance, then for each row and column, the number of tiles
     \"in conflict\" are identified, and 2 * this number is added to the total distance.
@@ -405,12 +405,22 @@ Q.E.D.
     their correct positions.) This is an admissible improvement over
     Manhattan-Distance (`Hansson, Mayer, Young, 1985`)."*
 
-Source:
-Hansson, Mayer, Young, 1985: https://academiccommons.columbia.edu/doi/10.7916/D8154QZT/download
-
+Sources:
+- Hansson, Mayer, Young, 1985: https://academiccommons.columbia.edu/doi/10.7916/D8154QZT/download
+- Korf, Taylor, 1992: https://www.aaai.org/Library/AAAI/1996/aaai96-178.php
 
 This citation was found in this *slidingtilepuzzle* python library: https://slidingtilepuzzle.readthedocs.io/en/latest/_modules/slidingpuzzle/heuristics.html#linear_conflict_distance
 
+*LinearConflict* attempts to improve Manhattan Distance (MD) by an additional *penelty* addon, donated by what called: the number of linear conflicts in a current state.
+According to `Korf`, this *LinearConflict* is *"the first significant improvement to Manhattan Distance"*
+
+A linear Conflict is defined as follows:
+
+let's have two tiles $t_j$ and $t_k$. then, following the appearance of these 4 conditions:   
+1. $t_j$ and $t_k$ are located in the same line (*i.e.*, same row or the same column)
+2. the goal positions of $t_j$ and $t_k$ are both in that line.
+3. $t_j$ is to the **right** of $t_k$
+4. in the goal state, $t_j$ is to the **left** of $t_k$
 
 MD(n) = sum of Manhattan distances  
 
