@@ -337,8 +337,8 @@ while preserving its current column position $c_k$. There are exactly 3 possible
    
    Following this case scenario, the number of linear conflicts cannot decrease, but only increase by:
    - 0: ⟹ $LC(n) = LC(n)$ ⟺ $lc(n', r_j) = lc(n, r_j)$ ⟺ the number tiles must be removed in $r_j$ did not changed after *x* moved in to that row.
-   - 1: ⟹ $LC(n') = LC(n) + 2$ ⟺ $lc(n', r_j) = lc(n, r_j) + 1$ ⟺ the number tiles must be removed in $r_j$ did increased by one beacuase *x* moved in to that row.
-   - 2: ⟹ $LC(n') = LC(n) + 4$ ⟺ $lc(n', r_j) = lc(n, r_j) + 2$ ⟺ the number tiles must be removed in $r_j$ did increased by two beacuase *x* moved in to that row.
+   - 1: ⟹ $LC(n') = LC(n) + 2$ ⟺ $lc(n', r_j) = lc(n, r_j) + 1$ ⟺ the number tiles must be removed in $r_j$ increased by one beacuase *x* moved in to that row.
+   - 2: ⟹ $LC(n') = LC(n) + 4$ ⟺ $lc(n', r_j) = lc(n, r_j) + 2$ ⟺ the number tiles must be removed in $r_j$ increased by two beacuase *x* moved in to that row.
   
    The first case senario resolves condition #1. The the second and third case senatios are move intresting and therefore must be proved:
 
@@ -370,14 +370,44 @@ h(n) - h(n') &= MD(n) + LC(n) - [MD(n') + LC(n')] \\
 $$
    
 
-4. $r_i$ is *x*'s goal row:
+3. $r_i$ is *x*'s goal row:
 
    causing: $MD(n') = MD(n) + 1$ (*x* moved 1 tile further from its goal position)
+   
+   Following this case scenario, the number of linear conflicts cannot decrease, but only increase by:
+   - 0: ⟹ $LC(n) = LC(n)$ ⟺ $lc(n', r_i) = lc(n, r_i)$ ⟺ the number tiles must be removed in $r_i$ did not changed after *x* moved out from that row.
+   - 1: ⟹ $LC(n') = LC(n) - 2$ ⟺ $lc(n', r_i) = lc(n, r_i) - 1$ ⟺ the number tiles must be removed in $r_i$ decreased by one beacuase *x* moved out from that row.
+   - 2: ⟹ $LC(n') = LC(n) - 4$ ⟺ $lc(n', r_i) = lc(n, r_i) - 2$ ⟺ the number tiles must be removed in $r_i$ decreased by two beacuase *x* moved out from that row.
+  
+the calculation is similar to the previous condition.
 
-   Following this case scenario, the number of linear conflicts cannot increase - only decrease by:
-   - 0: ⟹ $LC(n) = LC(n)$     (the number of conflicting tiles with *x* did not changed).
-   - 1: ⟹ $LC(n) = LC(n) - 1$ (the new $r_j$ row contains one less conflit with *x* compare to $r_i$)
-   - 2: ⟹ $LC(n) = LC(n) - 2$ (the new $r_j$ row contains two less conflit with *x* compare to $r_i$)
+   according to case senario #2:
+   
+ $$
+\begin{aligned}
+h(n) - h(n') &= MD(n) + LC(n) - [MD(n') + LC(n')] \\
+&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\
+&= (-1) + 2 \times [lc(n, r_i) - lc(n', r_i)] \\
+&= (-1) + 2 \times [lc(n, r_i) - (lc(n, r_i) - 1)] \\
+&= (-1) + 2 \times (+1) \\
+&= (-1) + 2 \\
+&= 1 \leq 1 \\
+\end{aligned}
+$$
+
+   according to case senario #3:
+
+ $$
+\begin{aligned}
+h(n) - h(n') &= MD(n) + LC(n) - [MD(n') + LC(n')] \\
+&= [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} \left( [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)] \right) \\
+&= (-1) + 2 \times [lc(n, r_i) - lc(n', r_i)] \\
+&= (-1) + 2 \times [lc(n, r_i) - (lc(n, r_i) - 2)] \\
+&= (-1) + 2 \times (+4) \\
+&= (-1) + 4 \\
+&= 4 \ge 1 (!) \\
+\end{aligned}
+$$
 
 
 According to all these case scenarios:
@@ -399,9 +429,6 @@ Notes:
    the exist linear conflicts in the horizontal/vertical axis is presreved (honestly, I am not so sure that this is ture for
    the general case of this game with $2^k$ tiles, but for the case of 8 tiles this claim is true) 
    
-
-
-
 
 
 
