@@ -269,7 +269,8 @@ $h(n) ≤ c(n,a,n') + h(n')$
 
 **Note:** 
 
-if h(n) is *consistent*, then h(n) is also *admissible* (not vice-verca).
+1. if h(n) is *consistent*, then h(n) is also *admissible* (not vice-verca).
+2. according to the course book (pages 105-106), if a heuristic h(n) is admissible then A* search that uses h(n) is guaranteed to be cost-optimal.
 
 ---
 
@@ -308,11 +309,8 @@ def wrong_row_col(state n, state s) {
 *if a tile need to move, then it is currently located in the wrong row/column.*
 
 Therefore, I decided to check if a heuristic that, estimates the distance to its goal state by counting all
-tiles that being located at a wrong row or column, can work. Fortunatly, this idea proved to work.
-
-*WrongRowCol* is similar in many ways to *Manhattan Distance* (MD), but likely to be less inform. 
-This is becasue *WrongRowCol* only check if a tile is located in it row/column/both position,
-whereas MD try to estimate the distance of a tile form it goal (x, y) position.
+tiles that being located at a wrong row or column, can work. Fortunatly, this idea proved to work. Furthemore, in term of the number of expanded nodes, 
+empirical running tests of this Tiles game show that *WrongRowCol* stands somewhere between *Misplaced* and *Manhattan Distance*.
 
 ---
 
@@ -364,7 +362,8 @@ Q.E.D.
 
 **Note:** 
 
-the case where *x* moves vertically (between columns, instead of rows) is symmetrical.
+1. the case where *x* moves vertically (between columns, instead of rows) is symmetrical.
+2. as explained earlier, because *WrongRowCol* proved to be admissible, this A* search is also cost-optimal.
 
 ---
 
@@ -504,7 +503,8 @@ Q.E.D.
 
 **Note:** 
 
-the case where *x* moves vertically (between columns, instead of rows) is symmetrical.
+1. the case where *x* moves vertically (between columns, instead of rows) is symmetrical.
+2. as explained earlier, because *LinearConflict* proved to be admissible, this A* search is also cost-optimal.
 
 ---
 
