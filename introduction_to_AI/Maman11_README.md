@@ -254,7 +254,11 @@ $TilesGameProblem().action_cost(curr_state, action, result_state) = c(n,a,n') = 
 
 ## 3. Algorithms
 
-### 3.1 BFS
+This *maman* required to compare 3 algorithmic solutions attemp to solve this Tiles game:
+- BFS (Un-informed deterninistic algorithm)
+- 2 additional informed search (A* based) heuristics 
+
+### 3.1 BFS - quick overview
 
 - implemented using a FIFO queue
 - cost-optimal
@@ -265,9 +269,7 @@ $TilesGameProblem().action_cost(curr_state, action, result_state) = c(n,a,n') = 
 
 ### 3.2 - A* Search Based Heuristic
 
-Now, lets discuss about 2 heuristices that solve this Tiles game.
-
-For both of them, there are 2 things that required to check:
+For both of my heuristic examples, there are 2 things that required to check:
 
 Admissible:
 $h(n) ≤ h*(n)$
@@ -319,6 +321,25 @@ def wrong_row_col(state n, state s) {
 Therefore, I decided to check if a heuristic that, estimates the distance to its goal state by counting all
 tiles that being located at a wrong row or column, can work. Fortunatly, this idea proved to work. Furthemore, in term of the number of expanded nodes, 
 empirical running tests of this Tiles game show that *WrongRowCol* stands somewhere between *Misplaced* and *Manhattan Distance*.
+
+
+### Example Use Case:
+
+```
+state = [[0, 7, 8],    
+        [2, 1, 5],   
+        [6, 4, 3]]
+
+sum of WrongRowCol's score according to the correct row+column of every tile
+
+for example, tile #2 is located in position (1,0) while its goal position is (0,2), so both row and columns are wrong ==> +2
+by another example, tile #7 is located in the correct row (1) but in the wrong column (0 != 2) ==> +1
+
+                       [[ , +2, +1],    
+ WrongRowCol(state) =  [+2, +1, 0],   = 8
+                       [0, +1, +1]]
+```
+
 
 ---
 
