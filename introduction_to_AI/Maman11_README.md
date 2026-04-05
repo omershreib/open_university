@@ -294,9 +294,12 @@ lc(n, $r_i$) = the number of tiles that must be removed from row $r_i$ in order 
 lc(n, $c_i$) = the number of tiles that must be removed from column $c_i$ in order to solve the linear conflict.  
 
 LC(n) = estimated cost to solve all linear conflicts in this n-state. 
-This equals twice the sum of all linear conflicts with each column and row.
 
-$LC(n) = 2 \times \sum_{0 \leq i,j \leq 2} [lc(n, r_i) + lc(n, c_i)]$ 
+The lower bound of it is: 
+
+$LC(n) = 2 \times \sum_{0 \leq i \leq 2} [lc(n, r_i) + lc(n, c_i)]$ 
+
+the overall heuristic:
 
 h(n) = MD(n) + LC(n)
 
@@ -314,6 +317,7 @@ while preserving its current column position $c_k$. There are exactly 3 possible
 1. Neither $r_i$ nor $r_j$ is considered to be *x*'s goal row position (*e.g.*, tile 2 moved UP from (2,0) to (1,0), while its goal position is (0,2))
 
    Then the number of linear conflicts does not change because of this action movement, so:
+   
    $LC(n) = LC(n')$
 
    Thus, in this condition, the consistency of h(n) depends on the consistency of MD(n) - which it does.
@@ -332,16 +336,24 @@ while preserving its current column position $c_k$. There are exactly 3 possible
    causing: $MD(n') = MD(n) - 1$ (*x* moved 1 tile closer to its goal position)
    
    Following this case scenario, the number of linear conflicts cannot decrease, but only increase by:
-   - 0: ⟹ $LC(n) = LC(n)$     (the number of conflicting tiles with *x* did not changed).
-   - 1: ⟹ $LC(n) = LC(n) + 1$ (the new $r_j$ row contains one extra conflit with *x* compare to $c_i$)
-   - 2: ⟹ $LC(n) = LC(n) + 2$ (the new $r_j$ row contains two extra conflit with *x* compare to $c_i$)
+   - 0: ⟹ $LC(n) = LC(n)$ ⟺ $lc(n', r_j) = lc(n, r_j)$ ⟺ the number tiles must be removed in $r_j$ did not changed after *x* moved in to that row.
+   - 1: ⟹ $LC(n') = LC(n) + 2$ ⟺ $lc(n', r_j) = lc(n, r_j) + 1$ ⟺ the number tiles must be removed in $r_j$ did increased by one beacuase *x* moved in to that row.
+   - 2: ⟹ $LC(n') = LC(n) + 4$ ⟺ $lc(n', r_j) = lc(n, r_j) + 2$ ⟺ the number tiles must be removed in $r_j$ did increased by two beacuase *x* moved in to that row.
   
-   According to all these case scenarios:
+   The first case senario resolves condition #1. The the second and third case senatios are move intresting and therefore must be proved:
+
+   according to case senario #2:
+   
+   $$
+h(n) - h(n') = MD(n) + LC(n) - [MD(n') + LC(n')] = [MD(n) - MD(n')] + 2 \times \sum_{0 \leq i \leq 2} [lc(n, r_i) + lc(n, c_i)] - [lc(n', r_i) + lc(n', c_i)]
+   (+1) + 2 \times [lc(n, r_j) - lc(n', r_j)] = (+1) + 2 \times [lc(n, r_j) - (lc(n, r_j) + 1)] = (+1) + 2 \times (-1) = 1 - 2 = (-1) \leq 1 (good) 
+   $$
+
 
     $h(n) - h(n') = (MD(n) + LC(n)) - (MD(n') + LC(n')) \leq (-1) + 2 \leq 1$
    
 
-3. $r_i$ is *x*'s goal row:
+4. $r_i$ is *x*'s goal row:
 
    causing: $MD(n') = MD(n) + 1$ (*x* moved 1 tile further from its goal position)
 
