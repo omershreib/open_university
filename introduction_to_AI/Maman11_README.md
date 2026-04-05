@@ -4,7 +4,7 @@ Student: *Omer Shraibshtein (205984271)*
 
 Email:   *omershreib@gmail.com*
 
-Last-Update: *30/03/2026*
+Last-Update: *05/04/2026*
 
 ***
 
@@ -62,14 +62,15 @@ This program is designed according to two main principles:
 - Action – tile movement  
 - Expanded Node – a node whose children were generated  
 - Heuristic Function h(n) – estimate to goal  
-- Optimal Solution – shortest path from an initial state to a goal state  
+- Cost-Optimal Solution – shortest path from an initial state to a goal state.  
 
 ---
 
 ### 1.4 Notations
 This program uses these following notations:
 
-- n – state  
+- n – state
+- n' – successor state of n (*i.e.*, n' is produced from n by a single action)    
 - g(n) – cost from start  
 - h(n) – heuristic  
 - h*(n) – true cost 
@@ -95,48 +96,11 @@ Here is an example of a simple run (without any additional options):
 python -m introduction_to_AI.maman11.tiles 1 4 0 5 8 2 3 6 7
 ```
 
-### 1.6 Command-Line Arguments (Optional)
+**Note:**
 
-Because this maman was really interesting and fun to investigate, I extended the scale of this maman's requirements 
-and checked if I can solve the **general case** of this game (*i.e.* for $n \geq 3$). In addition, I include examples
-of experimental algorithms that I tested during the creation of this *maman*.
-
-**Note:** 
-
-Only `BFS`, `WrongRowsColumns`, and `ManhattanDistance-Plus-LinearConflict` will be formally explained as part
-of this maman's requirement (required to implement BFS and 2 additional *"more-informatics heuristics* compare to *ManhattanDistance* and *Misplaced* that depicted in the course book)
-
-This program supports flexible execution via command-line arguments.
-
-#### Optional Arguments
-
-- --alg, -a: algorithm (bfs, manhattan, rowcol, ...)
-- --graphic, -g: enable graphic displayer (visualize the solution of this game using matplotlib)
-- --verbose, -v: enable verbose output (visualize the solution of this game through the terminal)
-
-Note: running this program with `-a 'all'` will attempt to solve this game, following a legal tiles board
-provided to it, with **every** algorithm this program supports, which includes:
-- BFS: 'bfs'
-- ManhattanDistance: 'manhattan'
-- Misplaced: 'misplaced'
-- LinearConflict: 'linear_conflict'
-- WrongRowsColumns 'rowcol' 
-- Max-RowColumns-And-ManhattanDistance 'max_rowcol_md'
-- ManhattanDistance-Plus-LinearConflict 'md_plus_lc'
-
-Example for optional argument usage:
-
-```commandline
-python -m introduction_to_AI.maman11.tiles 1 4 0 5 8 2 3 6 7 -a 'manhattan' -g -v
-```
-
-#### Support for General n x n
-
-Example (4x4):
-
-```commandline
-python -m introduction_to_AI.maman11.tiles 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0
-```
+There are an optional command-line arguments that offers more features that surpass the requrements of this maman
+and offer additinal features like solving attempnt of N-Tiles (instead of only focusing at this 8-Tiles version),
+visualization option and more.
 
 ---
 
@@ -152,36 +116,39 @@ This class combines:
 
 The reason for this Tiles game state design is to separate search logic and board-tiles specific logic
 In the price of a little more code, this heavily improves debugging, code reuse, and extensibility 
-(*i.e.*, any new methods I want to apply to the tiles' board will not affect the `State` class that is being used
+(*i.e.*, any new methods needed to be implemented and then applied to the tiles' board will not affect the `State` class that is being used
 by other problems, for which these methods are irrelevant).
 
 ---
 
 ### 2.2 Initial State 
 
-Raw board representation example:
+in a 2-dimentional list representation example:
 
+```
 [[6, 4, 8],
  [7, 5, 1],
  [2, 3, 0]]
+```
 
 ---
 
 ### 2.3 Goal State
 
-Raw board representation:
+in a 2-dimentional list representation:
 
+```
 [[0, 1, 2],
  [3, 4, 5],
  [6, 7, 8]]
-
+```
 ---
 
 ### 2.4 Actions
 
-In this Tiles game problem, *Action* is defined as:
+By a simple description, the term *Action* is defined as:
 
-*"tile x move direction"*
+*"tile [x] move [direction]"*
 
 where *direction* can be UP, DOWN, LEFT, or RIGHT. 
 
@@ -518,4 +485,49 @@ Each conflict adds ≥ 2 moves
 To be added.
 
 ---
+
+
+## 5. Appendix
+
+### 5.1 Command-Line Arguments (Optional)
+
+Because this maman was really interesting and fun to investigate, I extended the scale of this maman's requirements 
+and checked if I can solve the **general case** of this game (*i.e.* for $n \geq 3$). In addition, I include examples
+of experimental algorithms that I tested during the creation of this *maman*.
+
+**Note:** 
+
+Only `BFS`, `WrongRowsColumns`, and `ManhattanDistance-Plus-LinearConflict` will be formally explained as part
+of this maman's requirement (required to implement BFS and 2 additional *"more-informatics heuristics* compare to *ManhattanDistance* and *Misplaced* that depicted in the course book)
+
+This program supports flexible execution via command-line arguments.
+
+#### Optional Arguments
+
+- --alg, -a: algorithm (bfs, manhattan, rowcol, ...)
+- --graphic, -g: enable graphic displayer (visualize the solution of this game using matplotlib)
+- --verbose, -v: enable verbose output (visualize the solution of this game through the terminal)
+
+Note: running this program with `-a 'all'` will attempt to solve this game, following a legal tiles board
+provided to it, with **every** algorithm this program supports, which includes:
+- BFS: 'bfs'
+- ManhattanDistance: 'manhattan'
+- Misplaced: 'misplaced'
+- LinearConflict: 'linear_conflict'
+- WrongRowsColumns 'rowcol' 
+- Max-RowColumns-And-ManhattanDistance 'max_rowcol_md'
+- ManhattanDistance-Plus-LinearConflict 'md_plus_lc'
+
+Example for optional argument usage:
+
+```commandline
+python -m introduction_to_AI.maman11.tiles 1 4 0 5 8 2 3 6 7 -a 'manhattan' -g -v
+```
+
+Example (4x4):
+
+```commandline
+python -m introduction_to_AI.maman11.tiles 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0
+```
+
 
