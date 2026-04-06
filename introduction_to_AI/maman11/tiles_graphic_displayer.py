@@ -1,3 +1,16 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   06/04/2026
+Email:  omershreib@gmail.com
+
+Description:
+------------
+tiles graphical displayer create by chatGPT
+I don't care to reveal this since I am not tested on visualization
+and this graphic display is a pure optional feature
+
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -90,9 +103,3 @@ class TilesGameGraphicDisplayer:
         plt.ioff()
         plt.show()
 
-    # @staticmethod
-    # def _validate_board(board: np.ndarray) -> None:
-    #     if not isinstance(board, np.ndarray):
-    #         raise TypeError("board must be a numpy.ndarray")
-    #     if board.shape != (3, 3):
-    #         raise ValueError(f"board must have shape (3, 3), got {board.shape}")

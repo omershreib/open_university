@@ -1,3 +1,10 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   06/04/2026
+Email:  omershreib@gmail.com
+"""
+
+
 from typing import List, Optional
 from introduction_to_AI.common import vector
 from introduction_to_AI.models.problem import Problem

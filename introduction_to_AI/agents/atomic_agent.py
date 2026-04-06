@@ -1,3 +1,10 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   06/04/2026
+Email:  omershreib@gmail.com
+"""
+
+
 from abc import ABC, abstractmethod
 from introduction_to_AI.models import Problem
 

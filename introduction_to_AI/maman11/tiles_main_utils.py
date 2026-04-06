@@ -1,3 +1,9 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   06/04/2026
+Email:  omershreib@gmail.com
+"""
+
 from __future__ import annotations
 
 from typing import Optional, Any
@@ -69,10 +75,9 @@ def parse_n_args() -> tuple[list[Any], str, int, bool, bool]:
     supported_algorithms = ['bfs',
                             'manhattan',
                             'misplaced',
-                            'linear_conflict',
-                            'rowcol',
+                            'wrong_row_col',
                             'max_rowcol_md',
-                            'md_plus_lc',
+                            'linear_conflict',
                             'maman11',
                             'all']
 
@@ -113,7 +118,6 @@ def graphic_displayer_setup(graphic: bool, alg_name: str, size: int) -> Optional
 
 
 def summarize_search(agent: AtomicAgent, path):
-    # todo: return these attributes only for documentation
     algorithm_name = agent.algorithm_name
     path_length = len(path)
     expanded_nodes = agent.expanded_nodes
@@ -143,9 +147,8 @@ def simulate_actions_path(problem: TilesGameProblem,
         display_state(curr_state, graphic_displayer, verbose)
 
         if problem.is_goal_state(curr_state):
-            # summarize_search(agent, path)
-            return summarize_search(agent, path)
-            # break
+            summarize_search(agent, path)
+            break
     else:
         print("agent cannot find a solution")
 

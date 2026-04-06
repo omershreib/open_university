@@ -1,5 +1,10 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   06/04/2026
+Email:  omershreib@gmail.com
+"""
+
 from typing import Callable
-from introduction_to_AI.analysis.plot_tiles_algs_performance import plot_results
 from introduction_to_AI.agents import AStarAgent, BFSAgent
 from introduction_to_AI.maman11.tiles_evaluators import *
 from introduction_to_AI.maman11.tiles_main_utils import *
@@ -19,29 +24,24 @@ def make_misplaced_agent(problem):
 
 
 def make_rowcol_agent(problem):
-    return AStarAgent(problem=problem, algorithm_name='rowcol', evaluator=TilesRowColEvaluator())
+    return AStarAgent(problem=problem, algorithm_name='wrong_row_col', evaluator=TilesRowColEvaluator())
 
 
 def make_max_rowcol_md_agent(problem):
     return AStarAgent(problem=problem, algorithm_name='max_rowcol_md', evaluator=TilesMaxMDRowCol())
 
 
-def make_lc_agent(problem):
-    return AStarAgent(problem=problem, algorithm_name="linear_conflict", evaluator=TilesLinearConflictEvaluator())
-
-
 def make_md_plus_lc_agent(problem):
-    return AStarAgent(problem=problem, algorithm_name="md_plus_lc", evaluator=TilesMDPlusLCEvaluator())
+    return AStarAgent(problem=problem, algorithm_name="linear_conflict", evaluator=TilesMDPlusLCEvaluator())
 
 
 ALGORITHMS = {
     "bfs": make_bfs_agent,
     "manhattan": make_manhattan_agent,
     "misplaced": make_misplaced_agent,
-    "rowcol": make_rowcol_agent,
+    "wrong_row_col": make_rowcol_agent,
     "max_rowcol_md": make_max_rowcol_md_agent,
-    "linear_conflict": make_lc_agent,
-    "md_plus_lc": make_md_plus_lc_agent,
+    "linear_conflict": make_md_plus_lc_agent,
     "maman11": None
 }
 
@@ -85,11 +85,12 @@ def tiles_main(board: list, alg: str, size: int, add_graphic: bool, add_verbose:
     :param add_graphic: if true, run with a graphic displayer
     :param add_verbose: if true, print the result of state.display() to the terminal (false by default)
 
-    the default option (running tiles without any flag) is alg == "bfs_manhattan".
+    the default option (running tiles without any flag) is alg == "maman11".
     this solves that Tiles game EXACTLY as maman #11 requires (without graphic display or verbose)
-    with 2 implemented algorithms:
+    with 3 implemented algorithms:
       1. BFS
-      2. A* applied with manhattan-distance heuristic
+      2. A* applied with WrongRowCol evaluator
+      3. A* applied with TilesMDPlusLCEvaluator (the "real" linear-conflict) evaluator
 
     Note: I added a detailed graphical visualization for debugging purposes.
           however, since it's much nicer to simulate this game using matplotlib,
@@ -100,17 +101,18 @@ def tiles_main(board: list, alg: str, size: int, add_graphic: bool, add_verbose:
         name = 'bfs'
         run_tiles_algorithm(board, name, size, add_graphic, ALGORITHMS[name])
 
-        name = 'rowcol'
+        name = 'wrong_row_col'
         run_tiles_algorithm(board, name, size, add_graphic, ALGORITHMS[name])
 
-        name = 'md_plus_lc'
+        name = 'linear_conflict'
         run_tiles_algorithm(board, name, size, add_graphic, ALGORITHMS[name])
         exit(0)
 
     if alg == "all":
         print("test all algorithms")
         for this_alg in ALGORITHMS:
-            run_tiles_algorithm(board, this_alg, size, add_graphic, ALGORITHMS[this_alg], add_verbose)
+            if ALGORITHMS[this_alg]:
+                run_tiles_algorithm(board, this_alg, size, add_graphic, ALGORITHMS[this_alg], add_verbose)
 
         return
 
@@ -124,45 +126,7 @@ def tiles_main(board: list, alg: str, size: int, add_graphic: bool, add_verbose:
 if __name__ == '__main__':
     tiles_main(*parse_n_args())
 
-    # start_board = build_board([1, 2, 0, 3, 4, 5, 6, 7, 8])
-    # my_algs = ['bfs', 'rowcol', 'md_plus_lc']
-    #
-    # for my_alg in my_algs:
-    #     tiles_main(board=start_board,
-    #                 alg=my_alg,
-    #                 size=len(start_board),
-    #                 add_graphic=False,
-    #                 add_verbose=False)
-    #
-    #
-    # board_1 = build_board([1, 2, 0, 3, 4, 5, 6, 7, 8])
-    # board_2 = build_board([1, 4, 0, 5, 8, 2, 3, 6, 7])
-    # board_3 = build_board([1, 6, 3, 0, 4, 5, 7, 2, 8])
-    # board_4 = build_board([6, 4, 8, 7, 5, 1, 2, 3, 0])
-    #
-    # boards = [board_1, board_2, board_3, board_4]
-    # algs = ['bfs', 'manhattan', 'misplaced', 'rowcol', 'linear_conflict', 'md_plus_lc', 'max_rowcol_md']
-    #
-    # all_performances = []
-    #
-    # for init_board in boards:
-    #     performance: dict = {}
-    #
-    #     for this_alg in algs:
-    #         performance[this_alg] = tiles_main(board=init_board,
-    #                                            alg=this_alg,
-    #                                            size=len(init_board),
-    #                                            add_graphic=False,
-    #                                            add_verbose=False)
-    #
-    #     # pprint(performance)
-    #     all_performances.append(performance)
-    #
-    # save_dict_as_json(filename='all_boards_algs_performances.json', data=all_performances)
-    #
-    # plot_results(*all_performances)
-
     # some crazy examples
     #  python -m introduction_to_AI.maman11.tiles 1 6 3 0 4 5 7 2 8
     #  python -m introduction_to_AI.maman11.tiles 6 4 8 7 5 1 2 3 0 -a 'all'
-    # python -m introduction_to_AI.maman11.tiles 4 1 2 3 8 5 7 0 9 10 6 11 12 13 14 15 -a 'bfs' -g
+    #  python -m introduction_to_AI.maman11.tiles 4 1 2 3 8 5 7 0 9 10 6 11 12 13 14 15 -a 'bfs' -g

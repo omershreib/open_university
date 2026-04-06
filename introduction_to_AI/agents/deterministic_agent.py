@@ -1,3 +1,10 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   06/04/2026
+Email:  omershreib@gmail.com
+"""
+
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
@@ -16,7 +23,6 @@ class DeterministicAgent(AtomicAgent, ABC):
         """
         super().__init__(problem=problem, algorithm_name=algorithm_name)
 
-        #self.path_length = 0
         self.expanded_nodes = 0
 
     def reconstruct_actions_path(self, path) -> list:

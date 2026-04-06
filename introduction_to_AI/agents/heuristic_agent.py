@@ -1,10 +1,15 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   06/04/2026
+Email:  omershreib@gmail.com
+"""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from introduction_to_AI.search_strategies import *
 from introduction_to_AI.agents.common_agents_utils import reconstruct_actions_path
 from .atomic_agent import AtomicAgent
-
 
 
 class HeuristicAgent(AtomicAgent, ABC):
@@ -24,10 +29,6 @@ class HeuristicAgent(AtomicAgent, ABC):
 
     def reconstruct_actions_path(self, path):
         return reconstruct_actions_path(self.problem, path)
-
-    # @abstractmethod
-    # def choose_move(self, state):
-    #     pass
 
     @abstractmethod
     def solve(self):

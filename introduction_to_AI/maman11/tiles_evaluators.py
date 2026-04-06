@@ -1,10 +1,13 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   06/04/2026
+Email:  omershreib@gmail.com
+"""
+
 import math
 
-from typing import Any, Dict, List, Optional, Tuple
 from introduction_to_AI.models.evaluator import Evaluator
 from introduction_to_AI.maman11.tiles_game_state import TilesGameState
-from introduction_to_AI.maman11.tile_movement import labels_to_directions
-from introduction_to_AI.common import vector
 
 
 class TilesManhattanEvaluator(Evaluator):
@@ -109,6 +112,13 @@ class TilesLinearConflictEvaluator(Evaluator):
 
 
 class TilesMDPlusLCEvaluator(Evaluator):
+    """
+
+    this is the "real" LinearConflict heuristic.
+    the TilesLinearConflictEvaluator class just handle the pure
+    linear conflict calculation. so in this evaluator
+    its result become the penalty addon for ManhattanDistance
+    """
     def __init__(self):
         self.md_evaluator = TilesManhattanEvaluator()
         self.lc_evaluator = TilesLinearConflictEvaluator()
@@ -117,16 +127,3 @@ class TilesMDPlusLCEvaluator(Evaluator):
         md = self.md_evaluator.evaluate(curr_state, goal_state)
         lc = self.lc_evaluator.evaluate(curr_state, goal_state)
         return md + 2 * lc
-
-
-# if __name__ == '__main__':
-#     from tiles_main_utils import build_board
-#
-#     board = build_board([0, 7, 8, 2, 1, 5, 6, 4, 3])
-#     state = TilesGameState(board=board, size=3)
-#
-#     goal_board = build_board([0, 1, 2, 3, 4, 5, 6, 7, 8])
-#     goal_state = TilesGameState(board=goal_board, size=3)
-#
-#     print(TilesMDPlusLCEvaluator().evaluate(state, goal_state))
-#     print(TilesManhattanEvaluator().evaluate(state, goal_state))

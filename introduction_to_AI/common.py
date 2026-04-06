@@ -1,3 +1,10 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   06/04/2026
+Email:  omershreib@gmail.com
+"""
+
+
 from __future__ import annotations
 
 from introduction_to_AI.models.node import Node
@@ -13,9 +20,6 @@ def vector(x: int, y: int) -> np.array:
 
 def make_node(state, parent=None, action=None, path_cost=1) -> Node:
     # a constructor for Node object creation
-    depth = 0
-    if parent:
-        depth = parent.depth + 1
 
     return Node(state=state, parent=parent, action=action, path_cost=path_cost)
 
@@ -65,5 +69,4 @@ def build_priority_queue(iterable, f) -> list:
     for item in sorted(iterable, key=lambda x: f(x)):
         pq.heappush(lst, item)
 
-    # print(lst)
     return lst

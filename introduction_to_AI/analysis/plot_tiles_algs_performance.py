@@ -1,24 +1,5 @@
 import matplotlib.pyplot as plt
 
-# ['bfs', 'manhattan', 'misplaced', 'rowcol', 'lc', 'md_plus_lc', 'max_rowcol_man']
-
-ALGORITHM_COLORS = {
-    "bfs": "tab:blue",
-    "manhattan": "tab:orange",
-    "misplaced": "tab:green",
-    "rowcol": "tab:red",
-    "md_plus_lc": "tab:purple",
-    "lc": "tab:brown",
-    "max_rowcol_md": "tab:yellow"
-}
-
-
-def build_algorithm_colors(algorithm_order):
-    cmap = plt.get_cmap("tab10")
-    return {
-        alg: cmap(i % 10)
-        for i, alg in enumerate(algorithm_order)
-    }
 
 def _validate_performance_dict(performances: dict, name: str):
     if not isinstance(performances, dict):
@@ -56,11 +37,11 @@ def _validate_same_algorithms(performance_dicts):
     return base_algs
 
 
-def _plot_metric_subplot(ax, performances, metric, title, algorithm_order, log_scale=False):
+def _plot_metric_subplot(ax, performances: dict, metric: str, title: str,
+                         algorithm_order, log_scale=False):
     values = [performances[alg][metric] for alg in algorithm_order]
-    colors = [ALGORITHM_COLORS.get(alg, "tab:gray") for alg in algorithm_order]
 
-    bars = ax.bar(algorithm_order, values, color=colors)
+    bars = ax.bar(algorithm_order, values)
     ax.set_title(title)
     ax.set_xlabel("Algorithm")
     ax.set_ylabel(metric.replace("_", " ").title())
@@ -78,31 +59,19 @@ def _plot_metric_subplot(ax, performances, metric, title, algorithm_order, log_s
             va="bottom",
             fontsize=9,
         )
-# def _plot_metric_subplot(ax, performances: dict, metric: str, title: str, algorithm_order, log_scale=False):
-#     values = [performances[alg][metric] for alg in algorithm_order]
-#
-#     bars = ax.bar(algorithm_order, values)
-#     ax.set_title(title)
-#     ax.set_xlabel("Algorithm")
-#     ax.set_ylabel(metric.replace("_", " ").title())
-#     ax.tick_params(axis="x", rotation=30)
-#
-#     if log_scale:
-#         ax.set_yscale("log")
-#
-#     for bar, value in zip(bars, values):
-#         y = value
-#         if log_scale and value > 0:
-#             y = value
-#
-#         ax.text(
-#             bar.get_x() + bar.get_width() / 2,
-#             y,
-#             str(value),
-#             ha="center",
-#             va="bottom",
-#             fontsize=9,
-#         )
+
+
+def _find_bfs_key(performances: dict, preferred_key: str = "bfs") -> str:
+    if preferred_key in performances:
+        return preferred_key
+
+    lowered = {k.lower(): k for k in performances.keys()}
+    if preferred_key.lower() in lowered:
+        return lowered[preferred_key.lower()]
+
+    raise ValueError(
+        f"Could not find '{preferred_key}' in performances keys: {list(performances.keys())}"
+    )
 
 
 def plot_results(
@@ -110,16 +79,19 @@ def plot_results(
     performances_2: dict,
     performances_3: dict,
     performances_4: dict,
+    optimal_alg: str = "bfs",
 ):
     """
-    Plot 2 figures, each with 4 subplots (2x2), using the same algorithm order
-    across all subplots.
+    Plot 3 figures:
+
+    1. Solution length comparison across algorithms for each board
+    2. Expanded nodes comparison across algorithms for each board
+    3. Optimal solution length per board, taken from BFS
 
     Parameters
     ----------
-    performances_1, performances_2, performances_3, performances_4 : dict
-        Each dictionary represents one starting board and must have this format:
-
+    performances_1 ... performances_4 : dict
+        Each dictionary represents one starting board:
         {
             'alg_name': {
                 'length': path_length,
@@ -128,13 +100,8 @@ def plot_results(
             ...
         }
 
-    Notes
-    -----
-    - Board 1 is assumed easiest
-    - Board 4 is assumed hardest
-    - The algorithm list is dynamic
-    - All 4 dictionaries must contain the same set of algorithm names
-    - The plotting order is taken from performances_1
+    optimal_alg : str
+        Algorithm name used as the optimal baseline. Default: 'bfs'
     """
 
     performance_dicts = [
@@ -147,14 +114,13 @@ def plot_results(
     for i, perf in enumerate(performance_dicts, start=1):
         _validate_performance_dict(perf, f"performances_{i}")
 
-    #algorithm_order = _validate_same_algorithms(performance_dicts)
     algorithm_order = _validate_same_algorithms(performance_dicts)
 
     board_titles = [
-        "Board #1",
-        "Board #2",
-        "Board #3",
-        "Board #4",
+        "Board 1 (Easiest)",
+        "Board 2",
+        "Board 3",
+        "Board 4 (Hardest)",
     ]
 
     # -------- Figure 1: Length --------
@@ -168,7 +134,7 @@ def plot_results(
             metric="length",
             title=f"Solution Length - {title}",
             algorithm_order=algorithm_order,
-            log_scale=False
+            log_scale=False,
         )
 
     fig_len.suptitle("Solution Length Comparison Across Starting Boards", fontsize=16)
@@ -191,4 +157,29 @@ def plot_results(
     fig_exp.suptitle("Expanded Nodes Comparison Across Starting Boards", fontsize=16)
     fig_exp.tight_layout(rect=[0, 0, 1, 0.96])
 
+    # -------- Figure 3: Optimal Solution Length Per Board (from BFS) --------
+    bfs_keys = [_find_bfs_key(perf, optimal_alg) for perf in performance_dicts]
+    optimal_lengths = [
+        perf[bfs_key]["length"]
+        for perf, bfs_key in zip(performance_dicts, bfs_keys)
+    ]
+
+    plt.figure(figsize=(10, 6))
+    bars = plt.bar(board_titles, optimal_lengths)
+    plt.title(f"Optimal Solution Length Per Board ({optimal_alg.upper()} baseline)")
+    plt.xlabel("Board Difficulty")
+    plt.ylabel("Optimal Path Length")
+    plt.xticks(rotation=15)
+
+    for bar, value in zip(bars, optimal_lengths):
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            value,
+            str(value),
+            ha="center",
+            va="bottom",
+            fontsize=10,
+        )
+
+    plt.tight_layout()
     plt.show()
