@@ -49,7 +49,7 @@ def parse_n_args() -> tuple[list[Any], str, int, bool, bool]:
 
     parser.add_argument('--graphic', '-g', action='store_true', help="run with graphic displayer")
     parser.add_argument('--verbose', '-v', action='store_true', help="enable verbose")
-    parser.add_argument('--alg', '-a', type=str, help="choose and algorithm", default="bfs_manhattan")
+    parser.add_argument('--alg', '-a', type=str, help="choose and algorithm", default="maman11")
 
     args = parser.parse_args()
 
@@ -73,6 +73,7 @@ def parse_n_args() -> tuple[list[Any], str, int, bool, bool]:
                             'rowcol',
                             'max_rowcol_md',
                             'md_plus_lc',
+                            'maman11',
                             'all']
 
     if alg not in supported_algorithms:

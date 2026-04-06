@@ -37,17 +37,9 @@ def best_first_search(problem, f, h=None):
         if problem.is_goal_state(node.state):
             return node, expand_counter
 
-        # key = node.state.get_key()
-        #
-        # if reached[key] is not node:
-        #     continue
-
         # consistency check of heuristic during debug (make sure that h is not None)
         # print(f"path-cost: {node.path_cost}, h(n): {h(node.state, problem.goal_state)}, f(n): {f(node)}")
         # print(node.path_cost, h(node.state, problem.goal_state), f(node))
-
-        # if problem.is_goal_state(node.state):
-        #     return node, expand_counter
 
         expand_counter += 1
 

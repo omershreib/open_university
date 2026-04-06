@@ -59,8 +59,6 @@ class BFSAgent(DeterministicAgent):
 
         while self.queue:
             curr_state, path = self.queue.popleft()
-            #print(f"pop-index: {next(counter)}")
-            #curr_state.display()
 
             # increase number of expanded nodes
             self.expanded_nodes += 1

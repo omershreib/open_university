@@ -41,7 +41,8 @@ ALGORITHMS = {
     "rowcol": make_rowcol_agent,
     "max_rowcol_md": make_max_rowcol_md_agent,
     "linear_conflict": make_lc_agent,
-    "md_plus_lc": make_md_plus_lc_agent
+    "md_plus_lc": make_md_plus_lc_agent,
+    "maman11": None
 }
 
 
@@ -95,13 +96,16 @@ def tiles_main(board: list, alg: str, size: int, add_graphic: bool, add_verbose:
           I'm leaving it as an option for the benefit of this maman tester.
     """
 
-    # if alg == "bfs_manhattan":
-    #     name = 'bfs'
-    #     run_tiles_algorithm(board, name, size, add_graphic, ALGORITHMS[name])
-    #
-    #     name = 'manhattan'
-    #     run_tiles_algorithm(board, name, size, add_graphic, ALGORITHMS[name])
-    #     exit(0)
+    if alg == "maman11":
+        name = 'bfs'
+        run_tiles_algorithm(board, name, size, add_graphic, ALGORITHMS[name])
+
+        name = 'rowcol'
+        run_tiles_algorithm(board, name, size, add_graphic, ALGORITHMS[name])
+
+        name = 'md_plus_lc'
+        run_tiles_algorithm(board, name, size, add_graphic, ALGORITHMS[name])
+        exit(0)
 
     if alg == "all":
         print("test all algorithms")
@@ -120,43 +124,43 @@ def tiles_main(board: list, alg: str, size: int, add_graphic: bool, add_verbose:
 if __name__ == '__main__':
     tiles_main(*parse_n_args())
 
-    start_board = build_board([1, 2, 0, 3, 4, 5, 6, 7, 8])
-    my_algs = ['bfs', 'rowcol', 'md_plus_lc']
-
-    for my_alg in my_algs:
-        tiles_main(board=start_board,
-                    alg=my_alg,
-                    size=len(start_board),
-                    add_graphic=False,
-                    add_verbose=False)
-
-
-    board_1 = build_board([1, 2, 0, 3, 4, 5, 6, 7, 8])
-    board_2 = build_board([1, 4, 0, 5, 8, 2, 3, 6, 7])
-    board_3 = build_board([1, 6, 3, 0, 4, 5, 7, 2, 8])
-    board_4 = build_board([6, 4, 8, 7, 5, 1, 2, 3, 0])
-
-    boards = [board_1, board_2, board_3, board_4]
-    algs = ['bfs', 'manhattan', 'misplaced', 'rowcol', 'linear_conflict', 'md_plus_lc', 'max_rowcol_md']
-
-    all_performances = []
-
-    for init_board in boards:
-        performance: dict = {}
-
-        for this_alg in algs:
-            performance[this_alg] = tiles_main(board=init_board,
-                                               alg=this_alg,
-                                               size=len(init_board),
-                                               add_graphic=False,
-                                               add_verbose=False)
-
-        # pprint(performance)
-        all_performances.append(performance)
-
-    save_dict_as_json(filename='all_boards_algs_performances.json', data=all_performances)
-
-    plot_results(*all_performances)
+    # start_board = build_board([1, 2, 0, 3, 4, 5, 6, 7, 8])
+    # my_algs = ['bfs', 'rowcol', 'md_plus_lc']
+    #
+    # for my_alg in my_algs:
+    #     tiles_main(board=start_board,
+    #                 alg=my_alg,
+    #                 size=len(start_board),
+    #                 add_graphic=False,
+    #                 add_verbose=False)
+    #
+    #
+    # board_1 = build_board([1, 2, 0, 3, 4, 5, 6, 7, 8])
+    # board_2 = build_board([1, 4, 0, 5, 8, 2, 3, 6, 7])
+    # board_3 = build_board([1, 6, 3, 0, 4, 5, 7, 2, 8])
+    # board_4 = build_board([6, 4, 8, 7, 5, 1, 2, 3, 0])
+    #
+    # boards = [board_1, board_2, board_3, board_4]
+    # algs = ['bfs', 'manhattan', 'misplaced', 'rowcol', 'linear_conflict', 'md_plus_lc', 'max_rowcol_md']
+    #
+    # all_performances = []
+    #
+    # for init_board in boards:
+    #     performance: dict = {}
+    #
+    #     for this_alg in algs:
+    #         performance[this_alg] = tiles_main(board=init_board,
+    #                                            alg=this_alg,
+    #                                            size=len(init_board),
+    #                                            add_graphic=False,
+    #                                            add_verbose=False)
+    #
+    #     # pprint(performance)
+    #     all_performances.append(performance)
+    #
+    # save_dict_as_json(filename='all_boards_algs_performances.json', data=all_performances)
+    #
+    # plot_results(*all_performances)
 
     # some crazy examples
     #  python -m introduction_to_AI.maman11.tiles 1 6 3 0 4 5 7 2 8

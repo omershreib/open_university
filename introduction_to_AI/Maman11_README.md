@@ -98,8 +98,8 @@ python -m introduction_to_AI.maman11.tiles 1 4 0 5 8 2 3 6 7
 
 **Note:**
 
-There are an optional command-line arguments that offers more features that surpass the requrements of this maman
-and offer additinal features like solving attempnt of N-Tiles (instead of only focusing at this 8-Tiles version),
+There are an optional command-line arguments that offers more features that surpass the requirements of this maman
+and offer additional features like solving attempnt of N-Tiles (instead of only focusing at this 8-Tiles version),
 visualization option and more.
 
 ---
@@ -123,7 +123,7 @@ by other problems, for which these methods are irrelevant).
 
 ### 2.2 Initial State 
 
-in a 2-dimentional list representation example:
+in a 2-dimensional list representation example:
 
 ```
 [[6, 4, 8],
@@ -169,7 +169,7 @@ This program implements this with an action object called `TileMovement`.
 
 In a simple description, any TileMovement object
 contains 4 things:
-1. the tile's value (*i.e.*, $1 \leq i \leq 9$)
+1. the tile's value (*i.e.*, $1 \leq i \leq 8$)
 2. the tile's current (x, y) position (*i.e.*, tile position before its action was applied on)
 3. the tile's direction
 
@@ -188,7 +188,7 @@ For a pedagogical purpose, **This is matter!** because it can change the order o
 ### 2.5 Transition Model
 
 In this program, the transition model is implemented by the *Problem.update(state, action)* method, which returns
-a *newState* object that is being received from *state* after appling this TileMovement *action* on *state*.
+a *newState* object that is being received from *state* after applying this TileMovement *action* on *state*.
 
 For each *state*, the image of Problem.update(*state*, ACTIONS) defines the transition Model 
 (where in ACTIONS I mean all the legal actions that can be applied on *state*, producing a new successor state) 
@@ -215,7 +215,7 @@ Problem.get_actions() check if a tile's *action* applied to a *state* is legal a
 
 **Note:** 
 
-The condition in which the target $(x', y')$ position must contains, before this action, the **empty tile** (in this program, the empty tile location is defined by `0`)
+The condition in which the target $(x', y')$ position must contain, before this action, the **empty tile** (in this program, the empty tile location is defined by `0`)
 is always true, because all possible *state* actions derived from the current position of the empty tile.
 
 
@@ -292,8 +292,7 @@ $h(n) := wrong rows + wrong columns$
 
 #### Pseudo-Code of WrongRowCol Evaluation Function:
 
-```python
-
+```commandline
 def wrong_row_col(state n, state s) {
    # retuns the total WrongRowCol score of state n
    #
@@ -319,7 +318,7 @@ def wrong_row_col(state n, state s) {
 *if a tile need to move, then it is currently located in the wrong row/column.*
 
 Therefore, I decided to check if a heuristic that, estimates the distance to its goal state by counting all
-tiles that being located at a wrong row or column, can work. Fortunatly, this idea proved to work. Furthemore, in term of the number of expanded nodes, 
+tiles that being located at a wrong row or column, can work. Fortunately, this idea proved to work. Furthermore, in terms of the number of expanded nodes, 
 empirical running tests of this Tiles game show that *WrongRowCol* stands somewhere between *Misplaced* and *Manhattan Distance*.
 
 
@@ -357,7 +356,7 @@ Only one tile moves, so:
 
 #### Case 1: Neither $r_i$ nor $r_j$ is the goal row
 
-Following this case senario, the number of wrong rows and wrong columns remain the same - so:
+Following this case scenario, the number of wrong rows and wrong columns remain the same - so:
 
 $h(n) - h(n') = 0 \leq 1$
 
@@ -365,14 +364,14 @@ $h(n) - h(n') = 0 \leq 1$
 
 #### Case 2: $r_j$ is the goal row (tile moves INTO goal row)
 
-Following this case senario, the number of wrong rows decreased by one (the number of wrong columns remain the same) - so:
+Following this case scenario, the number of wrong rows decreased by one (the number of wrong columns remain the same) - so:
 
 $h(n) - h(n') = (+1) \leq 1$
 
 
 #### Case 3: $r_i$ is the goal row (tile moves OUT of goal row)
 
-Following this case senario, the number of wrong rows increased by one (the number of wrong columns remain the same) - so:
+Following this case scenario, the number of wrong rows increased by one (the number of wrong columns remain the same) - so:
 
 $h(n) - h(n') = (-1) \leq 1$
 
@@ -383,7 +382,7 @@ In all cases:
 
 $h(n) - h(n') \leq 1$
 
-Therefore the heuristic is consistent.
+Therefore, the heuristic is consistent.
 
 Since consistency implies admissibility, the heuristic is also admissible.
 
@@ -424,12 +423,12 @@ let's have two tiles $t_j$ and $t_k$. then, following the appearance of these 4 
 
 
 According to `Hansson`, the motivation behind LC is the observation in which MD offer a proposal solution for each tile (in a relaxed problem).
-The path offerd by MD is not always the only shortest-solution. However, in the LC baseline MD do offer only the shortest-solution because its
+The path offered by MD is not always the only shortest-solution. However, in the LC baseline MD do offer only the shortest-solution because its
 required that these pairs of tiles will be in their goal column/row position. 
-From LC's standpoint, LC applies this relaxed problem of identifing (using MD) the tiles that have a unique shortest-path to their goal position, and then identifiy all
+From LC's standpoint, LC applies this relaxed problem of identifying (using MD) the tiles that have a unique shortest-path to their goal position, and then identifiy all
 the "obstacles" that stand in between and therefore must be removed from these shortest-paths
 
-#### LinearConflict - defintions:
+#### LinearConflict - definitions:
 
 MD(n) = sum of Manhattan distances  
 
@@ -587,7 +586,27 @@ Each conflict adds ≥ 2 moves
 
 ## 4. Experimental Results
 
-To be added.
+### Maman11 - Simple Example Use Case
+
+```python
+python -m introduction_to_AI.maman11.tiles 1 4 0 5 8 2 3 6 7
+```
+
+output:
+```
+algorithm: BFS
+tiles path: [2, 8, 5, 3, 6, 7, 2, 8, 4, 1]
+length: 10
+expanded: 357
+algorithm: rowcol
+tiles path: [2, 8, 5, 3, 6, 7, 2, 8, 4, 1]
+length: 10
+expanded: 12
+algorithm: md_plus_lc
+tiles path: [2, 8, 5, 3, 6, 7, 2, 8, 4, 1]
+length: 10
+expanded: 10
+```
 
 ---
 

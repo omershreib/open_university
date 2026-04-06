@@ -117,3 +117,16 @@ class TilesMDPlusLCEvaluator(Evaluator):
         md = self.md_evaluator.evaluate(curr_state, goal_state)
         lc = self.lc_evaluator.evaluate(curr_state, goal_state)
         return md + 2 * lc
+
+
+# if __name__ == '__main__':
+#     from tiles_main_utils import build_board
+#
+#     board = build_board([0, 7, 8, 2, 1, 5, 6, 4, 3])
+#     state = TilesGameState(board=board, size=3)
+#
+#     goal_board = build_board([0, 1, 2, 3, 4, 5, 6, 7, 8])
+#     goal_state = TilesGameState(board=goal_board, size=3)
+#
+#     print(TilesMDPlusLCEvaluator().evaluate(state, goal_state))
+#     print(TilesManhattanEvaluator().evaluate(state, goal_state))
