@@ -1,0 +1,13 @@
+Subject_ID,Age_Range,Smoker,Marital_Status,Hypertension,Blood_Sugar,BMI,Heart_Disease,Stroke
+1,51-60,No,Married,Yes,87.56,34.3,No,No
+2,70+,Yes,Married,No,57.88,22.6,Yes,Yes
+3,31-40,No,Single,No,85.37,33.2,No,No
+4,70+,Yes,Married,NA,198.21,27.3,No,Yes
+5,51-60,Yes,Single,Yes,55.78,27.5,No,No
+6,51-60,Yes,Married,No,117.52,29.4,No,No
+7,NA,Yes,Married,No,190.5,36.2,No,Yes
+8,51-60,NA,Married,Yes,56.64,25.8,No,No
+9,61-70,No,Married,No,203.44,33.6,No,No
+10,41-50,No,Married,No,NA,25.1,No,No
+11,61-70,Yes,Married,No,241.3,35.3,No,Yes
+12,<30,Yes,Married,No,102.64,26.4,No,No
