@@ -30,9 +30,9 @@ class HeuristicAgent(AtomicAgent, ABC):
     def reconstruct_actions_path(self, path):
         return reconstruct_actions_path(self.problem, path)
 
-    @abstractmethod
-    def solve(self):
-        pass
+    # @abstractmethod
+    # def solve(self):
+    #     pass
 
     def evaluate(self, curr_state):
         return self.evaluator.evaluate(curr_state, self.problem.goal_state)

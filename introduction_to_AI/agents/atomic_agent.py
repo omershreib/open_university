@@ -30,6 +30,4 @@ class AtomicAgent(ABC):
         # a counter for how many times this agent expand its nodes
         self.expanded_nodes = 0
 
-    @abstractmethod
-    def solve(self, *args, **kwargs):
-        pass
+

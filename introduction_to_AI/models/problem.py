@@ -7,6 +7,7 @@ Email:  omershreib@gmail.com
 
 from __future__ import annotations
 
+from .state import State
 from abc import ABC, abstractmethod
 
 
@@ -23,7 +24,7 @@ class Problem(ABC):
         pass
 
     @abstractmethod
-    def update(self, state, action) -> None:
+    def update(self, state, action) -> State:
         pass
 
     @abstractmethod
@@ -35,7 +36,7 @@ class Problem(ABC):
         pass
 
     @abstractmethod
-    def args_action(self, curr_state, next_state):
+    def args_action(self, *args, **kwargs):
         pass
 
     @staticmethod
