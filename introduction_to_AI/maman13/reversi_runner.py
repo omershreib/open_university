@@ -2,13 +2,12 @@ from __future__ import annotations
 from typing import Optional, Dict, List, Tuple
 
 from bitboard import get_occupied_bitmask
-# from introduction_to_AI.maman13 import *
 
-from .reversi_move import ReversiMove
-from .reversi_cdp import ColorDiskPlayer
-from .reversi_game_state import ReversiGameState
-from .reversi_game_problem import ReversiGameProblem
-from .reversi_graphic_displayer import ReversiGraphicDisplayer
+from introduction_to_AI.maman13.reversi_move import ReversiMove
+from introduction_to_AI.maman13.reversi_cdp import ColorDiskPlayer
+from introduction_to_AI.maman13.reversi_game_state import ReversiGameState
+from introduction_to_AI.maman13.reversi_game_problem import ReversiGameProblem
+from introduction_to_AI.maman13.reversi_graphic_displayer import ReversiGraphicDisplayer
 from introduction_to_AI.agents import MinMaxAgent
 from bitboard_calculator import BitBoardCalculator
 
@@ -22,8 +21,9 @@ class ReversiGameRunner(BitBoardCalculator):
     def __init__(
             self,
             board_size: int,
-            red_agent: MinMaxAgent,
-            white_agent: MinMaxAgent,
+            red_agent,
+            white_agent,
+            custom_init_state: Optional[ReversiGameState] = None,
             verbose: bool = True,
             use_gui: bool = True,
             gui_delay: float = 0.05,
@@ -50,7 +50,8 @@ class ReversiGameRunner(BitBoardCalculator):
             ColorDiskPlayer.WHITE: white_agent,
         }
 
-        self.current_state: ReversiGameState = self.problem.initial_state
+        self.current_state: Optional[ReversiGameState] = None
+        self.init_state_setup(custom_init_state)
 
         print("red bitboard")
         print(self.current_state.red_bitboard.bitboard)
@@ -74,6 +75,13 @@ class ReversiGameRunner(BitBoardCalculator):
             )
             self.graphical_display.initial_graphic_display()
             self.graphical_display.update(self.current_state)
+
+    def init_state_setup(self, init_state):
+        if not init_state:
+            self.current_state: ReversiGameState = self.problem.initial_state
+
+        else:
+            self.current_state = init_state
 
     def move2bit(self, move: ReversiMove) -> Optional[int]:
         if move.is_pass:

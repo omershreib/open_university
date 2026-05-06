@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC
 from typing import Optional, Tuple, List
 from introduction_to_AI.models import State
 from introduction_to_AI.maman13.bitboard import (PlayerBitBoard,
@@ -9,18 +8,16 @@ from introduction_to_AI.maman13.bitboard import (PlayerBitBoard,
                                                  get_free_bitmask,
                                                  bits_iter)
 
-#from introduction_to_AI.maman13 import *
-from .bitboard_calculator import BitBoardCalculator
-from .reversi_cdp import ColorDiskPlayer
-from .reversi_move import ReversiMove
-
+from introduction_to_AI.maman13.bitboard_calculator import BitBoardCalculator
+from introduction_to_AI.maman13.reversi_cdp import ColorDiskPlayer
+from introduction_to_AI.maman13.reversi_move import ReversiMove
 
 
 class ReversiGameState(State, BitBoardCalculator):
     def __init__(self,
-                 red_bitboard: Optional[PlayerBitBoard],
-                 white_bitboard: Optional[PlayerBitBoard],
-                 player_turn: Optional[ColorDiskPlayer],
+                 red_bitboard: Optional[PlayerBitBoard] = None,
+                 white_bitboard: Optional[PlayerBitBoard] = None,
+                 player_turn: Optional[ColorDiskPlayer] = None,
                  board_size: int = 8,
                  consecutive_passes: int = 0,
                  move_creator: Optional[ReversiMove] = None):
@@ -42,26 +39,71 @@ class ReversiGameState(State, BitBoardCalculator):
     def display(self):
         pass
 
-    def set_state(self, red_bits: List[int],
-                  white_bits: List[int],
-                  player_turn: ColorDiskPlayer) -> ReversiGameState:
+    def initial(self, size) -> ReversiGameState:
+        self.red_bitboard = PlayerBitBoard(player=ColorDiskPlayer.RED, board_size=size)
+        self.white_bitboard = PlayerBitBoard(player=ColorDiskPlayer.WHITE, board_size=size)
+        self.red_bitboard.initial()
+        self.white_bitboard.initial()
 
-        self.red_bitboard = PlayerBitBoard(player=ColorDiskPlayer.RED, board_size=self.board_size)
-        self.white_bitboard = PlayerBitBoard(player=ColorDiskPlayer.WHITE, board_size=self.board_size)
-
-        for bit in red_bits:
-            self.red_bitboard.add_bit(bit)
-
-        for bit in white_bits:
-            self.white_bitboard.add_bit(bit)
+        print(self.red_bitboard.bitboard)
+        print(self.white_bitboard.bitboard)
 
         return ReversiGameState(
             red_bitboard=self.red_bitboard,
             white_bitboard=self.white_bitboard,
-            board_size=self.board_size,
-            player_turn=player_turn,
+            board_size=size,
+            player_turn=ColorDiskPlayer.RED,
             consecutive_passes=0
         )
+
+    def check_cell(self, cell: Tuple[int, int]) -> Optional[ColorDiskPlayer]:
+        """
+
+        check which player occupies cell (row, column).
+        if cell is empty, return None
+        """
+        bit = self.cell2bit(cell)
+
+        if self.red_bitboard.is_bit_on(bit):
+            return ColorDiskPlayer.RED
+
+        if self.white_bitboard.is_bit_on(bit):
+            return ColorDiskPlayer.WHITE
+
+        return None
+
+    def snapshot(self):
+        board_range = range(self.board_size)
+        lines = ["  " + " ".join(str(i) for i in board_range)]
+        for row in board_range:
+            players_discs: list = []
+            for column in board_range:
+                player = self.check_cell((row, column))
+                players_discs.append("." if player is None else str(player))
+            lines.append(f"{row} " + " ".join(players_discs))
+
+        return "\n".join(lines)
+
+    # def set_state(self, red_bits: List[int],
+    #               white_bits: List[int],
+    #               player_turn: ColorDiskPlayer) -> ReversiGameState:
+    #
+    #     self.red_bitboard = PlayerBitBoard(player=ColorDiskPlayer.RED, board_size=self.board_size)
+    #     self.white_bitboard = PlayerBitBoard(player=ColorDiskPlayer.WHITE, board_size=self.board_size)
+    #
+    #     for bit in red_bits:
+    #         self.red_bitboard.add_bit(bit)
+    #
+    #     for bit in white_bits:
+    #         self.white_bitboard.add_bit(bit)
+    #
+    #     return ReversiGameState(
+    #         red_bitboard=self.red_bitboard,
+    #         white_bitboard=self.white_bitboard,
+    #         board_size=self.board_size,
+    #         player_turn=player_turn,
+    #         consecutive_passes=0
+    #     )
 
     def legal_moves(self) -> List[Optional[int]]:
         player, opponent = self.get_players_current_state()
@@ -112,3 +154,15 @@ class ReversiGameState(State, BitBoardCalculator):
 
     def __repr__(self):
         return f"<ReversiGameState: {self.get_key()}>"
+
+
+if __name__ == '__main__':
+    #player = ColorDiskPlayer.RED
+    #print(player == ColorDiskPlayer.RED)
+
+    #player_bitboard = PlayerBitBoard(player=ColorDiskPlayer.RED, board_size=8)
+    #print(player_bitboard.player)
+    #print(player_bitboard.player == ColorDiskPlayer.RED)
+
+    state = ReversiGameState().initial(size=8)
+    print(state.snapshot())

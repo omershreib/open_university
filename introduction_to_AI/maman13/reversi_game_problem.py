@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from typing import List
 from introduction_to_AI.models import Problem
-
-from introduction_to_AI.maman13.bitboard import PlayerBitBoard
-from .reversi_cdp import ColorDiskPlayer
-from .reversi_move import ReversiMove
-from .reversi_game_state import ReversiGameState
+from introduction_to_AI.maman13.reversi_cdp import ColorDiskPlayer
+from introduction_to_AI.maman13.reversi_move import ReversiMove
+from introduction_to_AI.maman13.reversi_game_state import ReversiGameState
 
 
 class ReversiGameProblem(Problem):
@@ -17,7 +15,7 @@ class ReversiGameProblem(Problem):
 
         super().__init__()
 
-        self.initial_state: ReversiGameState = self.__initial(size)
+        self.initial_state: ReversiGameState = ReversiGameState().initial(size)
         self.players = {'maximum': max_player, 'minimum': min_player}
 
         # self.goal_state = { list of all terminals ReversiGameState }
@@ -36,22 +34,6 @@ class ReversiGameProblem(Problem):
     def initial_state(self, value: ReversiGameState):
         self._initial_state = value
 
-    def __initial(self, size) -> ReversiGameState:
-        self.red_bitboard = PlayerBitBoard(player=ColorDiskPlayer.RED, board_size=size)
-        self.white_bitboard = PlayerBitBoard(player=ColorDiskPlayer.WHITE, board_size=size)
-        self.red_bitboard.initial()
-        self.white_bitboard.initial()
-
-        print(self.red_bitboard.bitboard)
-        print(self.white_bitboard.bitboard)
-
-        return ReversiGameState(
-            red_bitboard=self.red_bitboard,
-            white_bitboard=self.white_bitboard,
-            board_size=size,
-            player_turn=ColorDiskPlayer.RED,
-            consecutive_passes=0
-        )
 
     def get_actions(self, state: ReversiGameState) -> List[ReversiMove]:
         actions = []
@@ -59,6 +41,10 @@ class ReversiGameProblem(Problem):
             if bit:
                 row, column = state.bit2cell(bit)
                 actions.append(ReversiMove(row, column))
+
+        # inject pass move if actions is empty
+        if len(actions) == 0:
+            return [ReversiMove.pass_move()]
 
         return actions
 

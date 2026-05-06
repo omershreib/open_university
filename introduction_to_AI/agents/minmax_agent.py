@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import ABC
 from introduction_to_AI.models import *
 from introduction_to_AI.minmax_tree_utils import alphabeta_decision
-# from introduction_to_AI.maman13 import *
 from .heuristic_agent import HeuristicAgent
 
 

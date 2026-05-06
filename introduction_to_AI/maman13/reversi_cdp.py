@@ -12,5 +12,11 @@ class ColorDiskPlayer(Enum):
     def __str__(self):
         return "R" if self == ColorDiskPlayer.RED else "W"
 
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def __hash__(self):
+        return self.value
+
     def __repr__(self):
         return f"<ColorDiskPlayer: Color={self.value}>"

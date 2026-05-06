@@ -1,6 +1,7 @@
 from introduction_to_AI.models.evaluator import Evaluator
-from introduction_to_AI.maman13 import ReversiGameState, ColorDiskPlayer
-from abc import ABC, abstractmethod
+from introduction_to_AI.maman13.reversi_game_state import ReversiGameState
+from introduction_to_AI.maman13.reversi_cdp import ColorDiskPlayer
+from abc import ABC
 
 
 class ReversiEvaluator(Evaluator, ABC):

@@ -1,17 +1,21 @@
 import argparse
 
 
+REVERSI_AGENTS_SUPPORT = ['heuristic_score', 'hungry_score']
+
 def parse_n_args():
     parser = argparse.ArgumentParser(
-        description="Run Reversi Game Simulation Using Heuristic Evaluators"
+        description="Run Reversi game simulation using different rivals agents",
+        epilog=f"Agents supported: {REVERSI_AGENTS_SUPPORT}"
     )
 
-    parser.add_argument("num",
-                        type=int,
-                        help="initialize game with a minimum number of disks")
+    # parser.add_argument("num",
+    #                     type=int,
+    #                     help="initialize game with a minimum number of disks")
 
-    parser.add_argument("--display_all_actions",
-                        "-d",
+    # verbose is displayAllActions (a better flag name)
+    parser.add_argument("--verbose",
+                        "-v",
                         action="store_true",
                         help="display game action step-by-step")
 
@@ -30,20 +34,33 @@ def parse_n_args():
                         type=str,
                         help="select the agent used by the minimum (white) player")
 
+
     parser.add_argument("--ahead",
                         "-a",
                         type=int,
                         default=2,
                         help="set the depth of minmax tree (will be applied on both players)")
 
+    parser.add_argument('--graphic',
+                        '-g',
+                        action='store_true',
+                        help="run with graphic displayer")
+
+
     args = parser.parse_args()
-    num = args.num
-    display_all_actions = args.display_all_actions
+    #num = args.num
+    verbose = args.verbose
     methodical = args.methodical
     red_agent = args.red_agent
     white_agent = args.white_agent
     ahead = args.ahead
+    graphic = args.graphic
 
-    # todo: check agents support
+    # validate agent type spelling
+    for agent in [red_agent, white_agent]:
+        if agent not in REVERSI_AGENTS_SUPPORT:
+            print(f"unknown agent {agent}")
 
-    return num, display_all_actions, methodical, red_agent, white_agent, ahead
+
+
+    return verbose, methodical, red_agent, white_agent, ahead, graphic

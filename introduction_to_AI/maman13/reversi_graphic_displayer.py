@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
 from typing import Optional, Tuple
 
-from introduction_to_AI.maman13 import ColorDiskPlayer
+from introduction_to_AI.maman13.reversi_cdp import ColorDiskPlayer
 
 
 class ReversiGraphicDisplayer:
