@@ -1,93 +1,146 @@
-# Heuristic Reversi Game Simulation - (Maman 13)
+# Maman 13 – Reversi Minimax Agents
 
-Student: Omer Shraibshtein (205984271)
+Student: *Omer Shraibshtein*  
+Last-Update: *14/05/2026*
 
-Student: *Omer Shraibshtein (205984271)*
-
-Email:   *omershreib@gmail.com*
-
-Last-Update: *05/04/2026*
-
----
+***
 
 - **Note**:  Writing this maman in Hebrew is (always, because of editing with Hebrew and English chars) demand 
 a significant labor fource that I do not have right now. So I hop it will be ok that this maman is in English.
 
-## Game State Compact Representation:
-
-My game state compact implementation is a follows:
-
-GameState = (`PlayerBitBoard(RED)`, `PlayerBitBoard(WHITE)`, `player_turn`, `consecutive_passes`)
-
-- "PBB" is an acronym of `PlayerBitBoard` (see `bitboard.py`) which is class object that captures an 
-encoded bitmask representation of each player's discs on board during every stage of this game.
-- `player_turn` is a `ColorDiscPlayer` class object (see `models.py`) that toggle between these
-`ColorDiscPlayer.RED` and `ColorDiscPlayer.WHITE` players.
-- `consecutive_passes` for identifying terminal state due to double consecutive-passed moves
 
 
-### Explaining Bitboard Representation 
+## 1. General Overview
 
-A **bitboard** is an integer where each bit represents one board cell:
+This assignment implements the game **Reversi / Othello** as an adversarial search problem.
 
-- bit = 1 → the cell is occupied by the player
-- bit = 0 → the cell is not occupied by the player
+The main purpose of this maman is to study game-playing agents, especially:
 
+- Minimax decision making
+- Alpha-Beta pruning
+- Heuristic evaluation functions
+- Competition between two rival agents
+- Reversi as a deterministic, turn-based, zero-sum game
 
-Just for intuition, a binary representation of a bitboard looks as follows:
-`PlayerBitBoard.bitboard = 0b00000000010000000111000000010000`.
+The implementation follows the same architectural idea used in **Maman 11 – Tiles Problem**:  
+the general search / agent logic is separated from the problem-specific game logic.
 
-The length of this bitboard is `board_size x board_size`.By default, `board_size = 8`, which is the
-classic Reversi game board, defines bitboard's bits indexes as follows: 
+---
 
-    
-    0  1  2  3  4  5  6  7
-    8  9  10 11 12 13 14 15
-    16 17 18 19 20 21 22 23
-    ...
-    56 57 58 59 60 61 62 63
+## 2. Program Architecture
 
+### 2.1 Global Reusable Components
 
-For convenient, `board_size` will be represented by **N**.
-General formula for the cell position (row, column) of a single-bit index:
+These components are shared across assignments:
 
-    bit = N x row + column
+- `models/` – abstract definitions of `State`, `Problem`, `Move`, `Evaluator`, and `Agent`
+- `agents/` – general agents such as `MinMaxAgent`
+- `minmax_tree_utils.py` – Minimax / Alpha-Beta decision logic
+- `common.py` – shared utilities
 
-In terms of compactness, this `GameState` representation is VERY efficient, probably second best after
-representing both players state with a single base-3 encoding sequence, so every cell can be
-- 0 -> EMPTY
-- 1 -> RED
-- 2 -> WHITE
+### 2.2 Problem-Specific Package: `maman13/`
 
-However, I think that this base-3 representation is less friendly... 
+The `maman13/` package contains all Reversi-specific logic:
 
-## Space Complexity Analysis
-#### Assuming 64-bit system architecture (so the size of a reference cell is 8 bytes)
+- `reversi.py` – main entry point
+- `reversi_game_state.py` – Reversi state representation
+- `reversi_game_problem.py` – adversarial problem definition
+- `reversi_move.py` – move representation
+- `reversi_evaluators.py` – heuristic evaluation functions
+- `reversi_agents.py` – Reversi-specific agents
+- `reversi_agents_factory.py` – factory for creating agents
+- `reversi_runner.py` – game loop manager
+- `bitboard.py` – efficient bitboard operations
+- `bitboard_calculator.py` – conversion utilities between board cells and bits
+- `reversi_graphic_displayer.py` – optional graphical display
 
-By neglecting memory requirement for the `player_turn` and `consecutive_passes` variables 
-(meaningless compare to the size of the board) the size of each bitboard is `N^2` bits.
-So overall, `GameState` space complexity equals to:
+---
 
-`2 x (N^2) + O(1) = Θ(N^2)`
+## 3. Reversi Problem Representation
 
-where `O(1)` refers to the constants pair of `(player_turn, consecutive_passes)`
+### 3.1 State Representation
 
-For example, for `N = 8`, the memory required to represent `GameState` is approximately:
-2 x (8^2) = 2x64 = 128 bits = 16 bytes.
+A game state is represented by `ReversiGameState`.
 
+Each state contains:
 
-### Transition Model
+- Red player bitboard
+- White player bitboard
+- Current player turn
+- Board size
+- Number of consecutive passes
+- The move that created the state
 
-This game states transition of (current_state, player_action) -> new_state
-is implemented by:
+The board is represented internally using **bitboards**, which allow compact and efficient board calculations.
 
-`GameState.update(player_move: Move) -> GameState`
+---
 
-where:
-- `Move` is a class object that stored the player's (row, column) move. Passed move is defined by (None, None) 
-- `GameState.update()` returns a new `GameState` class object that
-captures the new state of this game, according to the player's move.
-- `GameState` uses `player_turn` to update this move on the correct player's bitboard.
+### 3.2 Initial State
+
+The classic Reversi board is an `8 x 8` board.
+
+The game starts with four disks in the center:
+
+```text
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . W R . . .
+. . . R W . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+```
+
+Red begins the game.
+
+---
+
+### 3.3 Actions
+
+An action is represented by `ReversiMove`.
+
+A legal action is a board cell:
+
+```text
+(row, column)
+```
+
+A move is legal if placing a disk in that cell captures at least one opponent disk according to the rules of Reversi.
+
+If a player has no legal moves, the only available action is:
+
+```text
+PASS
+```
+
+---
+
+### 3.4 Transition Model
+
+The transition model is implemented by:
+
+```python
+ReversiGameProblem.update(state, move) -> ReversiGameState
+```
+
+Mathematically:
+
+$$
+T: STATES \times ACTIONS \rightarrow STATES
+$$
+
+$$
+T(state, action) = newState
+$$
+
+The transition model:
+
+1. Applies the selected move
+2. Flips all captured opponent disks
+3. Switches the turn to the opponent
+4. Updates the number of consecutive passes
+5. Returns a new immutable-like game state
 
 
 ### Players Agents Actions
@@ -214,55 +267,289 @@ So `possible_move` is:
 This matches the Reversi rule: to flip, the move must connect to a chain of opponent discs that is anchored by a player disc on one end.
 Iteratively, we continue to call `shift_f()` to check if we can flip opponent disc in this direction.
 
+---
 
-QUESTION 1.1: when repeating this game run under this configuration, does this game ends with the same result?
+### 3.5 Terminal States
 
-Answer:      yes. since the evaluation function that I defined, which calculates the score difference between
+A state is terminal if one of the following conditions holds:
+
+1. The board is full
+2. Both players pass consecutively
+
+When the game reaches a terminal state, the winner is the player with more disks.
+
+---
+
+## 4. Utility and Evaluation
+
+### 4.1 Utility Function
+
+The utility of a state for a player is:
+
+$$
+utility(state, player) = score(player) - score(opponent)
+$$
+
+Meaning:
+
+```text
+number of player's disks - number of opponent's disks
+```
+
+A positive value means the player is currently winning.  
+A negative value means the opponent is currently winning.
+
+---
+
+### 4.2 Score Heuristic
+
+The implemented heuristic is `ReversiScoreEvaluator`.
+
+```python
+evaluate(state, player) = state.score(player) - state.score(player.opponent())
+```
+
+This heuristic prefers states where the current player owns more disks than the opponent.
+
+This is a simple and deterministic heuristic.
+
+---
+
+## 5. Agents
+
+### 5.1 Hungry Score Agent
+
+The `hungry_score` agent is a greedy agent.
+
+It checks the legal moves available in the current state and chooses a move according to the immediate score obtained after applying that move.
+
+This agent does not look ahead deeply into the game tree.
+
+---
+
+### 5.2 Heuristic Score Minimax Agent
+
+The `heuristic_score` agent uses:
+
+- Minimax search
+- Alpha-Beta pruning
+- `ReversiScoreEvaluator`
+- Configurable search depth
+
+The agent tries to choose the move that maximizes its expected utility while assuming the opponent also plays rationally.
+
+---
+
+## 6. Minimax and Alpha-Beta Search
+
+### 6.1 Minimax Idea
+
+Reversi is modeled as a two-player adversarial game:
+
+- RED is the maximizing player
+- WHITE is the minimizing player
+
+The maximizing player tries to maximize the evaluation score.  
+The minimizing player tries to minimize it.
+
+The Minimax decision rule is:
+
+$$
+a^* = argmax_a \ MinValue(Result(s, a))
+$$
+
+---
+
+### 6.2 Alpha-Beta Pruning
+
+Alpha-Beta pruning improves Minimax by avoiding branches that cannot affect the final decision.
+
+It keeps two bounds:
+
+- `alpha` – the best value found so far for MAX
+- `beta` – the best value found so far for MIN
+
+If a branch is already worse than a previously found alternative, it is pruned.
+
+This does not change the final Minimax result, but it can significantly reduce the number of expanded nodes.
+
+---
+
+## 7. How to Run the Program
+
+From the project root, run:
+
+```commandline
+python -m introduction_to_AI.maman13.reversi -red heuristic_score -white hungry_score --ahead 4 -v
+```
+
+### Arguments
+
+- `--red_agent`, `-red` – select the RED player agent
+- `--white_agent`, `-white` – select the WHITE player agent
+- `--ahead`, `-a` – Minimax search depth
+- `--verbose`, `-v` – print the game step-by-step
+- `--graphic`, `-g` – show graphical display
+- `--methodical`, `-m` – display only the first chosen number of states before jumping to the final state
+
+Supported agents:
+
+```text
+heuristic_score
+hungry_score
+```
+
+---
+
+## 8. Example Run
+
+```commandline
+python -m introduction_to_AI.maman13.reversi \
+  -red heuristic_score \
+  -white hungry_score \
+  --ahead 4 \
+  -v \
+  -g
+```
+
+This command runs a Reversi game where:
+
+- RED uses Minimax with score heuristic
+- WHITE uses the greedy hungry-score agent
+- The Minimax depth is 4
+- The game is printed step-by-step
+- The graphical display is enabled
+
+---
+
+## 9. Answer Question
+
+### Question 2.a:
+
+when repeating this game run under this configuration, does this game ends with the same result?
+
+#### Answer:
+
+yes. since the evaluation function that I defined, which calculates the score difference between
                 the current player and the opponent player, is purely deterministic and does not include randomness.
                 As a result, this evaluation function will resolve the same evaluation score to each and every state
                 of this game, which then causes the same players moves in every new run.
 
 
-QUESTION 1.2:    assuming we have 2 heuristic evaluation functions - how can we check which one of them is more successful?
+### Question 2.b:
 
-Answer:      in theory, a heuristic evaluation function h() is considered "good" if it's successfully causing its
-                agent to win the game. in practices, and in rivalry game like Reversi, the "goodness" of an evaluation
-                function is depended on many factors which includes:
-                - the depth of the evaluation's minimax tree
-                - the strategy / evaluation function used by the opponent
-                - the identity of the agent player (if it is the root player or not)
-                - deterministic or stochastic evalutaor (non-deterministic evaluation function should be tested statistically)
+assuming we have 2 heuristic evaluation functions - how can we check which one of them is more successful?
 
-                thus, the best answer I have to this question is that h1() is "better" then h2() if:
-                - upon both deterministic evaluation functions
-                - and upon equal depths:
-                    if agent player that uses h1() will always win opponent agent player that uses h2()
-                    regardless to it identity (meaning that the h1() player will win the h2() player either when it is
-                    or is not the root player).
+---
 
-                - upon both stochastic evaluation functions
-                    if statistically h1() player wins h2() player more than h2() player win h1() player
+#### Answer
+In general, a heuristic evaluation function will be considered "better" than another if the agent using it beats another agent using the other heuristic function. In practice, this definition is too simplistic. This is because its preference over its opponent depends on many factors such as:
+- The depth of the minimax tree
+- Whether the player is the maximum or minimum
+- Whether the evaluation function is deterministic or stochastic (in the latter case, the number of victories must be statistically checked)
+
+Each of these factors has an impact on the victory or loss of a 1-on-2 heuristic.
+
+Also, different heuristic evaluation functions are better or worse at different stages of the game (beginning, middle, or end), and knowing this, it is possible to have a game strategy in which one starts with one heuristic function, and after a number of states, replaces it with another.
+
+A less simplistic answer is that we would prefer a heuristic whose ability to win depends as little as possible on being the maximum or minimum player, and is also cheap in resources (i.e., does not require a very deep minimax tree to win).
+
+---
+
+### Question b.3: 
+
+assuming that some heuristic evaluation function h() is "good" only in a specific part of the game,
+how and when should we replace it? what are the condition to make this replacement?
+
+#### Answer:
+
+In general, I admit that this is a very complex question that I am not sure I have a complete answer for.
+
+I would try to answer this problem as follows:
+1. Given a large number of heuristics, I would run them against each other
+2. This Darwinian experiment is based on the hypothesis that there are central nodes (i.e., the configuration of the game) through which winning heuristics pass the most. These nodes can be located at the beginning, in the middle, or towards the end of the game
+3. The classification of the heuristic function by stages (beginning, middle, end) will be according to the likelihood that they will pass through those "winning" nodes
+
+It is possible at the same time to identify "losing" nodes, and consider replacing a heuristic if it is identified that the current heuristic is approaching (for example, using the Hamming distance) these states.
+
+---
+
+### Question c.1:
 
 
+What is the complexity of running a full game with a heuristic evaluation function that is constantly running at depth 2 relative to a situation where the current player is required to choose an action?
 
-QUESTION 1.3:    assuming that some heuristic evaluation function h() is "good" only in a specific part of the game,
-                how and when should we replace it? what are the condition to make this replacement?
-
-
-Answer:      honestly, I cannot think of a simple answer to this question...
+For this purpose, assume: 10 = b-branching factor – the order of magnitude of the number of possible actions in each situation.
 
 
-Question 2.1: complexity of a full game run with heuristic evaluation function (depth = 2)?
+#### Answer
 
-Answer: total tree nodes (moves):
+total tree nodes (moves):
         ~ 1 + 10 + 100 = 111 = O(100)
     
 since Reversi game usually lasted for M = 60 moves (approximately, and diffidently cannot be bigger than 64, or n^2 for 
 the general case), then complexity is equal to O(60 * 100) = O(6000)
                     for the general case: O((n^2) * 100)
-        
 
-Question 2.2: (did not answered)
+---
 
-Question 2.3 (did not answered)
+#### Question c.2:
 
+In contrast, what is the complexity if you were to perform a calculation for the entire depth of the tree to select an action?
+
+#### Answer
+
+If the agent searches the entire game tree until the end of the game, the complexity is:
+
+O(b^m)
+
+where:
+- b=10
+- m = number of moves remaining until the end of the game
+
+So:
+
+O(10^m)
+
+For Reversi, after the initial 4 discs, there are at most about 60 moves remaining, 
+so the worst-case order is approximately:
+
+O(10^60)
+
+---
+
+#### Question c.3:
+
+In what order should the player check the actions (branches in the search tree) so that pruning is maximized?
+
+#### Answer
+
+
+To maximize pruning, the player should check the best moves first.
+
+Meaning:
+
+At MAX nodes: check moves from the highest estimated value to the lowest.
+At MIN nodes: check moves from the lowest estimated value to the highest.
+
+In Reversi, good ordering can be based on heuristic priorities such as:
+
+*corners* -> *edges* -> *highMobility* -> *highScore* -> etc
+
+With perfect ordering, Alpha-Beta can reduce the effective complexity from:
+
+O(b^d)
+
+to approximately:
+
+O(b^(d/2))
+
+For depth 2:
+
+O(10^1)=O(10)
+
+instead of:
+
+O(10^2) = O(100)
+
+which is quite significant!
