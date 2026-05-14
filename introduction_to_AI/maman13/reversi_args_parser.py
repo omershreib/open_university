@@ -1,17 +1,19 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   14/05/2026
+Email:  omershreib@gmail.com
+"""
+
 import argparse
 
-
 REVERSI_AGENTS_SUPPORT = ['heuristic_score', 'hungry_score']
+
 
 def parse_n_args():
     parser = argparse.ArgumentParser(
         description="Run Reversi game simulation using different rivals agents",
         epilog=f"Agents supported: {REVERSI_AGENTS_SUPPORT}"
     )
-
-    # parser.add_argument("num",
-    #                     type=int,
-    #                     help="initialize game with a minimum number of disks")
 
     # verbose is displayAllActions (a better flag name)
     parser.add_argument("--verbose",
@@ -34,7 +36,6 @@ def parse_n_args():
                         type=str,
                         help="select the agent used by the minimum (white) player")
 
-
     parser.add_argument("--ahead",
                         "-a",
                         type=int,
@@ -46,9 +47,7 @@ def parse_n_args():
                         action='store_true',
                         help="run with graphic displayer")
 
-
     args = parser.parse_args()
-    #num = args.num
     verbose = args.verbose
     methodical = args.methodical
     red_agent = args.red_agent
@@ -60,7 +59,5 @@ def parse_n_args():
     for agent in [red_agent, white_agent]:
         if agent not in REVERSI_AGENTS_SUPPORT:
             print(f"unknown agent {agent}")
-
-
 
     return verbose, methodical, red_agent, white_agent, ahead, graphic

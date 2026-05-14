@@ -1,3 +1,9 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   14/05/2026
+Email:  omershreib@gmail.com
+"""
+
 from __future__ import annotations
 
 from typing import Optional, Tuple, List
@@ -84,27 +90,6 @@ class ReversiGameState(State, BitBoardCalculator):
 
         return "\n".join(lines)
 
-    # def set_state(self, red_bits: List[int],
-    #               white_bits: List[int],
-    #               player_turn: ColorDiskPlayer) -> ReversiGameState:
-    #
-    #     self.red_bitboard = PlayerBitBoard(player=ColorDiskPlayer.RED, board_size=self.board_size)
-    #     self.white_bitboard = PlayerBitBoard(player=ColorDiskPlayer.WHITE, board_size=self.board_size)
-    #
-    #     for bit in red_bits:
-    #         self.red_bitboard.add_bit(bit)
-    #
-    #     for bit in white_bits:
-    #         self.white_bitboard.add_bit(bit)
-    #
-    #     return ReversiGameState(
-    #         red_bitboard=self.red_bitboard,
-    #         white_bitboard=self.white_bitboard,
-    #         board_size=self.board_size,
-    #         player_turn=player_turn,
-    #         consecutive_passes=0
-    #     )
-
     def legal_moves(self) -> List[Optional[int]]:
         player, opponent = self.get_players_current_state()
         mask = legal_moves_mask(player, opponent)
@@ -155,14 +140,3 @@ class ReversiGameState(State, BitBoardCalculator):
     def __repr__(self):
         return f"<ReversiGameState: {self.get_key()}>"
 
-
-if __name__ == '__main__':
-    #player = ColorDiskPlayer.RED
-    #print(player == ColorDiskPlayer.RED)
-
-    #player_bitboard = PlayerBitBoard(player=ColorDiskPlayer.RED, board_size=8)
-    #print(player_bitboard.player)
-    #print(player_bitboard.player == ColorDiskPlayer.RED)
-
-    state = ReversiGameState().initial(size=8)
-    print(state.snapshot())

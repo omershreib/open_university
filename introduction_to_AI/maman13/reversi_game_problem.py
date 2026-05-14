@@ -1,5 +1,10 @@
-from __future__ import annotations
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   14/05/2026
+Email:  omershreib@gmail.com
+"""
 
+from __future__ import annotations
 from typing import List
 from introduction_to_AI.models import Problem
 from introduction_to_AI.maman13.reversi_cdp import ColorDiskPlayer

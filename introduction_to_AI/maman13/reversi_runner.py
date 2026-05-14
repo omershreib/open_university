@@ -1,16 +1,22 @@
 from __future__ import annotations
 from typing import Optional, Dict, List, Tuple
 
-from bitboard import get_occupied_bitmask
-
+from introduction_to_AI.maman13.bitboard import get_occupied_bitmask
 from introduction_to_AI.maman13.reversi_move import ReversiMove
 from introduction_to_AI.maman13.reversi_cdp import ColorDiskPlayer
 from introduction_to_AI.maman13.reversi_game_state import ReversiGameState
 from introduction_to_AI.maman13.reversi_game_problem import ReversiGameProblem
 from introduction_to_AI.maman13.reversi_graphic_displayer import ReversiGraphicDisplayer
+from introduction_to_AI.maman13.bitboard_calculator import BitBoardCalculator
 from introduction_to_AI.agents import MinMaxAgent
-from bitboard_calculator import BitBoardCalculator
 
+from time import sleep
+import numpy as np
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   14/05/2026
+Email:  omershreib@gmail.com
+"""
 
 class ReversiGameRunner(BitBoardCalculator):
     """Reversi Game Runner
@@ -25,8 +31,9 @@ class ReversiGameRunner(BitBoardCalculator):
             white_agent,
             custom_init_state: Optional[ReversiGameState] = None,
             verbose: bool = True,
+            methodical: int = None,
             use_gui: bool = True,
-            gui_delay: float = 0.05,
+            gui_delay: float = 0.05
     ):
         """
 
@@ -40,6 +47,9 @@ class ReversiGameRunner(BitBoardCalculator):
         super().__init__(board_size=board_size)
 
         self.verbose = verbose
+
+        self.methodical = methodical if methodical is not None else np.inf
+
         self.board_size = board_size
         self.current_turn: int = 0
 
@@ -71,8 +81,8 @@ class ReversiGameRunner(BitBoardCalculator):
             self.graphical_display = ReversiGraphicDisplayer(
                 board_size=board_size,
                 interactive=True,
-                delay=gui_delay,
-            )
+                delay=gui_delay)
+
             self.graphical_display.initial_graphic_display()
             self.graphical_display.update(self.current_state)
 
@@ -119,12 +129,14 @@ class ReversiGameRunner(BitBoardCalculator):
         # update game state
         self.current_state = self.problem.update(self.current_state, move)
 
-        # update GUI
-        if self.graphical_display is not None:
-            self.graphical_display.update(self.current_state, last_move=self.move2bit(move))
+        # by default display every step
+        if self.current_turn < self.methodical:
+            # update GUI
+            if self.graphical_display is not None:
+                self.graphical_display.update(self.current_state, last_move=self.move2bit(move))
 
-        if self.verbose:
-            self.display()
+            if self.verbose:
+                self.display()
 
     def play(self, max_turns: int = 10_000, stop_at: int = None) -> ReversiGameState:
         if self.verbose:
@@ -152,6 +164,11 @@ class ReversiGameRunner(BitBoardCalculator):
 
         if self.verbose:
             self.print_current_scores(is_final=True)
+
+            if self.methodical < self.current_turn:
+                print(f"\nshow game end state (due to --methodical flag, "
+                      f"jumped right into end state after the first {self.methodical} game states)")
+                self.display()
 
         utility_red = self.current_state.utility(ColorDiskPlayer.RED)
         utility_white = self.current_state.utility(ColorDiskPlayer.WHITE)

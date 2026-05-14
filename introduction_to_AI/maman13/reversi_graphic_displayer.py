@@ -1,3 +1,9 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   14/05/2026
+Email:  omershreib@gmail.com
+"""
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
 from typing import Optional, Tuple
@@ -6,8 +12,8 @@ from introduction_to_AI.maman13.reversi_cdp import ColorDiskPlayer
 
 
 class ReversiGraphicDisplayer:
-    def __init__(self, board_size: int = 8, interactive: bool = True, delay: float = 0.01,
-                 title: str = "Reversi (Red vs White)"):
+    def __init__(self, board_size: int = 8, interactive: bool = True, delay: float = 0.01
+                 , title: str = "Reversi (Red vs White)"):
         self.board_size = board_size
         self.interactive = interactive
         self.delay = delay
@@ -168,6 +174,8 @@ class ReversiGraphicDisplayer:
             if utility_red is None or utility_white is None:
                 raise ValueError("terminal=True requires utility_red and utility_white")
             self.show_terminal(state, utility_red, utility_white)
+            plt.ioff()
+
         else:
             # clear any previous terminal banner
             if self._terminal_text is not None:

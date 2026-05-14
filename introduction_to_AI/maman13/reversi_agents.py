@@ -1,5 +1,10 @@
-from __future__ import annotations
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   14/05/2026
+Email:  omershreib@gmail.com
+"""
 
+from __future__ import annotations
 from introduction_to_AI.agents import HungryAgent
 from introduction_to_AI.maman13.reversi_game_problem import ReversiGameProblem
 from introduction_to_AI.maman13.reversi_game_state import ReversiGameState

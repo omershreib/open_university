@@ -3,7 +3,11 @@ from introduction_to_AI.maman13.reversi_game_state import ReversiGameState
 from introduction_to_AI.maman13.reversi_cdp import ColorDiskPlayer
 from abc import ABC
 
-
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   14/05/2026
+Email:  omershreib@gmail.com
+"""
 class ReversiEvaluator(Evaluator, ABC):
     pass
 
