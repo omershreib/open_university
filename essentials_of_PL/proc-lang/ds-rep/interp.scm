@@ -71,16 +71,36 @@
         (call-exp (rator rand)
           (let ((proc (expval->proc (value-of rator env)))
                 (arg (value-of rand env)))
-            (apply-procedure proc arg)))
+            (apply-procedure proc arg env)))
 
         )))
 
   ;; apply-procedure : Proc * ExpVal -> ExpVal
   ;; Page: 79
+
+  ;; --- Question 1.1: switch from lexical binding into dynamic binding
+  ;;
+  ;; during static (lexical) binding apply-procedure is applied on the enviroment
+  ;; where the procedure was DEDINED. This is implemented by storing the defining
+  ;; environment inside the procedure closure.
+  ;;
+  ;; during dynamic binding, we want that procedures will resolve variables
+  ;; based on the enviroment which the procedure was CALLED.
+  ;;
+  ;; in order to achive that, we need to modify apply-procedure to expect
+  ;; receiving the proc's current-enviroment (current-env) and replace save-env
+  ;; by it
+  
   (define apply-procedure
-    (lambda (proc1 val)
+
+    ;; lexical implementation
+    ;; (lambda (proc1 val)
+    
+    (lambda (proc1 val current-env)
       (cases proc proc1
+
+        ;; now save-env become a dummy variable (ignored) 
         (procedure (var body saved-env)
-          (value-of body (extend-env var val saved-env))))))
+          (value-of body (extend-env var val current-env))))))
 
   )

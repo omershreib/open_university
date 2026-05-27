@@ -51,6 +51,32 @@
           (else (eopl:error 'run-one "no such test: ~s" test-name))))))
  
   ;; (run-all)
+
+
+
+  ;; --- Question 1.2: define recusive Fibonacci procedure
+  #|
+  (define fibonacci-env 
+    (lambda (n)
+      (extend-env 
+       'a (num-val 0)
+       (extend-env
+        'b (num-val 0)
+        (extend-env
+         'n (num-val n)
+         (empty-env))))))
+ 
+
+
+  (define fibonacci-rec-body
+    ((lambda (fib-env)
+       ())))
+
+  (define fibonacci
+    ((lambda (n)
+       (...)
+       )))
+   |#
   
   )
 

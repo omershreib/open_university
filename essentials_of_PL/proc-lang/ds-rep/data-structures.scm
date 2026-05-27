@@ -4,7 +4,8 @@
 
   (require "lang.scm")                  ; for expression?
 
-  (provide (all-defined))               ; too many things to list
+  ;;(provide (all-defined))               ; too many things to list
+  (provide (all-defined-out))
 
 ;;;;;;;;;;;;;;;; expressed values ;;;;;;;;;;;;;;;;
 
@@ -89,5 +90,6 @@
   (define extended-env-record->old-env
     (lambda (r)
       (cdr r)))
+
 
 )
