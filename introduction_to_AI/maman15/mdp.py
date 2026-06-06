@@ -42,8 +42,6 @@ class MDP():
     @staticmethod
     def get_dig_actions(direction):
         dig_actions = {'dig_left': None, 'dig_right': None}
-
-        print(direction)
         label = directions_to_labels[str(direction)]
 
         if label == 'UP' or label == 'DOWN':
@@ -86,13 +84,15 @@ class MDP():
             dig_left_pos = dig_actions['dig_left']
             dig_right_pos = dig_actions['dig_right']
 
+            desire_pos = (vector(*pos) + desire_action).tolist()
+            dig_left_pos = (vector(*pos) + dig_actions['dig_left']).tolist()
+            dig_right_pos = (vector(*pos) + dig_actions['dig_right']).tolist()
+
             is_dig_left_valid = self.is_valid_pos(dig_left_pos)
             is_dig_right_valid = self.is_valid_pos(dig_right_pos)
 
             failed_prob = (1 - self.p) / 2
 
-            desire_pos = vector(*pos) + desire_action
-            desire_pos = desire_pos.tolist()
 
             # transition model baseline
             transition_model[key] = {'desire_pos': desire_pos,
@@ -160,7 +160,7 @@ class MDP():
             dig_left_pos = action_transition_model['dig_left_pos']
             dig_left_prob = action_transition_model['dig_left_prob']
 
-            dig_right_pos = action_transition_model['dig_left_pos']
+            dig_right_pos = action_transition_model['dig_right_pos']
             dig_right_prob = action_transition_model['dig_right_prob']
 
             states = [desire_pos, dig_left_pos, dig_right_pos]
@@ -181,7 +181,7 @@ if __name__ == '__main__':
     utilities, policy_dict = value_iteration(mdp)
     
     utilities_matrix = np.empty(mdp.shape)
-    policy_matrix = np.empty(mdp.shape)
+    policy_matrix = np.empty(mdp.shape, dtype=object)
 
     for key, value in utilities.items():
         pos = state_key_to_pos(key)
@@ -189,7 +189,8 @@ if __name__ == '__main__':
 
     for key, value in policy_dict.items():
         pos = state_key_to_pos(key)
-        policy_matrix[*pos] = value
+
+        policy_matrix[*pos] = directions_to_labels[str(value)]
 
 
     print(policy_matrix)

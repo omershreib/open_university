@@ -26,7 +26,7 @@ def q_value(mdp, pos, action, utilities):
 
     action_label = directions_to_labels[str(action)]
 
-    print(action_label in transition_model.keys())
+    #print(action_label in transition_model.keys())
     if action_label in transition_model.keys():
         action_transition_model = transition_model[action_label]
 
@@ -36,7 +36,7 @@ def q_value(mdp, pos, action, utilities):
         dig_left_pos = action_transition_model['dig_left_pos']
         dig_left_prob = action_transition_model['dig_left_prob']
 
-        dig_right_pos = action_transition_model['dig_left_pos']
+        dig_right_pos = action_transition_model['dig_right_pos']
         dig_right_prob = action_transition_model['dig_right_prob']
 
         states = [desire_pos, dig_left_pos, dig_right_pos]
@@ -44,56 +44,54 @@ def q_value(mdp, pos, action, utilities):
 
         for state, prob in zip(states, probabilities):
             key = state_to_key(*state)
-            print("state: ", state)
+            #print("state: ", state)
             if mdp.is_valid_pos(state):
-                print("add to total sum")
+                #print("add to total sum")
                 total_sum += prob * (mdp.get_reward(state) + mdp.gamma * utilities[key])
-                print(f"total sum = {total_sum}")
+                #print(f"total sum = {total_sum}")
 
         return total_sum
 
 
-def value_iteration(mdp: MDP, epsilon=0.01):
-    pre_qcalc_utilities = {}
-    post_qcalc_utilities = {}
+def value_iteration(mdp: MDP, epsilon=1000):
+    U = init_utilities(mdp, {})
+    U_prime = init_utilities(mdp, {})
     policy_dict = {}
 
-    delta = 0
+    stop_condition = epsilon * (1 - mdp.gamma) / mdp.gamma
+    index = 0
 
-    pre_qcalc_utilities = init_utilities(mdp, pre_qcalc_utilities)
-    post_qcalc_utilities = init_utilities(mdp, post_qcalc_utilities)
+    while True:
+        index += 1
+        print(f"value iteration #{index}")
 
-    state_keys = pre_qcalc_utilities.keys()
+        U = U_prime.copy()
+        delta = 0
 
-    for state_key in state_keys:
+        for state_key in list(U.keys()):
+            pos = state_key_to_pos(state_key)
 
-        best_qvalue_action = None
-        best_qvalue = 0
-        pos = state_key_to_pos(state_key)
+            if not mdp.is_valid_pos(pos):
+                continue
 
-        if not mdp.is_valid_pos(pos):
-            continue
+            best_action = None
+            best_value = float("-inf")
 
-        valid_actions = mdp.get_actions(pos)
+            for action in mdp.get_actions(pos):
+                curr_value = q_value(mdp, pos, action, U)
 
-        for action in valid_actions:
-            print("action: ", action)
-            curr_qvalue = q_value(mdp, pos, action, pre_qcalc_utilities)
+                if curr_value > best_value:
+                    best_value = curr_value
+                    best_action = action
 
-            print(f"qvalues (best vs current): {best_qvalue} {curr_qvalue}")
-            if best_qvalue < curr_qvalue:
-                best_qvalue = curr_qvalue
-                best_qvalue_action = action
+            U_prime[state_key] = best_value
+            policy_dict[state_key] = best_action
 
-        print(best_qvalue, best_qvalue_action)
-        post_qcalc_utilities[state_key] = best_qvalue
-        policy_dict[state_key] = best_qvalue_action
+            delta = max(delta, abs(U_prime[state_key] - U[state_key]))
 
-        # post_qcalc_utilities[state_key] = max([
-        #                                        for action in valid_actions])
+        print(f"delta: {delta} ; stop-condition (<=) {stop_condition}")
 
-        abs_utilities = abs(pre_qcalc_utilities[state_key] - post_qcalc_utilities[state_key])
-        delta = max(delta, abs_utilities)
+        if delta <= stop_condition:
+            break
 
-    if delta <= (epsilon * (1 - mdp.gamma)) / mdp.gamma:
-        return post_qcalc_utilities, policy_dict
+    return U_prime, policy_dict
