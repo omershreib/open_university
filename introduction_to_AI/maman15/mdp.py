@@ -3,30 +3,16 @@
 
 from __future__ import annotations
 
-from typing import List
-import random
-
-from models.problem import Problem
+from pprint import pprint
+from .policy_translation import policy_translation
+from .utils import *
 import numpy as np
-
-def vector(x: int, y: int) -> np.array:
-    return np.array([x, y])
-
-# action (row, col)
-UP = vector(-1, 0)
-DOWN = vector(+1, 0)
-LEFT = vector(0, -1)
-RIGHT = vector(0, +1)
-
-MDP_DIRECTIONS = [LEFT, RIGHT, UP, DOWN]
-
-directions_to_labels: dict = {str(UP): 'UP', str(DOWN): 'DOWN', str(LEFT): 'LEFT', str(RIGHT): 'RIGHT'}
-labels_to_directions: dict = {'UP': UP, 'DOWN': DOWN, 'LEFT': LEFT, 'RIGHT': RIGHT}
+import random
 
 
 class MDP():
     def __init__(self, datafile: str, gamma, p):
-        #super().__init__()
+        # super().__init__()
 
         data = np.load(datafile)
 
@@ -38,6 +24,18 @@ class MDP():
 
         self.gamma = gamma
         self.p = p
+
+    def get_pos_type(self, pos):
+        if not self.is_legal_pos(pos):
+            return 'illegal'
+
+        if self.is_terminal_pos(pos):
+            return 'terminal'
+
+        if self.is_blocked_pos(pos):
+            return 'block'
+
+        return 'state'
 
     @staticmethod
     def get_dig_actions(direction):
@@ -61,7 +59,7 @@ class MDP():
     def is_blocked_pos(self, pos):
         pos_x, pos_y = pos
         return self.states[pos_x, pos_y] == 0
-    
+
     def is_terminal_pos(self, pos):
         pos_x, pos_y = pos
         return self.states[pos_x, pos_y] == self.terminal_state
@@ -69,10 +67,10 @@ class MDP():
     def is_legal_pos(self, pos):
         pos_x, pos_y = pos
         return (0 <= pos_x < self.shape[0]) and (0 <= pos_y < self.shape[1])
-    
+
     def is_valid_pos(self, pos):
         return self.is_legal_pos(pos) and not self.is_blocked_pos(pos)
-    
+
     def get_transition_model(self, pos, desire_actions):
 
         transition_model = {}
@@ -80,9 +78,6 @@ class MDP():
         for desire_action in desire_actions:
             dig_actions = self.get_dig_actions(desire_action)
             key = directions_to_labels[str(desire_action)]
-
-            dig_left_pos = dig_actions['dig_left']
-            dig_right_pos = dig_actions['dig_right']
 
             desire_pos = (vector(*pos) + desire_action).tolist()
             dig_left_pos = (vector(*pos) + dig_actions['dig_left']).tolist()
@@ -92,7 +87,6 @@ class MDP():
             is_dig_right_valid = self.is_valid_pos(dig_right_pos)
 
             failed_prob = (1 - self.p) / 2
-
 
             # transition model baseline
             transition_model[key] = {'desire_pos': desire_pos,
@@ -136,7 +130,6 @@ class MDP():
 
         return valid_actions
 
-
     def get_reward(self, pos):
         pos_x, pos_y = pos
         return self.rewards[pos_x, pos_y]
@@ -171,15 +164,13 @@ class MDP():
             return chosen_pos, self.get_reward(chosen_pos)
 
 
-
-
 if __name__ == '__main__':
     from .value_iteration import value_iteration, state_key_to_pos
-    
+
     mdp = MDP(datafile='maman15/input_2026b.npz', gamma=0.9, p=0.8)
-    
-    utilities, policy_dict = value_iteration(mdp)
-    
+
+    num_iterations, utilities, policy_dict = value_iteration(mdp)
+
     utilities_matrix = np.empty(mdp.shape)
     policy_matrix = np.empty(mdp.shape, dtype=object)
 
@@ -187,15 +178,25 @@ if __name__ == '__main__':
         pos = state_key_to_pos(key)
         utilities_matrix[*pos] = value
 
-    for key, value in policy_dict.items():
+    for x in range(mdp.shape[0]):
+        for y in range(mdp.shape[1]):
+            pos = [x, y]
+            pos_policy = policy_translation(mdp, pos, None)
+
+            if pos_policy is not None:
+                policy_matrix[*pos] = pos_policy
+
+    for key, actions in policy_dict.items():
         pos = state_key_to_pos(key)
 
-        policy_matrix[*pos] = directions_to_labels[str(value)]
+        pos_policy = policy_translation(mdp, pos, actions)
+        policy_matrix[*pos] = pos_policy
 
+    print("\n=== UTILITY MATRIX ===")
+    pprint(utilities_matrix)
 
-    print(policy_matrix)
-    
-    # data = np.load('maman15/input_2026b.npz')
-    # print(data)
-    # print(data['states'])
-    # print(data['rewards'])
+    print("\n=== POLICY MATRIX ===")
+    pprint(policy_matrix)
+
+    np.save("utilities_matrix_1a", utilities_matrix)
+    np.save("policy_matrix_1a", policy_matrix)

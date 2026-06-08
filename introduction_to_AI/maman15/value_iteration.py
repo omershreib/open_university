@@ -1,15 +1,5 @@
 from .mdp import MDP, directions_to_labels
-
-state_to_key = lambda x, y: f"{x},{y}"
-
-
-def state_key_to_pos(key: str):
-    str_x_pos, str_y_pos = key.split(',')
-    x_pos = int(str_x_pos)
-    y_pos = int(str_y_pos)
-
-    return x_pos, y_pos
-
+from .utils import *
 
 def init_utilities(mdp, u):
     for x in range(mdp.shape[0]):
@@ -26,7 +16,7 @@ def q_value(mdp, pos, action, utilities):
 
     action_label = directions_to_labels[str(action)]
 
-    #print(action_label in transition_model.keys())
+    # print(action_label in transition_model.keys())
     if action_label in transition_model.keys():
         action_transition_model = transition_model[action_label]
 
@@ -44,16 +34,16 @@ def q_value(mdp, pos, action, utilities):
 
         for state, prob in zip(states, probabilities):
             key = state_to_key(*state)
-            #print("state: ", state)
+            # print("state: ", state)
             if mdp.is_valid_pos(state):
-                #print("add to total sum")
+                # print("add to total sum")
                 total_sum += prob * (mdp.get_reward(state) + mdp.gamma * utilities[key])
-                #print(f"total sum = {total_sum}")
+                # print(f"total sum = {total_sum}")
 
         return total_sum
 
 
-def value_iteration(mdp: MDP, epsilon=1000):
+def value_iteration(mdp: MDP, epsilon=1):
     U = init_utilities(mdp, {})
     U_prime = init_utilities(mdp, {})
     policy_dict = {}
@@ -74,18 +64,22 @@ def value_iteration(mdp: MDP, epsilon=1000):
             if not mdp.is_valid_pos(pos):
                 continue
 
-            best_action = None
+            best_actions = []
             best_value = float("-inf")
 
             for action in mdp.get_actions(pos):
                 curr_value = q_value(mdp, pos, action, U)
 
+                if curr_value == best_value:
+                    best_actions.append(action)
+
                 if curr_value > best_value:
                     best_value = curr_value
-                    best_action = action
+                    best_actions = []
+                    best_actions.append(action)
 
             U_prime[state_key] = best_value
-            policy_dict[state_key] = best_action
+            policy_dict[state_key] = best_actions
 
             delta = max(delta, abs(U_prime[state_key] - U[state_key]))
 
@@ -94,4 +88,4 @@ def value_iteration(mdp: MDP, epsilon=1000):
         if delta <= stop_condition:
             break
 
-    return U_prime, policy_dict
+    return index, U_prime, policy_dict
