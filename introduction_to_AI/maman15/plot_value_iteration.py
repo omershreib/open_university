@@ -11,6 +11,6 @@ def plot_value_iteration(i,mat, fname):
     fig = plt.imshow(mat, vmin=-max_abs_reward, vmax=max_abs_reward, cmap='seismic')
     plt.title(f'Value Iteration: {i}\n{NAME}')
     plt.colorbar()
-    plt.savefig(fname + '_ValueIteration_Values.jpg')
+    plt.savefig(fname + '.jpg')
 
     plt.show()

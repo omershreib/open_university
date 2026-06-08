@@ -5,12 +5,15 @@ from __future__ import annotations
 
 from pprint import pprint
 from .policy_translation import policy_translation
+from .value_iteration import value_iteration
+from .plot_value_iteration import plot_value_iteration
+from .plot_policy_matrix import plot_policy_matrix
 from .utils import *
 import numpy as np
 import random
 
 
-class MDP():
+class MDP:
     def __init__(self, datafile: str, gamma, p):
         # super().__init__()
 
@@ -69,7 +72,12 @@ class MDP():
         return (0 <= pos_x < self.shape[0]) and (0 <= pos_y < self.shape[1])
 
     def is_valid_pos(self, pos):
+        """state position is inside board and not blocked"""
         return self.is_legal_pos(pos) and not self.is_blocked_pos(pos)
+
+    def is_updatable_pos(self, pos):
+        """state position is valid and not terminal"""
+        return self.is_valid_pos(pos) and not self.is_terminal_pos(pos)
 
     def get_transition_model(self, pos, desire_actions):
 
@@ -165,38 +173,51 @@ class MDP():
 
 
 if __name__ == '__main__':
-    from .value_iteration import value_iteration, state_key_to_pos
 
-    mdp = MDP(datafile='maman15/input_2026b.npz', gamma=0.9, p=0.8)
+    # EPSILON = 1
+    # NAME = "OmerShraibshtein"
+    # DATAFILE = 'maman15/input_2026b.npz'
+    #
+    # mdp = MDP(datafile=DATAFILE, gamma=0.9, p=0.8)
+    # fname = fr"maman15/figures/ValueIteration_eps{string_float(EPSILON)}_p{string_float(mdp.p)}_gamma{string_float(mdp.gamma)}_{NAME}"
+    #
+    # num_iterations, utilities, policy_dict = value_iteration(mdp, epsilon=EPSILON)
+    #
+    # utilities_matrix = np.empty(mdp.shape)
+    # policy_matrix = np.empty(mdp.shape, dtype=object)
+    #
+    # for key, value in utilities.items():
+    #     pos = state_key_to_pos(key)
+    #     utilities_matrix[*pos] = value
+    #
+    # for x in range(mdp.shape[0]):
+    #     for y in range(mdp.shape[1]):
+    #         pos = [x, y]
+    #         pos_policy = policy_translation(mdp, pos, None)
+    #
+    #         if pos_policy is not None:
+    #             policy_matrix[*pos] = pos_policy
+    #
+    # for key, actions in policy_dict.items():
+    #     pos = state_key_to_pos(key)
+    #
+    #     pos_policy = policy_translation(mdp, pos, actions)
+    #     policy_matrix[*pos] = pos_policy
+    #
+    # print("\n=== UTILITY MATRIX ===")
+    # pprint(utilities_matrix)
+    #
+    # print("\n=== POLICY MATRIX ===")
+    # pprint(policy_matrix)
 
-    num_iterations, utilities, policy_dict = value_iteration(mdp)
+    #np.save("utilities_matrix_1a", utilities_matrix)
+    #np.save("policy_matrix_1a", policy_matrix)
 
-    utilities_matrix = np.empty(mdp.shape)
-    policy_matrix = np.empty(mdp.shape, dtype=object)
+    #plot_value_iteration(num_iterations, utilities_matrix, fname=fname)
 
-    for key, value in utilities.items():
-        pos = state_key_to_pos(key)
-        utilities_matrix[*pos] = value
+    policy_matrix = np.load("./policy_matrix_1a.npy", allow_pickle=True)
+    plot_policy_matrix(policy_matrix, "Optimal Policy")
 
-    for x in range(mdp.shape[0]):
-        for y in range(mdp.shape[1]):
-            pos = [x, y]
-            pos_policy = policy_translation(mdp, pos, None)
 
-            if pos_policy is not None:
-                policy_matrix[*pos] = pos_policy
 
-    for key, actions in policy_dict.items():
-        pos = state_key_to_pos(key)
 
-        pos_policy = policy_translation(mdp, pos, actions)
-        policy_matrix[*pos] = pos_policy
-
-    print("\n=== UTILITY MATRIX ===")
-    pprint(utilities_matrix)
-
-    print("\n=== POLICY MATRIX ===")
-    pprint(policy_matrix)
-
-    np.save("utilities_matrix_1a", utilities_matrix)
-    np.save("policy_matrix_1a", policy_matrix)

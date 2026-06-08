@@ -8,9 +8,15 @@ from .utils import *
 
 if __name__ == '__main__':
 
-    EPSILON = 350
+    EPSILON = 10
 
     mdp = MDP(datafile='maman15/input0.npz', gamma=0.9, p=0.8)
+
+    print("\n=== states ===")
+    pprint(mdp.states)
+
+    print("\n=== rewards ===")
+    pprint(mdp.rewards)
 
     num_iterations, utilities, policy_dict = value_iteration(mdp, epsilon=EPSILON)
 
@@ -44,7 +50,7 @@ if __name__ == '__main__':
     np.save("utilities_matrix_input0", utilities_matrix)
     np.save("policy_matrix_input0", policy_matrix)
 
-    plot_value_iteration(num_iterations, utilities_matrix, f"input0_eps_{EPSILON}_")
+    plot_value_iteration(num_iterations, utilities_matrix, f"figures/input0_eps_{EPSILON}_")
 
 
 

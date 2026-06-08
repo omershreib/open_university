@@ -1,10 +1,19 @@
-from .mdp import MDP, directions_to_labels
+#from .mdp import MDP
 from .utils import *
 
 def init_utilities(mdp, u):
     for x in range(mdp.shape[0]):
         for y in range(mdp.shape[1]):
+            #pos = [x, y]
             u[state_to_key(x, y)] = 0
+
+            # if mdp.is_blocked_pos(pos):
+            #     u[state_to_key(x, y)] = 0
+            # elif mdp.is_terminal_pos(pos):
+            #     #u[state_to_key(x, y)] = mdp.get_reward(pos)
+            #     u[state_to_key(x, y)] = 0
+            # else:
+            #     u[state_to_key(x, y)] = 0
 
     return u
 
@@ -43,8 +52,9 @@ def q_value(mdp, pos, action, utilities):
         return total_sum
 
 
-def value_iteration(mdp: MDP, epsilon=1):
-    U = init_utilities(mdp, {})
+def value_iteration(mdp, epsilon=1):
+    print(f"run value_iteration with epsilon={epsilon}")
+    #U = init_utilities(mdp, {})
     U_prime = init_utilities(mdp, {})
     policy_dict = {}
 
@@ -61,7 +71,7 @@ def value_iteration(mdp: MDP, epsilon=1):
         for state_key in list(U.keys()):
             pos = state_key_to_pos(state_key)
 
-            if not mdp.is_valid_pos(pos):
+            if not mdp.is_updatable_pos(pos):
                 continue
 
             best_actions = []

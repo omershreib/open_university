@@ -40,8 +40,33 @@ def get_pos_symbol(mdp, pos):
     return None
 
 
+def pretty_symbol(symbols):
+    """
+    symbols: list[str]
+
+    Examples:
+        ['^']           -> '^'
+        ['>', '^']      -> '^+>'
+        ['v', '<']      -> '<+v'
+        ['>', '<', '^'] -> '<+^+>'
+    """
+
+    if len(symbols) <= 1:
+        return "".join(symbols)
+
+    order = [
+        LEFT_SYMBOL,
+        DOWN_SYMBOL,
+        UP_SYMBOL,
+        RIGHT_SYMBOL
+    ]
+
+    ordered_symbols = [s for s in order if s in symbols]
+
+    return INDIFFERENCE_SYMBOL.join(ordered_symbols)
+
 def policy_translation(mdp, pos, actions):
-    symbols = deque()
+    symbols = []
     curr_pos_symbol = get_pos_symbol(mdp, pos)
 
     if curr_pos_symbol is not None:
@@ -52,11 +77,12 @@ def policy_translation(mdp, pos, actions):
 
     for action in actions:
         action_symbol = get_action_symbol(action)
+        symbols.append(action_symbol)
+        # if action_symbol in [UP_SYMBOL, RIGHT_SYMBOL]:
+        #     symbols.append(action_symbol)
+        #
+        # if action_symbol in [DOWN_SYMBOL, LEFT_SYMBOL]:
+        #     symbols.appendleft(action_symbol)
 
-        if action_symbol in [UP_SYMBOL, RIGHT_SYMBOL]:
-            symbols.append(action_symbol)
-
-        if action_symbol in [DOWN_SYMBOL, LEFT_SYMBOL]:
-            symbols.appendleft(action_symbol)
-
-    return f"{INDIFFERENCE_SYMBOL}".join(symbols)
+    return pretty_symbol(symbols)
+    #return pretty_symbol(f"{INDIFFERENCE_SYMBOL}".join(symbols))
