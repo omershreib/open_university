@@ -24,3 +24,49 @@ def state_key_to_pos(key: str):
     y_pos = int(str_y_pos)
 
     return x_pos, y_pos
+
+def string_float(flt):
+    return str(flt).replace('.','')
+
+
+def q_value(mdp, pos, action, utilities):
+    total_sum = 0
+    valid_actions = mdp.get_actions(pos)
+    transition_model = mdp.get_transition_model(pos, valid_actions)
+
+    action_label = directions_to_labels[str(action)]
+
+    # print(action_label in transition_model.keys())
+    if action_label in transition_model.keys():
+        action_transition_model = transition_model[action_label]
+
+        desire_pos = action_transition_model['desire_pos']
+        desire_prob = action_transition_model['desire_prob']
+
+        dig_left_pos = action_transition_model['dig_left_pos']
+        dig_left_prob = action_transition_model['dig_left_prob']
+
+        dig_right_pos = action_transition_model['dig_right_pos']
+        dig_right_prob = action_transition_model['dig_right_prob']
+
+        states = [desire_pos, dig_left_pos, dig_right_pos]
+        probabilities = [desire_prob, dig_left_prob, dig_right_prob]
+
+        for state, prob in zip(states, probabilities):
+            key = state_to_key(*state)
+            # print("state: ", state)
+            if mdp.is_valid_pos(state):
+                # print("add to total sum")
+                total_sum += prob * (mdp.get_reward(state) + mdp.gamma * utilities[key])
+                # print(f"total sum = {total_sum}")
+
+        return total_sum
+
+
+def init_utilities(mdp, u):
+    for x in range(mdp.shape[0]):
+        for y in range(mdp.shape[1]):
+            u[state_to_key(x, y)] = 0
+
+    return u
+

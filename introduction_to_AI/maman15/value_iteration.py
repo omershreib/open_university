@@ -1,67 +1,27 @@
-#from .mdp import MDP
-from .utils import *
-
-def init_utilities(mdp, u):
-    for x in range(mdp.shape[0]):
-        for y in range(mdp.shape[1]):
-            #pos = [x, y]
-            u[state_to_key(x, y)] = 0
-
-            # if mdp.is_blocked_pos(pos):
-            #     u[state_to_key(x, y)] = 0
-            # elif mdp.is_terminal_pos(pos):
-            #     #u[state_to_key(x, y)] = mdp.get_reward(pos)
-            #     u[state_to_key(x, y)] = 0
-            # else:
-            #     u[state_to_key(x, y)] = 0
-
-    return u
+from utils import *
 
 
-def q_value(mdp, pos, action, utilities):
-    total_sum = 0
-    valid_actions = mdp.get_actions(pos)
-    transition_model = mdp.get_transition_model(pos, valid_actions)
+def get_stop_condition(gamma, epsilon):
+    if gamma == 0:
+        return float("inf")   # stop after one iteration
 
-    action_label = directions_to_labels[str(action)]
+    if gamma == 1:
+        return epsilon        # no AIMA discounted bound
 
-    # print(action_label in transition_model.keys())
-    if action_label in transition_model.keys():
-        action_transition_model = transition_model[action_label]
-
-        desire_pos = action_transition_model['desire_pos']
-        desire_prob = action_transition_model['desire_prob']
-
-        dig_left_pos = action_transition_model['dig_left_pos']
-        dig_left_prob = action_transition_model['dig_left_prob']
-
-        dig_right_pos = action_transition_model['dig_right_pos']
-        dig_right_prob = action_transition_model['dig_right_prob']
-
-        states = [desire_pos, dig_left_pos, dig_right_pos]
-        probabilities = [desire_prob, dig_left_prob, dig_right_prob]
-
-        for state, prob in zip(states, probabilities):
-            key = state_to_key(*state)
-            # print("state: ", state)
-            if mdp.is_valid_pos(state):
-                # print("add to total sum")
-                total_sum += prob * (mdp.get_reward(state) + mdp.gamma * utilities[key])
-                # print(f"total sum = {total_sum}")
-
-        return total_sum
+    return epsilon * (1 - gamma) / gamma
 
 
-def value_iteration(mdp, epsilon=1):
+def value_iteration(mdp, epsilon=1, max_iters=10_000):
     print(f"run value_iteration with epsilon={epsilon}")
     #U = init_utilities(mdp, {})
     U_prime = init_utilities(mdp, {})
     policy_dict = {}
 
-    stop_condition = epsilon * (1 - mdp.gamma) / mdp.gamma
+    #stop_condition = epsilon * (1 - mdp.gamma) / mdp.gamma
+    stop_condition = get_stop_condition(mdp.gamma, epsilon)
     index = 0
 
-    while True:
+    while index < max_iters:
         index += 1
         print(f"value iteration #{index}")
 

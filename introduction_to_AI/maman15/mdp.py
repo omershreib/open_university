@@ -1,14 +1,14 @@
 # from set_parrent_as_cwd import change_to_parent_directory
 # change_to_parent_directory()
 
-from __future__ import annotations
+#from __future__ import annotations
 
-from pprint import pprint
-from .policy_translation import policy_translation
-from .value_iteration import value_iteration
-from .plot_value_iteration import plot_value_iteration
-from .plot_policy_matrix import plot_policy_matrix
-from .utils import *
+# from pprint import pprint
+# from policy_translation import policy_translation
+# from value_iteration import value_iteration
+# from plot_value_iteration import plot_value_iteration
+# from plot_policy_matrix import plot_policy_matrix
+from utils import *
 import numpy as np
 import random
 
@@ -173,51 +173,25 @@ class MDP:
 
 
 if __name__ == '__main__':
+    from run_question_2 import run_question_2
+    from run_question_3 import run_question_3
+    from parse_args import parse_args
 
-    # EPSILON = 1
-    # NAME = "OmerShraibshtein"
-    # DATAFILE = 'maman15/input_2026b.npz'
-    #
-    # mdp = MDP(datafile=DATAFILE, gamma=0.9, p=0.8)
-    # fname = fr"maman15/figures/ValueIteration_eps{string_float(EPSILON)}_p{string_float(mdp.p)}_gamma{string_float(mdp.gamma)}_{NAME}"
-    #
-    # num_iterations, utilities, policy_dict = value_iteration(mdp, epsilon=EPSILON)
-    #
-    # utilities_matrix = np.empty(mdp.shape)
-    # policy_matrix = np.empty(mdp.shape, dtype=object)
-    #
-    # for key, value in utilities.items():
-    #     pos = state_key_to_pos(key)
-    #     utilities_matrix[*pos] = value
-    #
-    # for x in range(mdp.shape[0]):
-    #     for y in range(mdp.shape[1]):
-    #         pos = [x, y]
-    #         pos_policy = policy_translation(mdp, pos, None)
-    #
-    #         if pos_policy is not None:
-    #             policy_matrix[*pos] = pos_policy
-    #
-    # for key, actions in policy_dict.items():
-    #     pos = state_key_to_pos(key)
-    #
-    #     pos_policy = policy_translation(mdp, pos, actions)
-    #     policy_matrix[*pos] = pos_policy
-    #
-    # print("\n=== UTILITY MATRIX ===")
-    # pprint(utilities_matrix)
-    #
-    # print("\n=== POLICY MATRIX ===")
-    # pprint(policy_matrix)
+    args = parse_args()
 
-    #np.save("utilities_matrix_1a", utilities_matrix)
-    #np.save("policy_matrix_1a", policy_matrix)
+    datafile = args.filename
+    algorithm = args.algorithm
 
-    #plot_value_iteration(num_iterations, utilities_matrix, fname=fname)
+    student_name = "Omer_Shraibshtein"
+    #datafile = 'input_2026b.npz'
+    figures_folder = 'figures'
+    numpy_results_folder = 'npz_results'
 
-    policy_matrix = np.load("./policy_matrix_1a.npy", allow_pickle=True)
-    plot_policy_matrix(policy_matrix, "Optimal Policy")
+    if algorithm == "ValueIteration":
+        run_question_2(student_name=student_name,
+                       datafile=datafile,
+                       figures_folder=figures_folder,
+                       numpy_results_folder=numpy_results_folder)
 
-
-
-
+    elif algorithm == "PolicyIteration":
+        run_question_3()

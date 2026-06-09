@@ -1,5 +1,5 @@
 from collections import deque
-from .utils import *
+from utils import *
 
 UP_SYMBOL = '^'
 DOWN_SYMBOL = 'v'

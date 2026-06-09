@@ -19,6 +19,7 @@ def prettify_for_display(symbol):
 
 def plot_policy_matrix(
         policy_matrix,
+        filename,
         title="Policy",
         blocked_symbol="X",
         terminal_symbol="O"):
@@ -96,8 +97,11 @@ def plot_policy_matrix(
     ax.set_xticks(range(cols))
     ax.set_yticks(range(rows))
 
+    #plt.colorbar()
+    plt.savefig(filename + '.jpg')
+
     plt.tight_layout()
-    plt.show()
+    #plt.show()
 
 
 if __name__ == '__main__':
