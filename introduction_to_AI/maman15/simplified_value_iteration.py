@@ -1,4 +1,11 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
+
 from utils import *
+
 
 def simplified_value_iteration(mdp, policy, epsilon=0.01):
     """

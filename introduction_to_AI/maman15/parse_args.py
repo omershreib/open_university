@@ -1,3 +1,9 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
+
 import argparse
 
 def parse_args():

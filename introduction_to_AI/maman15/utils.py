@@ -1,4 +1,11 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
+
 import numpy as np
+
 
 def vector(x: int, y: int) -> np.array:
     return np.array([x, y])
@@ -10,14 +17,13 @@ DOWN = vector(+1, 0)
 LEFT = vector(0, -1)
 RIGHT = vector(0, +1)
 
-#MDP_DIRECTIONS = [LEFT, RIGHT, UP, DOWN]
 SORTED_ACTIONS = [UP, DOWN, RIGHT, LEFT]
 
 directions_to_labels: dict = {str(UP): 'UP', str(DOWN): 'DOWN', str(LEFT): 'LEFT', str(RIGHT): 'RIGHT'}
 labels_to_directions: dict = {'UP': UP, 'DOWN': DOWN, 'LEFT': LEFT, 'RIGHT': RIGHT}
 
-
 state_to_key = lambda x, y: f"{x},{y}"
+
 
 def state_key_to_pos(key: str):
     str_x_pos, str_y_pos = key.split(',')
@@ -26,8 +32,9 @@ def state_key_to_pos(key: str):
 
     return x_pos, y_pos
 
+
 def string_float(flt):
-    return str(flt).replace('.','')
+    return str(flt).replace('.', '')
 
 
 def same_action(a1, a2):
@@ -42,6 +49,7 @@ def stop_condition(gamma, epsilon):
         return epsilon
 
     return epsilon * (1 - gamma) / gamma
+
 
 def q_value(mdp, pos, action, utilities):
     total_sum = 0
@@ -83,4 +91,3 @@ def init_utilities(mdp, u):
             u[state_to_key(x, y)] = 0
 
     return u
-

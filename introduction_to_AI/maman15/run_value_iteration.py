@@ -1,3 +1,9 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
+
 from utils import *
 from value_iteration import value_iteration
 from policy_translation import policy_translation
@@ -5,6 +11,7 @@ from plot_value_iteration import plot_value_iteration
 from plot_policy_matrix import plot_policy_matrix
 from pprint import pprint
 import numpy as np
+
 
 def run_value_iteration(mdp,
                         epsilon,
@@ -14,7 +21,6 @@ def run_value_iteration(mdp,
                         policy_plot_title,
                         value_matrix_filename,
                         policy_matrix_filename):
-
     num_iterations, utilities, policy_dict = value_iteration(mdp, epsilon=epsilon)
 
     utilities_matrix = np.empty(mdp.shape)
@@ -50,4 +56,3 @@ def run_value_iteration(mdp,
     plot_value_iteration(num_iterations, utilities_matrix, filename=value_plot_filename, title=value_plot_title)
 
     plot_policy_matrix(policy_matrix, filename=policy_plot_filename, title=policy_plot_title)
-

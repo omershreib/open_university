@@ -1,19 +1,12 @@
-import numpy as np
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
 
 from init_policy import init_policy_up
 from simplified_value_iteration import simplified_value_iteration
 from improve_policy import improve_policy
-from utils import *
-
-# from  import q_value
-
-
-# UP = np.array([-1, 0])
-# DOWN = np.array([1, 0])
-# RIGHT = np.array([0, 1])
-# LEFT = np.array([0, -1])
-
-#SORTED_ACTIONS = [UP, DOWN, RIGHT, LEFT]
 
 
 def policy_iteration(mdp, epsilon=0.01):

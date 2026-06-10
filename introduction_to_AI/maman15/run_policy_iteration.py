@@ -40,10 +40,10 @@ def run_policy_iteration(mdp,
             if pos_policy is not None:
                 policy_matrix[*pos] = pos_policy
 
-    for key, actions in policy_dict.items():
+    for key, action in policy_dict.items():
         pos = state_key_to_pos(key)
 
-        pos_policy = policy_translation(mdp, pos, actions)
+        pos_policy = policy_translation(mdp, pos, [action])
         policy_matrix[*pos] = pos_policy
 
     print("\n=== UTILITY MATRIX ===")

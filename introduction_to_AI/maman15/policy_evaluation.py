@@ -1,3 +1,9 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
+
 from utils import *
 
 def policy_evaluation(policy, utilities, mdp, iterations=20):

@@ -1,5 +1,8 @@
-# plot_policy_iteration_history.py
-
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
 import matplotlib.pyplot as plt
 
 

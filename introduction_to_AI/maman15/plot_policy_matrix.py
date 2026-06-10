@@ -1,3 +1,9 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -101,7 +107,7 @@ def plot_policy_matrix(
     plt.savefig(filename + '.jpg')
 
     plt.tight_layout()
-    #plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':

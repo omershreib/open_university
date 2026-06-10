@@ -1,3 +1,9 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
+
 from utils import *
 
 
@@ -13,7 +19,7 @@ def get_stop_condition(gamma, epsilon):
 
 def value_iteration(mdp, epsilon=1, max_iters=10_000):
     print(f"run value_iteration with epsilon={epsilon}")
-    #U = init_utilities(mdp, {})
+
     U_prime = init_utilities(mdp, {})
     policy_dict = {}
 

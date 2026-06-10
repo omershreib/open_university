@@ -1,13 +1,10 @@
-# from set_parrent_as_cwd import change_to_parent_directory
-# change_to_parent_directory()
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
 
-#from __future__ import annotations
 
-# from pprint import pprint
-# from policy_translation import policy_translation
-# from value_iteration import value_iteration
-# from plot_value_iteration import plot_value_iteration
-# from plot_policy_matrix import plot_policy_matrix
 from utils import *
 import numpy as np
 import random
@@ -15,10 +12,8 @@ import random
 
 class MDP:
     def __init__(self, datafile: str, gamma, p):
-        # super().__init__()
 
         data = np.load(datafile)
-
         self.states = data['states']
         self.rewards = data['rewards']
         self.terminal_state = -1
@@ -147,7 +142,7 @@ class MDP:
         valid_actions = self.get_actions(pos)
         transition_model = self.get_transition_model(pos, valid_actions)
 
-        action_label = directions_to_labels[action]
+        action_label = directions_to_labels[str(action)]
 
         if action_label not in transition_model.keys():
             return empty_result
@@ -183,20 +178,25 @@ if __name__ == '__main__':
     algorithm = args.algorithm
 
     student_name = "Omer_Shraibshtein"
-    #datafile = 'input_2026b.npz'
-    figures_folder = 'figures'
-    numpy_results_folder = 'npz_results'
+    # datafile = 'input_2026b.npz'
+    # figures_folder = 'figures'
+    # numpy_results_folder = 'npz_results'
+
+    figures_folder = 'results'
+    numpy_results_folder = 'results'
+    epsilon = 0.001
 
     if algorithm == "ValueIteration":
         run_question_2(student_name=student_name,
                        datafile=datafile,
                        figures_folder=figures_folder,
-                       numpy_results_folder=numpy_results_folder)
+                       numpy_results_folder=numpy_results_folder,
+                       epsilon=epsilon)
 
 
     elif args.algorithm == "PolicyIteration":
-
         run_question_3(student_name=student_name,
                        datafile=datafile,
                        figures_folder=figures_folder,
-                       numpy_results_folder=numpy_results_folder)
+                       numpy_results_folder=numpy_results_folder,
+                       epsilon=epsilon)

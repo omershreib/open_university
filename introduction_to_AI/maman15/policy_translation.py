@@ -1,4 +1,9 @@
-from collections import deque
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
+
 from utils import *
 
 UP_SYMBOL = '^'
@@ -11,16 +16,6 @@ BLOCK_SYMBOL = 'X'
 
 
 def get_action_symbol(action):
-
-    # if action is None:
-    #     return None
-    #
-    # if action == 'O':
-    #     return 'O'
-    #
-    # if action == 'X':
-    #     return 'X'
-
     label = directions_to_labels[str(action)]
 
     if label == 'UP':

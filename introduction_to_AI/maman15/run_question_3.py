@@ -1,5 +1,10 @@
+"""
+Author: Omer Shraibshtein (205984271)
+Date:   10/06/2026
+Email:  omershreib@gmail.com
+"""
+
 from run_policy_iteration import run_policy_iteration
-from utils import string_float
 from mdp import MDP
 
 
@@ -8,9 +13,7 @@ def run_question_3(**kwargs):
     numpy_results_folder = kwargs.get("numpy_results_folder")
     student_name = kwargs.get("student_name")
     datafile = kwargs.get("datafile")
-
-    #epsilon = 1
-    epsilon = 0.001
+    epsilon = kwargs.get("epsilon")
 
     # === Question 3: Policy Iteration ===
     print("Run Question 3 - Policy Iteration\n")
