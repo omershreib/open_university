@@ -183,7 +183,7 @@ if __name__ == '__main__':
     # numpy_results_folder = 'npz_results'
 
     figures_folder = 'results'
-    numpy_results_folder = 'results'
+    numpy_results_folder = 'npz_results'
     epsilon = 0.001
 
     if algorithm == "ValueIteration":
