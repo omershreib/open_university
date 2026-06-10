@@ -11,6 +11,16 @@ BLOCK_SYMBOL = 'X'
 
 
 def get_action_symbol(action):
+
+    # if action is None:
+    #     return None
+    #
+    # if action == 'O':
+    #     return 'O'
+    #
+    # if action == 'X':
+    #     return 'X'
+
     label = directions_to_labels[str(action)]
 
     if label == 'UP':

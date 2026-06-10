@@ -23,7 +23,7 @@ class MDP:
         self.rewards = data['rewards']
         self.terminal_state = -1
         self.shape = self.states.shape
-        self.directions = MDP_DIRECTIONS
+        self.directions = SORTED_ACTIONS
 
         self.gamma = gamma
         self.p = p
@@ -193,5 +193,10 @@ if __name__ == '__main__':
                        figures_folder=figures_folder,
                        numpy_results_folder=numpy_results_folder)
 
-    elif algorithm == "PolicyIteration":
-        run_question_3()
+
+    elif args.algorithm == "PolicyIteration":
+
+        run_question_3(student_name=student_name,
+                       datafile=datafile,
+                       figures_folder=figures_folder,
+                       numpy_results_folder=numpy_results_folder)

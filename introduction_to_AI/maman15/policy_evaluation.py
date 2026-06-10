@@ -8,6 +8,7 @@ def policy_evaluation(policy, utilities, mdp, iterations=20):
         U[s] = Q_VALUE(mdp, s, policy[s], U)
     """
 
+
     for _ in range(iterations):
         new_utilities = utilities.copy()
 

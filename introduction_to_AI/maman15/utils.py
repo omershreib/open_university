@@ -10,7 +10,8 @@ DOWN = vector(+1, 0)
 LEFT = vector(0, -1)
 RIGHT = vector(0, +1)
 
-MDP_DIRECTIONS = [LEFT, RIGHT, UP, DOWN]
+#MDP_DIRECTIONS = [LEFT, RIGHT, UP, DOWN]
+SORTED_ACTIONS = [UP, DOWN, RIGHT, LEFT]
 
 directions_to_labels: dict = {str(UP): 'UP', str(DOWN): 'DOWN', str(LEFT): 'LEFT', str(RIGHT): 'RIGHT'}
 labels_to_directions: dict = {'UP': UP, 'DOWN': DOWN, 'LEFT': LEFT, 'RIGHT': RIGHT}
@@ -28,6 +29,19 @@ def state_key_to_pos(key: str):
 def string_float(flt):
     return str(flt).replace('.','')
 
+
+def same_action(a1, a2):
+    return np.array_equal(a1, a2)
+
+
+def stop_condition(gamma, epsilon):
+    if gamma == 0:
+        return float("inf")
+
+    if gamma == 1:
+        return epsilon
+
+    return epsilon * (1 - gamma) / gamma
 
 def q_value(mdp, pos, action, utilities):
     total_sum = 0

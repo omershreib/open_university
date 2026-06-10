@@ -3,22 +3,26 @@ from policy_iteration import policy_iteration
 from policy_translation import policy_translation
 from plot_value_iteration import plot_value_iteration
 from plot_policy_matrix import plot_policy_matrix
+from plot_policy_iteration_history import plot_policy_iteration_history
 from pprint import pprint
 import numpy as np
 
 
 def run_policy_iteration(mdp,
-                         init_mode,
+                         epsilon,
                          value_plot_filename,
                          policy_plot_filename,
                          value_plot_title,
                          policy_plot_title,
                          value_matrix_filename,
-                         policy_matrix_filename):
-
-    num_iterations, utilities, policy_dict = policy_iteration(
+                         policy_matrix_filename,
+                         svi_plot_filename,
+                         svi_plot_title,
+                         svi_history_filename
+                         ):
+    num_iterations, utilities, policy_dict, svi_iterations_history = policy_iteration(
         mdp,
-        init_mode=init_mode
+        epsilon=epsilon
     )
 
     utilities_matrix = np.empty(mdp.shape)
@@ -51,6 +55,11 @@ def run_policy_iteration(mdp,
     np.save(value_matrix_filename, utilities_matrix)
     np.save(policy_matrix_filename, policy_matrix)
 
+    np.save(
+        svi_history_filename,
+        np.array(svi_iterations_history)
+    )
+
     plot_value_iteration(
         num_iterations,
         utilities_matrix,
@@ -62,4 +71,10 @@ def run_policy_iteration(mdp,
         policy_matrix,
         filename=policy_plot_filename,
         title=policy_plot_title
+    )
+
+    plot_policy_iteration_history(
+        svi_iterations_history,
+        filename=svi_plot_filename,
+        title=svi_plot_title
     )

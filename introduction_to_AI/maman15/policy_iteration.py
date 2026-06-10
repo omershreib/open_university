@@ -1,70 +1,61 @@
+import numpy as np
+
+from init_policy import init_policy_up
+from simplified_value_iteration import simplified_value_iteration
+from improve_policy import improve_policy
 from utils import *
-from policy_evaluation import policy_evaluation
-import random
+
+# from  import q_value
 
 
-def init_random_policy(mdp):
-    policy = {}
+# UP = np.array([-1, 0])
+# DOWN = np.array([1, 0])
+# RIGHT = np.array([0, 1])
+# LEFT = np.array([0, -1])
 
-    utilities = init_utilities(mdp, {})
-
-    for state_key in utilities.keys():
-        pos = state_key_to_pos(state_key)
-
-        if not mdp.is_valid_pos(pos):
-            continue
-
-        actions = mdp.get_actions(pos)
-
-        if len(actions) > 0:
-            policy[state_key] = random.choice(actions)
-
-    return policy
+#SORTED_ACTIONS = [UP, DOWN, RIGHT, LEFT]
 
 
-def policy_iteration(mdp, evaluation_iterations=20):
-    utilities = init_utilities(mdp, {})
-    policy = init_random_policy(mdp)
+def policy_iteration(mdp, epsilon=0.01):
+    """
+    Full Policy Iteration according to the homework requirements.
 
-    index = 0
+    Each outer iteration contains:
+        1. Policy Evaluation using Simplified Value Iteration
+        2. Policy Improvement
+
+    After every policy improvement, expected utilities are reset to 0
+    automatically because simplified_value_iteration creates a fresh utilities
+    dictionary each time.
+    """
+
+    policy = init_policy_up(mdp)
+
+    num_policy_iterations = 0
+    svi_iterations_history = []
 
     while True:
-        index += 1
-        print(f"policy iteration #{index}")
+        num_policy_iterations += 1
 
-        utilities = policy_evaluation(
-            policy,
-            utilities,
+        print(f"policy iteration #{num_policy_iterations}")
+
+        utilities, num_svi_iterations = simplified_value_iteration(
             mdp,
-            iterations=evaluation_iterations
+            policy,
+            epsilon=epsilon
         )
 
-        unchanged = True
+        svi_iterations_history.append(num_svi_iterations)
 
-        for state_key in list(policy.keys()):
-            pos = state_key_to_pos(state_key)
+        print(f"simplified value iteration iterations: {num_svi_iterations}")
 
-            if not mdp.is_valid_pos(pos):
-                continue
-
-            old_action = policy[state_key]
-            old_qvalue = q_value(mdp, pos, old_action, utilities)
-
-            best_action = old_action
-            best_qvalue = old_qvalue
-
-            for action in mdp.get_actions(pos):
-                curr_qvalue = q_value(mdp, pos, action, utilities)
-
-                if curr_qvalue > best_qvalue:
-                    best_qvalue = curr_qvalue
-                    best_action = action
-
-            if best_action != old_action:
-                policy[state_key] = best_action
-                unchanged = False
+        unchanged = improve_policy(
+            mdp,
+            policy,
+            utilities
+        )
 
         if unchanged:
             break
 
-    return utilities, policy
+    return num_policy_iterations, utilities, policy, svi_iterations_history
