@@ -40,7 +40,52 @@
       ))
 
 
-;;; procedures for cond-exp
+;;; helper(s) for cond-exp
+  (define value-of-cond
+    (lambda (conditions results else-exp env)
+      (if (null? conditions)
+
+          ;; no condition was true
+          (value-of else-exp env)
+
+          ;; if conditions is not-empty, check if the first-left
+          ;; condition is true
+          (let ((cond-val (value-of (car conditions) env)))
+
+            (if (expval->bool cond-val)
+
+                ;; this condition is true ==> return its result
+                (value-of (car results) env)
+
+                ;; condition is false
+                ;; then check the next condition if avaliable
+                (value-of-cond (cdr conditions) (cdr results) else-exp env)
+                )
+            )
+          
+          )
+      ))
+
+;;; helper(s) for multi-let-exp
+
+  (define initialize-let-env
+    (lambda (vars exps env)
+      (if (null? vars) env
+          (let ((val (value-of (car exps) env)))
+            (initialize-let-env
+             (cdr vars)
+             (cdr exps)
+             (extend-env (car vars) val env))
+            ))
+          ))
+
+
+  (define run-let-body
+    (lambda (vars exps body let-env)
+
+      ;;???
+      ))
+      
 
 ;;;;;;;;;;;;;;;; the interpreter ;;;;;;;;;;;;;;;;
 
@@ -106,11 +151,23 @@
               (value-of exp2 env)
               (value-of exp3 env))))
 
+        ;; old let-exp
         ;\commentbox{\ma{\theletspecsplit}}
+        #|
         (let-exp (var exp1 body)       
           (let ((val1 (value-of exp1 env)))
             (value-of body
               (extend-env var val1 env))))
+        |#
+
+        ;\commentbox{\ma{\multiletspecsplit}}
+        (let-exp (vars exps body)
+                 (let ((let-env
+                        (initialize-let-env vars exps env)))
+                   (run-let-body vars exps body let-env)
+                   ))
+                 
+                 
 
         ;\commentbox{\greaterspec}
         (greater-exp (exp1 exp2)
@@ -122,20 +179,24 @@
                 (positive? (- num1 num2))))))
 
         ;\commentbox{\arrowspec}
-        (arrow-exp (exp1 exp2)
+        #|(arrow-exp (exp1 exp2)
           (let ((val1 (value-of exp1 env))
                 (val2 (value-of exp2 env)))
             (let ((bool1 (expval->bool val1))
                   (num2 (expval->num val2)))
               (if (eqv? bool1 #t) val2 (bool-val #f))
               )))
+        |#
                    
                    
 
         ;\commentbox{\condspec}
         ;; in modus-ponens (if->then) the "if" is the prefix and the "then" is the suffix
         ;; call the first case line that their suffix is positive
-        
+        (cond-exp (conditions results else-exp)
+
+                  (value-of-cond conditions results else-exp env)
+                  )
         
         )))
 

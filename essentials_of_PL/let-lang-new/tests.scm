@@ -67,10 +67,16 @@
       (simple-greater-exp-test3 "greater?(5,2)" #t)
       (complex-greater-exp-test "greater?(*(5, -(10,3)),2)" #t)
 
-      ;; tests for arrow-exp
-      (simple-arrow-exp-test1 "< greater?(5,2) ==> 3 >" 3)
-      (simple-arrow-exp-test2 "< greater?(1,2) ==> 5 >" #f)
-      (complex-arrow-exp-test1 "let x = 10 in < greater?(x,5) ==> 8 >" 8)
+      ;; tests for arrow-exp - DELETED
+      ;;(simple-arrow-exp-test1 "< greater?(5,2) ==> 3 >" 3)
+      ;;(simple-arrow-exp-test2 "< greater?(1,2) ==> 5 >" #f)
+      ;;(complex-arrow-exp-test1 "let x = 10 in < greater?(x,5) ==> 8 >" 8)
+
+      ;; test cond-exp
+      (simple-cond-exp-test "cond
+< zero?(1) ==> 10 >
+< greater?(5,3) ==> 20 >
+else 30" 20)
       
       ))
   )

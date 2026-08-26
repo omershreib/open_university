@@ -51,10 +51,10 @@
 
 
       ;; needed (I think) to implement cond-exp
-      ;; arrow-exp
-      (expression
-       ("<" expression "==>" expression ">")
-       arrow-exp)
+      ;; arrow-exp - DELETED
+      ;;(expression
+      ;; ("<" expression "==>" expression ">")
+      ;; arrow-exp)
 
       ;; exercises 1.4: cond-exp
       (expression
@@ -75,9 +75,19 @@
 
       (expression (identifier) var-exp)
 
+      ;; old-let
+      #|
       (expression
        ("let" identifier "=" expression "in" expression)
-       let-exp)   
+       let-exp)
+      |#
+
+      ;; exercises 5: edit let-exp to support multi-let
+      (expression
+       ("let"
+        (arbno identifier "=" expression)
+        "in" expression)
+       let-exp)
 
       ))
   
