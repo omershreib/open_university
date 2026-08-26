@@ -82,14 +82,23 @@
        let-exp)
       |#
 
-      ;; exercises 5: edit let-exp to support multi-let
+      ;; exercise 5: edit let-exp to support multi-let
       (expression
        ("let"
         (arbno identifier "=" expression)
         "in" expression)
        let-exp)
+
+      ;; exercise 6: implements sequential let* 
+      (expression
+       ("let*"
+        (arbno identifier "=" expression)
+        "in" expression)
+       letstar-exp)
       
       ))
+
+     
   
   ;;;;;;;;;;;;;;;; sllgen boilerplate ;;;;;;;;;;;;;;;;
   

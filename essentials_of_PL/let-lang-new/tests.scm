@@ -78,6 +78,9 @@
       ;; tests for multi-let
       (simple-multilet-exp-test1 "let x = 5 y = 8 z = 2 in -(+(x,y),z)" 11)
       (complex-multilet-exp-test1 "let x = 10 y = x in y" 10)
+
+      ;; test for let*
+      (simple-letstar-exp-test "let* x = 5 y = -(x,1) z = -(y,1) in z" 3)
       
       
       ))

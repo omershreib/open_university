@@ -86,7 +86,27 @@
     (lambda (body let-env)
       (value-of body let-env)
       ))
-      
+
+
+;;; helper(s) for letstar-exp
+  (define initialize-letstar-env
+    (lambda (vars exps original-env new-env)
+      (if (null? vars) new-env
+          (let ((val (value-of (car exps) new-env)))
+            (initialize-letstar-env
+             (cdr vars)
+             (cdr exps)
+             original-env
+             (extend-env (car vars) val new-env))
+            ))
+          ))
+
+
+  ;; do not really need another procedure - maybe good for modulation
+  (define run-letstar-body
+    (lambda (body letstar-env)
+      (value-of body letstar-env)
+      ))
 
 ;;;;;;;;;;;;;;;; the interpreter ;;;;;;;;;;;;;;;;
 
@@ -161,11 +181,19 @@
               (extend-env var val1 env))))
         |#
 
-        ;\commentbox{\ma{\multiletspecsplit}}
+        ;\commentbox{\ma{\multiletspec}}
         (let-exp (vars exps body)
                  (let ((let-env
-                        (initialize-let-env vars exps env empty-env)))
+                        (initialize-let-env vars exps env env)))
                    (run-let-body body let-env)
+                   ))
+
+
+        ;\commentbox{\ma{\letstarspec}}
+        (letstar-exp (vars exps body)
+                 (let ((letstar-env
+                        (initialize-letstar-env vars exps env env)))
+                   (run-letstar-body body letstar-env)
                    ))
                  
                  
