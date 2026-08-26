@@ -89,25 +89,51 @@
 
 
 ;;; helper(s) for letstar-exp
+  
   (define initialize-letstar-env
-    (lambda (vars exps original-env new-env)
-      (if (null? vars) new-env
-          (let ((val (value-of (car exps) new-env)))
+    (lambda (vars exps env)
+      (if (null? vars) env
+          (let ((val (value-of (car exps) env)))
             (initialize-letstar-env
              (cdr vars)
              (cdr exps)
-             original-env
-             (extend-env (car vars) val new-env))
+             (extend-env (car vars) val env))
             ))
           ))
 
 
-  ;; do not really need another procedure - maybe good for modulation
   (define run-letstar-body
     (lambda (body letstar-env)
       (value-of body letstar-env)
       ))
 
+  
+;;; helper(s) for for-exp
+  (define initialize-for-env
+    (lambda (index start-exp env)
+      (let ((start-val (value-of start-exp env)))
+            (extend-env index start-val env)
+            )
+          ))
+
+
+  (define run-for-loop
+    (lambda (index current stop step body for-env)
+      (if (< current stop)
+          (let ((updated-current (+ current step))
+            (new-body (value-of body for-env)))
+          (run-for-loop
+           updated-current
+           stop
+           step
+           new-body
+           (extend-env index updated-current step new-body for-env)
+           ))
+          body
+          )
+      ))
+
+  
 ;;;;;;;;;;;;;;;; the interpreter ;;;;;;;;;;;;;;;;
 
   ;; value-of-program : Program -> ExpVal
@@ -192,7 +218,7 @@
         ;\commentbox{\ma{\letstarspec}}
         (letstar-exp (vars exps body)
                  (let ((letstar-env
-                        (initialize-letstar-env vars exps env env)))
+                        (initialize-letstar-env vars exps env)))
                    (run-letstar-body body letstar-env)
                    ))
                  
@@ -207,26 +233,28 @@
               (bool-val
                 (positive? (- num1 num2))))))
 
-        ;\commentbox{\arrowspec}
-        #|(arrow-exp (exp1 exp2)
-          (let ((val1 (value-of exp1 env))
-                (val2 (value-of exp2 env)))
-            (let ((bool1 (expval->bool val1))
-                  (num2 (expval->num val2)))
-              (if (eqv? bool1 #t) val2 (bool-val #f))
-              )))
-        |#
-                   
-                   
-
+ 
         ;\commentbox{\condspec}
         ;; in modus-ponens (if->then) the "if" is the prefix and the "then" is the suffix
         ;; call the first case line that their suffix is positive
         (cond-exp (conditions results else-exp)
+                 (value-of-cond conditions results else-exp env))
 
-                  (value-of-cond conditions results else-exp env)
-                  )
-        
+
+        ;\commentbox{\forspec}
+        (for-exp (index start-exp stop-exp step-exp body)
+          (let ((for-env (initialize-for-env index start-exp env)))
+          (let ((init-val (value-of index for-env))
+                (stop-val (value-of stop-exp env))
+                (step-val (value-of step-exp env)))
+            
+            (let ((init (expval->num init-val))
+                  (stop (expval->num stop-val))
+                  (step (expval->num step-val)))
+              
+              (run-for-loop index init stop step body for-env)
+              ))))
+             
         )))
 
 

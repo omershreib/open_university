@@ -95,6 +95,15 @@
         (arbno identifier "=" expression)
         "in" expression)
        letstar-exp)
+
+
+      ;; exercise 7: for-exp (spiced with steps)
+      (expression
+       ("for" identifier "=" expression
+              "to" expression
+              "step" expression
+              "do" expression)
+       for-exp)
       
       ))
 
