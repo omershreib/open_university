@@ -41,12 +41,7 @@
 
 
 ;;; procedures for cond-exp
-  #|
-  (define initialize-cond-env
-    (lambda (ids prefixes suffixes env)
-      (if (null? ) )
-      ))
-  |#
+
 ;;;;;;;;;;;;;;;; the interpreter ;;;;;;;;;;;;;;;;
 
   ;; value-of-program : Program -> ExpVal
@@ -140,18 +135,7 @@
         ;\commentbox{\condspec}
         ;; in modus-ponens (if->then) the "if" is the prefix and the "then" is the suffix
         ;; call the first case line that their suffix is positive
-        (cond-exp (arr-exps else-exp)
-             (cond
-                  ((null? arr-exps)
-                   (eopl:error 'cond-exp "cond-exp required at least one case to check"))
-                  ((null? else-exp)
-                   (eopl:error 'cond-exp "cond-exp required a single else expression"))
-                  
-             (else
-              (let ((cond-env
-                     (initialize-cond arr-exps else-exp env)))
-              (apply-cond cond-env)
-              ))))
+        
         
         )))
 
