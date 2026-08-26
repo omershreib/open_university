@@ -118,20 +118,28 @@
 
 
   (define run-for-loop
-    (lambda (index current stop step body for-env)
-      (if (< current stop)
-          (let ((updated-current (+ current step))
-            (new-body (value-of body for-env)))
-          (run-for-loop
-           updated-current
-           stop
-           step
-           new-body
-           (extend-env index updated-current step new-body for-env)
-           ))
-          body
-          )
-      ))
+  (lambda (index current stop step body env)
+
+    (let ((body-val
+           (value-of body (extend-env index (num-val current) env))))
+      (if
+       (if (> step 0)
+
+           ; case step is positive (i+step)
+           (> (+ current step) stop)
+
+           ; case step is negative (i-step)
+           (< (+ current step) stop))
+
+       body-val
+
+       (run-for-loop
+        index
+        (+ current step)
+        stop
+        step
+        body
+        env)))))
 
   
 ;;;;;;;;;;;;;;;; the interpreter ;;;;;;;;;;;;;;;;
@@ -243,17 +251,16 @@
 
         ;\commentbox{\forspec}
         (for-exp (index start-exp stop-exp step-exp body)
-          (let ((for-env (initialize-for-env index start-exp env)))
-          (let ((init-val (value-of index for-env))
-                (stop-val (value-of stop-exp env))
-                (step-val (value-of step-exp env)))
-            
-            (let ((init (expval->num init-val))
-                  (stop (expval->num stop-val))
-                  (step (expval->num step-val)))
-              
-              (run-for-loop index init stop step body for-env)
-              ))))
+
+                 (let ((start-val (value-of start-exp env))
+                       (stop-val  (value-of stop-exp env))
+                       (step-val  (value-of step-exp env)))
+
+                   (let ((start (expval->num start-val))
+                         (stop  (expval->num stop-val))
+                         (step  (expval->num step-val)))
+
+                     (run-for-loop index start stop step body env))))
              
         )))
 
