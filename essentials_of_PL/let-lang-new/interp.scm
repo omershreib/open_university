@@ -69,21 +69,22 @@
 ;;; helper(s) for multi-let-exp
 
   (define initialize-let-env
-    (lambda (vars exps env)
-      (if (null? vars) env
-          (let ((val (value-of (car exps) env)))
+    (lambda (vars exps original-env new-env)
+      (if (null? vars) new-env
+          (let ((val (value-of (car exps) original-env)))
             (initialize-let-env
              (cdr vars)
              (cdr exps)
-             (extend-env (car vars) val env))
+             original-env
+             (extend-env (car vars) val new-env))
             ))
           ))
 
 
+  ;; do not really need another procedure - maybe good for modulation
   (define run-let-body
-    (lambda (vars exps body let-env)
-
-      ;;???
+    (lambda (body let-env)
+      (value-of body let-env)
       ))
       
 
@@ -163,8 +164,8 @@
         ;\commentbox{\ma{\multiletspecsplit}}
         (let-exp (vars exps body)
                  (let ((let-env
-                        (initialize-let-env vars exps env)))
-                   (run-let-body vars exps body let-env)
+                        (initialize-let-env vars exps env empty-env)))
+                   (run-let-body body let-env)
                    ))
                  
                  

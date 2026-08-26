@@ -73,10 +73,12 @@
       ;;(complex-arrow-exp-test1 "let x = 10 in < greater?(x,5) ==> 8 >" 8)
 
       ;; test cond-exp
-      (simple-cond-exp-test "cond
-< zero?(1) ==> 10 >
-< greater?(5,3) ==> 20 >
-else 30" 20)
+      (simple-cond-exp-test "cond < zero?(1) ==> 10 > < greater?(5,3) ==> 20 > else 30" 20)
+
+      ;; tests for multi-let
+      (simple-multilet-exp-test1 "let x = 5 y = 8 z = 2 in -(+(x,y),z)" 11)
+      (complex-multilet-exp-test1 "let x = 10 y = x in y" 10)
+      
       
       ))
   )
