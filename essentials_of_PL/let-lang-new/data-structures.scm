@@ -1,6 +1,8 @@
 (module data-structures (lib "eopl.ss" "eopl")
 
   ;; data structures for let-lang.
+  
+  (require "lang.scm")  
 
   (provide (all-defined-out))
   
@@ -54,8 +56,12 @@
 
 
   ;; proc? : SchemeVal -> Bool
-  ;; procedural way (Page 79 in EOPL book)
-  (define proc? procedure?)
+  ;; procedure : Var * Exp * Env -> Proc
+  (define-datatype proc proc?
+    (procedure
+      (var symbol?)
+      (body expression?)
+      (env environment?)))
   
 ;; example of a data type built without define-datatype
 
