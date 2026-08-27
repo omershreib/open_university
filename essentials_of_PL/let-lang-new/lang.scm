@@ -104,10 +104,20 @@
               "step" expression
               "do" expression)
        for-exp)
+
+      
+      ;; exercise 8: proc-exp
+      (expression
+       ("proc" "(" (arbno identifier) ")" expression)
+       proc-exp)
+
+      ;; call-exp
+      (expression
+       ("(" expression expression ")")
+       call-exp)
       
       ))
-
-     
+    
   
   ;;;;;;;;;;;;;;;; sllgen boilerplate ;;;;;;;;;;;;;;;;
   

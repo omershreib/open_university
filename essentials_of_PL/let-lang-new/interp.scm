@@ -141,6 +141,24 @@
         body
         env)))))
 
+
+;;; helper(s) for proc-exp
+
+  (define procedure
+    (lambda (vars body env)
+      (if (null? vars) (value-of body env)
+          (let ((var (car vars)))
+            (let ((val (value-of var env)))
+          (procedure (cdr vars)
+                     body
+                     (extend-env var val env))))
+          )
+      ))
+
+  (define apply-procedure
+    (lambda (proc vals)
+      (proc vals)
+      ))
   
 ;;;;;;;;;;;;;;;; the interpreter ;;;;;;;;;;;;;;;;
 
@@ -163,6 +181,19 @@
 
         ;\commentbox{ (value-of (var-exp \x{}) \r) = (apply-env \r \x{})}
         (var-exp (var) (apply-env env var))
+
+        ;\commentbox{\procspec}
+        (proc-exp (vars body) (proc-val (procedure vars body env)))
+
+
+        ;\commentbox{\callspec}
+        (call-exp (rator rand)
+                  ;; need to extract the operator (in this case: the procedure)
+                  ;; and also the operand (in this case: the arguments)
+                  (let ((proc (expval->proc (value-of rator env)))
+                        (args (value-of rand env)))
+                    (apply-procedure proc args)))
+        
 
         ;\commentbox{\diffspec}
         (diff-exp (exp1 exp2)
@@ -261,9 +292,13 @@
                          (step  (expval->num step-val)))
 
                      (run-for-loop index start stop step body env))))
+
+        ;\commentbox{\procspec}
+        ;(proc-exp (ids body-exp)
+        ;         
+        ;          )
              
         )))
-
 
   )
 

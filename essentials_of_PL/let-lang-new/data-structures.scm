@@ -12,7 +12,11 @@
     (num-val
       (value number?))
     (bool-val
-      (boolean boolean?)))
+      (boolean boolean?))
+
+    ;; need to add so LET-LANG will suppot procedures
+    (proc-val
+     (proc proc?)))
 
 ;;; extractors:
 
@@ -32,6 +36,15 @@
 	(bool-val (bool) bool)
 	(else (expval-extractor-error 'bool v)))))
 
+
+  ;; expval->proc : ExpVal -> Proc
+  (define expval->proc
+    (lambda (v)
+      (cases expval v
+        (proc-val (proc) proc)
+        (else (expval-extractor-error 'proc v)))))
+  
+
   (define expval-extractor-error
     (lambda (variant value)
       (eopl:error 'expval-extractors "Looking for a ~s, found ~s"
@@ -39,6 +52,11 @@
 
 ;;;;;;;;;;;;;;;; environment structures ;;;;;;;;;;;;;;;;
 
+
+  ;; proc? : SchemeVal -> Bool
+  ;; procedural way (Page 79 in EOPL book)
+  (define proc? procedure?)
+  
 ;; example of a data type built without define-datatype
 
   (define empty-env-record
