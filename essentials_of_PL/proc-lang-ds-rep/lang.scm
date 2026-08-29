@@ -71,6 +71,11 @@
       (expression
        ("kind-of" "(" expression ")")
        get-kind-exp)
+
+
+      (expression
+       ("same-type?" "(" expression "," expression ")")
+       same-type?-exp)
       
       
       

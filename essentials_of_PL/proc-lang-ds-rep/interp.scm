@@ -96,6 +96,17 @@
                       (kind-of-expval (value-of exp1 env))
                       )
 
+       (same-type?-exp (exp1 exp2)
+                       (let ((typ1 (expval->type (value-of exp1 env)))
+                              (typ2 (expval->type (value-of exp2 env))))
+                       (eqv? typ1 typ2)
+                       ))
+                        
+                        
+                          
+                          
+                        
+
 
         )))
 
@@ -124,14 +135,11 @@
 
   (define kind-of-expval
   (lambda (v)
-    (cases expval v
-      (num-val (num) 'number)
-      (bool-val (bool) 'boolean)
-      (proc-val (proc) 'procedure)
-      (type-val (type) 'type)
+    (type-val (type-of-expval v))))
+      
                 
     ;(eopl:error 'kind "cannot resolve this kind of expression: ~s" v)
-      )))
+      
 
   
 
