@@ -4,7 +4,7 @@
   
   (require "drscheme-init.scm")
   
-  (provide (all-defined))
+  (provide (all-defined-out))
 
   ;;;;;;;;;;;;;;;; grammatical specification ;;;;;;;;;;;;;;;;
   
@@ -47,6 +47,32 @@
       (expression
        ("(" expression expression ")")
        call-exp)
+
+      
+      ;;; the task of maman14 question #3
+      (expression
+       ("get-type" "(" identifier ")")
+       get-type-exp)
+
+      (expression
+       ("isBool?" "(" expression ")")
+       isBool?-exp)
+
+      (expression
+       ("isNum?" "(" expression ")")
+       isNum?-exp)
+
+
+      (expression
+       ("isProc?" "(" expression ")")
+       isProc?-exp)
+
+
+      (expression
+       ("kind-of" "(" expression ")")
+       get-kind-exp)
+      
+      
       
       ))
 

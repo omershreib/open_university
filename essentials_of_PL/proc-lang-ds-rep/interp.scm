@@ -73,6 +73,30 @@
                 (arg (value-of rand env)))
             (apply-procedure proc arg)))
 
+
+        ;; --- Question 3: Reflection new value-of cases
+        (get-type-exp (id)
+        (type-val (type-of-expval (apply-env env id))))
+   
+        (isBool?-exp (exp1)
+        (let ((type (expval->type (value-of exp1 env))))
+        (bool-val (eqv? type 'bool))))
+
+        (isNum?-exp (exp1)
+        (let ((type (expval->type (value-of exp1 env))))
+        (bool-val (eqv? type 'num))))
+
+        (isProc?-exp (exp1)
+        (let ((type (expval->type (value-of exp1 env))))
+        (bool-val (eqv? type 'proc))))
+
+
+        (get-kind-exp (exp1)
+                      ;(value-of exp1 env)
+                      (kind-of-expval (value-of exp1 env))
+                      )
+
+
         )))
 
   ;; apply-procedure : Proc * ExpVal -> ExpVal
@@ -82,5 +106,33 @@
       (cases proc proc1
         (procedure (var body saved-env)
           (value-of body (extend-env var val saved-env))))))
+
+
+  ;; required to supports reflection
+  (define type-of-expval
+  (lambda (v)
+    (cases expval v
+      (num-val (num) 'num)
+      (bool-val (bool) 'bool)
+      (proc-val (proc) 'proc)
+
+      ; wrong?
+      ;;(type-val (type) 'type)
+      (type-val (type) (expval->type v))
+      )))
+
+
+  (define kind-of-expval
+  (lambda (v)
+    (cases expval v
+      (num-val (num) 'number)
+      (bool-val (bool) 'boolean)
+      (proc-val (proc) 'procedure)
+      (type-val (type) 'type)
+                
+    ;(eopl:error 'kind "cannot resolve this kind of expression: ~s" v)
+      )))
+
+  
 
   )

@@ -73,5 +73,10 @@ in let
     t4m = proc (f) proc(x) if zero?(x) then 0 else -((f -(x,1)),-4)
 in let times4 = (fix t4m)
    in (times4 3)" 12)
+
+
+      ;;test type-exp
+      ;(complex-type-exp-text1
+       ;"let y=zero?(0) in let x=get-type(y) in get-type(x)" )
       ))
   )

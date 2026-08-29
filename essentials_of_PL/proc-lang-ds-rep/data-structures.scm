@@ -4,7 +4,7 @@
 
   (require "lang.scm")                  ; for expression?
 
-  (provide (all-defined))               ; too many things to list
+  (provide (all-defined-out))
 
 ;;;;;;;;;;;;;;;; expressed values ;;;;;;;;;;;;;;;;
 
@@ -16,9 +16,22 @@
     (bool-val
       (boolean boolean?))
     (proc-val 
-      (proc proc?)))
+      (proc proc?))
+
+    ;; new expval to support reflection
+    (type-val
+     (type symbol?)))
+
 
 ;;; extractors:
+
+  (define expval->type
+    (lambda (v)
+      (cases expval v
+        (type-val (type) type)
+        (else (expval-extractor-error 'type v))
+        )
+      ))
 
   ;; expval->num : ExpVal -> Int
   (define expval->num
