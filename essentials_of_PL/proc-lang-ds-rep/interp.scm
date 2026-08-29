@@ -79,16 +79,19 @@
         (type-val (type-of-expval (apply-env env id))))
    
         (isBool?-exp (exp1)
-        (let ((type (expval->type (value-of exp1 env))))
-        (bool-val (eqv? type 'bool))))
+                    (bool-val
+                     (eqv? (type-of-expval (value-of exp1 env))
+                           'bool)))
 
         (isNum?-exp (exp1)
-        (let ((type (expval->type (value-of exp1 env))))
-        (bool-val (eqv? type 'num))))
-
+                    (bool-val
+                     (eqv? (type-of-expval (value-of exp1 env))
+                           'num)))
+        
         (isProc?-exp (exp1)
-        (let ((type (expval->type (value-of exp1 env))))
-        (bool-val (eqv? type 'proc))))
+                     (bool-val
+                      (eqv? (type-of-expval (value-of exp1 env))
+                            'proc)))
 
 
         (get-kind-exp (exp1)
@@ -97,8 +100,8 @@
                       )
 
        (same-type?-exp (exp1 exp2)
-                       (let ((typ1 (expval->type (value-of exp1 env)))
-                              (typ2 (expval->type (value-of exp2 env))))
+                       (let ((typ1 (type-of-expval (value-of exp1 env)))
+                              (typ2 (type-of-expval (value-of exp2 env))))
                        (eqv? typ1 typ2)
                        ))
                         
