@@ -122,6 +122,15 @@
                     (setref! ref2 val1)
                     (num-val 23)
                   ))))
+
+        (inc-exp (exp1)
+                 (let ((ref1 (expval->ref (value-of exp1 env))))
+                   (let ((val1 (deref ref1)))
+                     (let ((num1 (expval->num val1)))
+                     (begin
+                       (setref! ref1 (num-val (+ num1 1)))
+                    (num-val 23)
+                 )))))
         
         )))
 

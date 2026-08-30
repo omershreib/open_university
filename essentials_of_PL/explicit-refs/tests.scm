@@ -160,15 +160,24 @@ in begin
    11)
 
  ;; test swap-exp
-
- (simple-swap-exp-test "let x = 10
+ (simple-swap-exp-test "let x = newref(10)
 in
-  let y = 20
+  let y = newref(20)
   in
     begin
       swap(x,y);
-      -(x,y)
+      -(deref(x),deref(y))
     end" 10)
       
-      ))
-  )
+      
+
+  ;; test inc-exp
+  (simple-inc-exp-test "let x = newref(10)
+in
+  begin
+    inc(x);
+    deref(x)
+  end" 11
+       )
+
+  )))

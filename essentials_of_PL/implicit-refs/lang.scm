@@ -65,6 +65,14 @@
         ("set" identifier "=" expression)
         assign-exp)
 
+      (expression
+       ("swap" "(" identifier  "," identifier ")")
+       swap-exp)
+
+      (expression
+       ("inc" "(" identifier ")")
+       inc-exp)
+
       ))
 
   ;;;;;;;;;;;;;;;; sllgen boilerplate ;;;;;;;;;;;;;;;;

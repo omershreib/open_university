@@ -76,6 +76,10 @@
        ("swap" "(" expression  "," expression ")")
        swap-exp)
 
+      (expression
+       ("inc" "(" expression ")")
+       inc-exp)
+
       ))
 
   ;;;;;;;;;;;;;;;; sllgen boilerplate ;;;;;;;;;;;;;;;;

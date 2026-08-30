@@ -131,6 +131,26 @@ let f = proc (x) proc (y)
                   end
 in ((f 44) 33)"
 	12)
+
+      ;; test swap-exp
+
+ (simple-swap-exp-test "let x = 10
+in
+  let y = 20
+  in
+    begin
+      swap(x,y);
+      -(x,y)
+    end" 10)
+
+  ;; test inc-exp
+  (simple-inc-exp-test "let x = 10
+in
+  begin
+    inc(x);
+    x
+  end" 11
+       )
       
       ))
   )
