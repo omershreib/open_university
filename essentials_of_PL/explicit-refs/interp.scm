@@ -108,6 +108,18 @@
               (begin
                 (setref! ref v2)
                 (num-val 23)))))
+
+
+        (swap-exp (var1 var2)
+                  (let ((ref1 (apply-env env var1))
+                        (ref2 (apply-env env var2)))
+                    
+                      (setref! ref2 (deref ref1))
+                      (setref! ref1 (deref ref2))
+                      
+                    )
+                  )
+        
         )))
 
   ;; apply-procedure : Proc * ExpVal -> ExpVal
@@ -126,7 +138,7 @@
         (procedure (var body saved-env)
 	  (let ((r arg))
 	    (let ((new-env (extend-env var r saved-env)))
-	      (if (instrument-let)
+	      (when (instrument-let)
 		(begin
 		  (eopl:printf
 		    "entering body of proc ~s with env =~%"

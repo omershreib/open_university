@@ -4,7 +4,7 @@
   
   (require "drscheme-init.scm")
   
-  (provide (all-defined))
+  (provide (all-defined-out))
 
   ;;;;;;;;;;;;;;;; grammatical specification ;;;;;;;;;;;;;;;;
   
@@ -71,6 +71,10 @@
       (expression
         ("setref" "(" expression "," expression ")")
         setref-exp)
+
+      (expression
+       ("swap" "(" identifier "," identifier ")")
+       swap-exp)
 
       ))
 

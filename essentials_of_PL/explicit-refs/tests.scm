@@ -158,6 +158,17 @@ in begin
     deref(deref(x))
    end"
    11)
+
+ ;; test swap-exp
+
+ (simple-swap-exp-test "let x = 10
+in
+  let y = 20
+  in
+    begin
+      swap(x,y);
+      -(x,y)
+    end" 10)
       
       ))
   )
