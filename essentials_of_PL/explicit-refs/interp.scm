@@ -110,15 +110,18 @@
                 (num-val 23)))))
 
 
-        (swap-exp (var1 var2)
-                  (let ((ref1 (apply-env env var1))
-                        (ref2 (apply-env env var2)))
-                    
-                      (setref! ref2 (deref ref1))
-                      (setref! ref1 (deref ref2))
-                      
-                    )
-                  )
+        (swap-exp (exp1 exp2)
+                  (let ((ref1 (expval->ref (value-of exp1 env)))
+                        (ref2 (expval->ref (value-of exp2 env))))
+
+                    (let ((val1 (deref ref1))
+                      (val2 (deref ref2)))
+
+                      (begin
+                    (setref! ref1 val2)
+                    (setref! ref2 val1)
+                    (num-val 23)
+                  ))))
         
         )))
 

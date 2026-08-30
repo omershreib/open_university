@@ -73,7 +73,7 @@
         setref-exp)
 
       (expression
-       ("swap" "(" identifier "," identifier ")")
+       ("swap" "(" expression  "," expression ")")
        swap-exp)
 
       ))
