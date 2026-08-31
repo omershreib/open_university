@@ -42,7 +42,7 @@
        let-exp)   
 
       (expression
-       ("proc" "(" identifier ")" expression)
+       ("proc" "(" type identifier ")" expression)
        proc-exp)
 
       (expression
@@ -76,6 +76,18 @@
       (expression
        ("exchange-if" "(" expression "," identifier "," identifier ")")
        exchange-if-exp)
+
+
+      (expression
+       ("overload" identifier "with" "(" type identifier ")" expression)
+       overload-exp)
+
+      (type ("int") int-type)
+
+      (type ("bool") bool-type)
+
+      (type ("func") func-type)
+
 
 
       ))

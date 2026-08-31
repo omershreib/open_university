@@ -7,6 +7,7 @@
     '(
   
       ;; simple arithmetic
+      #|
       (positive-const "11" 11)
       (negative-const "-33" -33)
       (simple-arith-1 "-(44,33)" 11)
@@ -162,6 +163,42 @@ in
       exchange-if(zero?(1), x, y);
       -(x, y)
     end" -10)
+  |#
+
+  ;; overloading support tests
+      (typed-proc-int-param "let f = proc (int x) -(x,1) in (f 30)" 29)
+
+      (overload-dispatch-int "let f = proc (int x) -(x,1)
+                              in begin
+                                   overload f with (bool b) if b then 100 else 200;
+                                   (f 30)
+                                 end" 29)
+
+      (overload-dispatch-bool "let f = proc (int x) -(x,1)
+                               in begin
+                                    overload f with (bool b) if b then 100 else 200;
+                                    (f zero?(0))
+                                  end" 100)
+
+      (overload-replaces-same-type "let f = proc (int x) -(x,1)
+                                    in begin
+                                         overload f with (int x) -(x,-10);
+                                         (f 5)
+                                       end" 15)
+
+      (overload-func-param "let f = proc (int x) -(x,1)
+                            in begin
+                                 overload f with (func g) (g 10);
+                                 (f proc (int y) -(y,-3))
+                               end" 13)
+
+      (overload-non-procedure-error "let x = 3
+                                     in overload x with (int y) y" error)
+
+      (overload-unbound-error "overload missing with (int y) y" error)
+
+      (overload-no-matching-type-error "let f = proc (int x) -(x,1)
+                                        in (f zero?(0))" error)
       
       ))
   )

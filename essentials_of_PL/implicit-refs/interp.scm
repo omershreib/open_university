@@ -71,8 +71,11 @@
             (value-of body
               (extend-env var (newref v1) env))))
         
-        (proc-exp (var body)
-          (proc-val (procedure var body env)))
+        (proc-exp (typ var body)
+                       (proc-val (procedure typ var body env)))
+                      
+                      
+         
 
         (call-exp (rator rand)
           (let ((proc (expval->proc (value-of rator env)))
@@ -127,11 +130,33 @@
                                  (value-of (swap-exp var1 var2) env)
                                  (bool-val #t))
                                (bool-val #f))))
-                               
-                           
-                               
-                           
-                         
+
+
+        (overload-exp (pname-var typ var body)
+                   (let ((pname-ref (apply-env env pname-var)))
+                     (let ((pname-val (deref pname-ref)))
+                       (cases expval pname-val
+                         (proc-val (p)
+                                   (extend-env
+                                    ((proc-val
+                                      (procedure typ var body env))
+                                                      env))
+                                   )
+                         (num-val (n)
+                                  (eopl:error 'overload-exp "cannot overload non procedure ~s"
+                                               pname-val)
+                                  )
+                         (ref-val (r)
+                                  (eopl:error 'overload-exp "cannot overload non procedure ~s"
+                                               pname-val)
+                                  )
+                         (bool-val (b)
+                                  (eopl:error 'overload-exp "cannot overload non procedure ~s"
+                                               pname-val)
+                                  )
+                         )
+                       
+                       )))
 
         )))
 
@@ -151,19 +176,39 @@
   (define apply-procedure
     (lambda (proc1 arg)
       (cases proc proc1
-        (procedure (var body saved-env)
-          (let ((r (newref arg)))
-            (let ((new-env (extend-env var r saved-env)))
-              (when (instrument-let)
-                (begin
-                  (eopl:printf
-                    "entering body of proc ~s with env =~%"
-                    var)
-                  (pretty-print (env->list new-env)) 
-                  (eopl:printf "store =~%")
-                  (pretty-print (store->readable (get-store-as-list)))
-                  (eopl:printf "~%")))
-              (value-of body new-env)))))))  
+        (procedure (param-type var body saved-env)
+          (if (compare-types param-type (expval->type arg))
+            (let ((r (newref arg)))
+              (let ((new-env (extend-env var r saved-env)))
+                (when (instrument-let)
+                  (begin
+                    (eopl:printf
+                      "entering body of proc ~s with env =~%"
+                      var)
+                    (pretty-print (env->list new-env)) 
+                    (eopl:printf "store =~%")
+                    (pretty-print (store->readable (get-store-as-list)))
+                    (eopl:printf "~%")))
+                (value-of body new-env)))
+            (eopl:error 'apply-procedure
+              "Procedure expected argument of type ~s, but got ~s"
+              (type->symbol param-type)
+              (type->symbol (expval->type arg)))))
+        (overloaded-procedure (procedures)
+          (let ((arg-type (expval->type arg)))
+            (letrec
+              ((find-matching-proc
+                 (lambda (procs)
+                   (cond
+                     ((null? procs) #f)
+                     ((compare-types (proc-param-type (car procs)) arg-type) (car procs))
+                     (else (find-matching-proc (cdr procs)))))))
+              (let ((matching-proc (find-matching-proc procedures)))
+                (if matching-proc
+                  (apply-procedure matching-proc arg)
+                  (eopl:error 'apply-procedure
+                    "No overloaded version for argument type ~s"
+                    (type->symbol arg-type))))))))))  
 
   ;; store->readable : Listof(List(Ref,Expval)) 
   ;;                    -> Listof(List(Ref,Something-Readable))
@@ -175,6 +220,8 @@
             (car p)
             (expval->printable (cadr p))))
         l)))
+
+  
 
   )
   
