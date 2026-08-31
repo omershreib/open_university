@@ -80,6 +80,12 @@
        ("inc" "(" expression ")")
        inc-exp)
 
+      (expression
+       ("exchange-if" "(" expression "," expression "," expression ")")
+       exchange-if-exp)
+
+      
+
       ))
 
   ;;;;;;;;;;;;;;;; sllgen boilerplate ;;;;;;;;;;;;;;;;

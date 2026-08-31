@@ -180,4 +180,15 @@ in
   end" 11
        )
 
+  ;test exhcange-if-exp
+  (simple-exchange-if-exp-test "
+let x = newref(10)
+in
+  let y = newref(20)
+  in
+    begin
+      exchange-if(zero?(0), x, y);
+      -(deref(x), deref(y))
+    end" 10)
+
   )))
