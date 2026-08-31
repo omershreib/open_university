@@ -117,6 +117,22 @@
                        (setref! ref1 (num-val (+ num1 1)))
                  ))))
 
+        (exchange-if-exp (cond-exp var1 var2)
+                         (let ((cond
+                                 (expval->bool
+                                  (value-of cond-exp env))))
+
+                           (if cond
+                               (begin
+                                 (value-of (swap-exp var1 var2) env)
+                                 (bool-val #t))
+                               (bool-val #f))))
+                               
+                           
+                               
+                           
+                         
+
         )))
 
 

@@ -151,6 +151,17 @@ in
     x
   end" 11
        )
+
+    ;test exhcange-if-exp
+  (simple-exchange-if-exp-test "
+let x = 10
+in
+  let y = 20
+  in
+    begin
+      exchange-if(zero?(1), x, y);
+      -(x, y)
+    end" -10)
       
       ))
   )

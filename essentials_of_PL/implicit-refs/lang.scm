@@ -73,6 +73,11 @@
        ("inc" "(" identifier ")")
        inc-exp)
 
+      (expression
+       ("exchange-if" "(" expression "," identifier "," identifier ")")
+       exchange-if-exp)
+
+
       ))
 
   ;;;;;;;;;;;;;;;; sllgen boilerplate ;;;;;;;;;;;;;;;;

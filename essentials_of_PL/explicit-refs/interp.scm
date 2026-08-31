@@ -136,11 +136,13 @@
                          (let ((cond
                                 (expval->bool
                                  (value-of cond-exp env))))
-                               (when cond
-                                 (swap-exp exp1 exp2)
+                               (if cond
+                                   (begin
+                                 (value-of (swap-exp exp1 exp2) env)
+                                 (bool-val #t)
                                  )
-                               (num-val 23)
-                               ))
+                               (bool-val #f)
+                               )))
                                  
                            
                                
